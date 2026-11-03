@@ -1,0 +1,83 @@
+# Bewusst geduldete ROM-Misses fuer miss_report.py. Jeder Eintrag braucht eine Begruendung
+# (reason) und den Weg zur Aufloesung (resolve). WRAM-Ziele (7E/7F) sind ohnehin Allowlist.
+# Format:
+#   [[miss]]
+#   target  = 0xC09A5A         # Ziel-PC24
+#   mx      = "M1X0"           # Eintrittsbreite der Discovery
+#   reason  = "..."
+#   resolve = "..."
+
+# Entscheidung 2026-10-29 (Nutzer): die Misses vorerst dulden und zuerst den Phase-5-Rest
+# erledigen. Mit dem 609er-Stand (2026-10-30, Pin 1933c214865e) sind ExecEvent, EventCmd_b2 und
+# EventCmd_a9 aufgeloest; es bleibt LoadMap.
+
+[[miss]]
+target = 0xC0BEBC
+mx = "M1X0"
+reason = "LoadMap: unproven_call_at_C0C06E_to_C09A5A_m1x0 (ExecEvent ist AOT, aber seine Exit-Breite ist unbewiesen)"
+resolve = "Exit-Breite von ExecEvent belegen; haengt an den Dispatch-Zielen und der Menue-Kette C0C6CA -> C30000, s. docs/STATUS.md"
+
+# r02/r03 (2026-10-30): Der Analyzer hat hier recht, die Funktionen bleiben im Interpreter.
+# entrance.asm:120/300: `jsr SetParentMap` kehrt mit M=1 zurueck (shorta0, entrance.asm:230), der
+# Aufrufer ist danach als .a16 assembliert (`and #$01ff`, entrance.asm:122). Das ergibt
+# authority_conflict in beiden Eingangs-Pruefungen und truncated_call_continuation in CheckEntrances.
+
+[[miss]]
+target = 0xC018A3
+mx = "M1X0"
+reason = "CheckEntrances: truncated_call_continuation, Callees CheckLongEntrance/CheckShortEntrance sind lle_only"
+resolve = "wie CheckLongEntrance; Kosten gering (wenige Instruktionen je Frame)"
+
+[[miss]]
+target = 0xC018E4
+mx = "M1X0"
+reason = "CheckLongEntrance: authority_conflict_at_C01973_m1x0_from_196F (M=1 nach jsr SetParentMap)"
+resolve = "Geprueft 2026-10-31: Long-Tabelle ohne Bit $0200, Short-Tabelle nur auf den Weltkarten $000/$001, im Field also unerreichbar. Pfad liesse sich per cfg ausschliessen; lohnt nicht (0,4 Mio. Zyklen ueber r02, r03 und r10), docs/STATUS.md"
+
+[[miss]]
+target = 0xC01A77
+mx = "M1X0"
+reason = "CheckShortEntrance: authority_conflict_at_C01ABA_m1x0_from_1AB6 (M=1 nach jsr SetParentMap)"
+resolve = "wie CheckLongEntrance"
+
+# r05 (2026-11-03): ValidateSpellList ist von Hand gesperrt (tools/ff6/symbols_overrides.toml, emit = false).
+# Grund ist ein Codegen-Fehler im Framework: Die Tabellenziele C25704/570E/5716 (jmp (AddToSpellListTbl,x),
+# party.asm:771) werden eigene Funktionen mit Eintritt M1X0. Ihr plp/plx am Schleifenende zieht fest 16 Bit,
+# obwohl das php beim Eintritt der Elternfunktion M1X1 sicherte. S liegt dann 1 daneben, und das rts springt
+# ins Leere (der Kampf ueberschreibt $0001-$2000). Folge der Sperre sind die Eintraege unten.
+
+[[miss]]
+target = 0xC2568D
+mx = "M1X1"
+reason = "ValidateSpellList: von Hand gesperrt (Framework-Fehler plp in Tabellenziel-Funktionen, docs/STATUS.md 11-03)"
+resolve = "Framework-Fix in einer Pin-Session (Breite nach plp ohne eigenes php nicht statisch annehmen), dann Sperre aufheben"
+
+[[miss]]
+target = 0xC25704
+mx = "M1X0"
+reason = "Landung aus jmp (AddToSpellListTbl,x) in der gesperrten ValidateSpellList (Interpreter)"
+resolve = "wie ValidateSpellList"
+
+[[miss]]
+target = 0xC2570E
+mx = "M1X0"
+reason = "Landung aus jmp (AddToSpellListTbl,x) in der gesperrten ValidateSpellList (Interpreter)"
+resolve = "wie ValidateSpellList"
+
+[[miss]]
+target = 0xC22544
+mx = "M1X1"
+reason = "InitChars: unproven_call_at_C2256A_to_C2568D_m1x1 (ValidateSpellList gesperrt)"
+resolve = "wie ValidateSpellList"
+
+[[miss]]
+target = 0xC223ED
+mx = "M1X1"
+reason = "InitBattle: unproven_call_at_C2246F_to_C22544_m1x1 (Kette ueber InitChars zur gesperrten ValidateSpellList)"
+resolve = "wie ValidateSpellList"
+
+[[miss]]
+target = 0xC20000
+mx = "M1X0"
+reason = "Battle_ext: unproven_call_at_C20016_to_C223ED_m1x1 (Kette ueber InitBattle zur gesperrten ValidateSpellList)"
+resolve = "wie ValidateSpellList"

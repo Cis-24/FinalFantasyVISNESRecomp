@@ -1,0 +1,777 @@
+# Masken fuer compare_dumps.py. Jede Maske braucht eine Begruendung (reason).
+# Format:
+#   [[mask]]
+#   file   = "wram"            # wram | vram | cgram | oam | fb
+#   start  = 0x1234            # Byte-Offset (fb: Pixelindex y*256+x)
+#   end    = 0x1237            # inklusiv
+#   rect   = [x0, y0, x1, y1]  # nur fb, statt start/end: Rechteck inklusiv, eine Zeile je Bereich
+#   reason = "..."
+#   tags   = ["title"]         # optional: nur fuer diese Dump-Tags
+
+[[mask]]
+file   = "wram"
+start  = 0x1508
+end    = 0x15EC
+reason = """Toter CPU-Stack unter dem lebenden Titel-Frame. Stack $1508-$15FF \
+(ff6 notes/field-ram.txt:881, S=$15FF ab field/reset.asm:17). Im Titel wartet der \
+Hauptloop in WaitVBlank mit S=$15EC: Der Referenzdump traegt bei $15E9-EC den NMI-Frame \
+P=$A1/PC=$7E7208 (lda $17/bne). $15ED-$15FF (C000DD, C0B96F, $50BD) ist in Ref und \
+Recomp gleich und bleibt geprueft. Unterhalb von S haengt der Inhalt nur davon ab, ob \
+der Dump vor oder nach dem NMI des Frames liegt (Ref: NMI-Frame, Recomp: \
+JSR-Ruecksprungadressen $753B/$7558 der Sprite-Routine). Nachweis 2026-10-29, docs/STATUS.md."""
+tags   = ["title"]
+
+# r02/r03 (2026-10-30). Die Routen sind auf Szenenwerte gekeyt; Lade- und Hauptloop-Phasen weichen
+# zwischen Referenz und Recomp trotzdem um wenige Frames ab (CPU-Zeitmodell, docs/STATUS.md).
+
+[[mask]]
+file   = "wram"
+start  = 0x0045
+end    = 0x0046
+reason = """Frame- und VBlank-Zaehler, laufen seit Reset (ff6 notes/field-ram.txt:26-27). Spiegeln nur den Frame-Versatz der Ladephasen."""
+tags   = ["intro17", "intro14", "introF4", "cliff", "dlg1", "dlg7", "dlg8", "control", "march1", "march2", "start", "col_left", "col_right", "dlg_south", "back_south", "dlg_north", "b_dlg_north", "b_after", "b_dlg_next"]
+
+[[mask]]
+file   = "wram"
+start  = 0x1245
+end    = 0x1246
+reason = """Kopie von $45/$46 in der gesicherten Direct Page $1200-$12FF (notes/field-ram.txt:843)."""
+tags   = ["intro17", "intro14", "introF4", "cliff", "dlg1", "dlg7", "dlg8", "control", "march1", "march2", "start", "col_left", "col_right", "dlg_south", "back_south", "dlg_north", "m006", "m00d", "m00e", "m020", "m072", "m082", "m088", "m08d", "m0b1", "m0e7", "m105", "m116", "m12a", "m139", "m13d", "m150", "m15f", "m167", "m185", "m187", "m188", "m18a", "m18e", "m190", "door_n13", "door_m27", "door_n13b", "door_m006", "door_m007", "door_m006b", "b_dlg_north", "b_after", "b_dlg_next"]
+
+[[mask]]
+file   = "wram"
+start  = 0x021b
+end    = 0x021e
+reason = """Spielzeit (field/init.asm:264-265, menu/field_menu.asm), zaehlt Frames seit Spielstart."""
+tags   = ["intro17", "intro14", "introF4", "cliff", "dlg1", "dlg7", "dlg8", "control", "march1", "march2", "start", "col_left", "col_right", "dlg_south", "back_south", "dlg_north", "m006", "m00d", "m00e", "m020", "m072", "m082", "m088", "m08d", "m0b1", "m0e7", "m105", "m116", "m12a", "m139", "m13d", "m150", "m15f", "m167", "m185", "m187", "m188", "m18a", "m18e", "m190", "door_n13", "door_m27", "door_n13b", "door_m006", "door_m007", "door_m006b", "b_dlg_north", "b_after", "b_dlg_next"]
+
+[[mask]]
+file   = "wram"
+start  = 0x0630
+end    = 0x0632
+reason = """Per SLHV gelatchte Beam-Position im Hauptloop, Messwert fuer die CPU-Last (field/reset.asm:155-168, notes/field-ram.txt:435-437). Haengt am Zeitmodell, kein Spielzustand; nur die Debug-Anzeige liest ihn."""
+tags   = ["intro17", "intro14", "introF4", "cliff", "dlg1", "dlg7", "dlg8", "control", "march1", "march2", "start", "col_left", "col_right", "dlg_south", "back_south", "dlg_north", "m006", "m00d", "m00e", "m020", "m072", "m082", "m088", "m08d", "m0b1", "m0e7", "m105", "m116", "m12a", "m139", "m13d", "m150", "m15f", "m167", "m185", "m187", "m188", "m18a", "m18e", "m190", "door_n13", "door_m27", "door_n13b", "door_m006", "door_m007", "door_m006b", "b_dlg_north", "b_after", "b_dlg_next"]
+
+[[mask]]
+file   = "wram"
+start  = 0xf230
+end    = 0xf232
+reason = """Schnappschuss von $0630-$0632 (Werte passen zu $0632 in der Klippenszene, Kopierstelle nicht lokalisiert), taucht nur nach dem Marsch auf."""
+tags   = ["intro17", "intro14", "introF4", "cliff", "dlg1", "dlg7", "dlg8", "control", "march1", "march2", "start", "col_left", "col_right", "dlg_south", "back_south", "dlg_north", "m006", "m00d", "m00e", "m020", "m072", "m082", "m088", "m08d", "m0b1", "m0e7", "m105", "m116", "m12a", "m139", "m13d", "m150", "m15f", "m167", "m185", "m187", "m188", "m18a", "m18e", "m190", "door_n13", "door_m27", "door_n13b", "door_m006", "door_m007", "door_m006b", "b_dlg_north", "b_after", "b_dlg_next"]
+
+[[mask]]
+file   = "wram"
+start  = 0x10d1
+end    = 0x10d1
+reason = """Low-Byte des BG3-Animationszaehlers (notes/field-ram.txt:649), +$80 alle 2 Frames. Phase haengt an der Paritaet von $45 beim Laden der Map. $10D2 (der Frame-Index) bleibt geprueft."""
+tags   = ["intro17", "intro14", "introF4", "cliff", "dlg1", "dlg7", "dlg8", "control", "march1", "march2", "start", "col_left", "col_right", "dlg_south", "back_south", "dlg_north", "b_dlg_north", "b_after", "b_dlg_next"]
+
+[[mask]]
+file   = "wram"
+start  = 0x1508
+end    = 0x15fd
+reason = """Toter CPU-Stack unter dem Field-Hauptloop: S=$15FF ab field/reset.asm:17, beim Warten auf VBlank liegt nur die Ruecksprungadresse ($15FE-$15FF, geprueft) oben. Darunter steht, was NMI und Hauptloop zuletzt abgelegt haben; das haengt an der Dump-Phase."""
+tags   = ["intro17", "intro14", "introF4", "cliff", "dlg1", "dlg7", "dlg8", "control", "start", "col_left", "col_right", "dlg_south", "back_south", "dlg_north", "m006", "m00d", "m00e", "m020", "m072", "m082", "m088", "m08d", "m0b1", "m0e7", "m105", "m116", "m12a", "m139", "m13d", "m150", "m15f", "m167", "m185", "m187", "m188", "m18a", "m18e", "m190", "door_n13", "door_m27", "door_n13b", "door_m006", "door_m007", "door_m006b", "b_dlg_north", "b_after", "b_dlg_next"]
+
+[[mask]]
+file   = "wram"
+start  = 0x1508
+end    = 0x15ec
+reason = """Toter CPU-Stack unter dem Cutscene-Hauptloop, wie Tag title (WaitVBlank mit S=$15EC)."""
+tags   = ["march1", "march2"]
+
+[[mask]]
+file   = "wram"
+start  = 0x0014
+end    = 0x0014
+reason = """DP-Scratch, Kopie von $48 (siehe dort)."""
+tags   = ["start", "col_left", "col_right", "dlg_south", "back_south", "dlg_north", "b_dlg_north", "b_after", "b_dlg_next"]
+
+[[mask]]
+file   = "wram"
+start  = 0x0047
+end    = 0x0048
+reason = """Event-Zaehler und Zeiger in die Objekt-Animationsqueue (notes/field-ram.txt:28-29). Laufen ab Spielstart/Map, in r03 relativ zum Schluessel $106A einen Frame versetzt, weil das Ende des abgekuerzten Marsches einen Frame anders faellt. In r02 gleich."""
+tags   = ["start", "col_left", "col_right", "dlg_south", "back_south", "dlg_north", "b_dlg_north", "b_after", "b_dlg_next"]
+
+[[mask]]
+file   = "wram"
+start  = 0x10e7
+end    = 0x10e7
+reason = """Zaehler der Palettenanimation (notes/field-ram.txt:663), gleiche Phase wie $47."""
+tags   = ["start", "col_left", "col_right", "dlg_south", "back_south", "dlg_north", "b_dlg_north", "b_after", "b_dlg_next"]
+
+[[mask]]
+file   = "wram"
+start  = 0x0028
+end    = 0x0028
+reason = """DP-Scratch ohne Bestand ueber den Frame hinaus; weicht nur hier ab (Hauptloop-Phase)."""
+tags   = ["back_south"]
+
+[[mask]]
+file   = "fb"
+start  = 0xd4a7
+end    = 0xd4a7
+reason = """Eine Flamme mit Palettenanimation: Farbe (22,12,4) gegen (24,13,4) in 5 Bit, eine Phase versetzt wie $10E7. Sonst pixelgleich."""
+tags   = ["start", "col_left", "col_right", "back_south"]
+
+[[mask]]
+file   = "fb"
+start  = 0xd5a6
+end    = 0xd5a8
+reason = """Eine Flamme mit Palettenanimation: Farbe (22,12,4) gegen (24,13,4) in 5 Bit, eine Phase versetzt wie $10E7. Sonst pixelgleich."""
+tags   = ["start", "col_left", "col_right", "back_south"]
+
+[[mask]]
+file   = "fb"
+start  = 0xd6a6
+end    = 0xd6a8
+reason = """Eine Flamme mit Palettenanimation: Farbe (22,12,4) gegen (24,13,4) in 5 Bit, eine Phase versetzt wie $10E7. Sonst pixelgleich."""
+tags   = ["start", "col_left", "col_right", "back_south"]
+
+[[mask]]
+file   = "fb"
+start  = 0xc4a7
+end    = 0xc4a7
+reason = """Eine Flamme mit Palettenanimation, eine Phase versetzt wie $10E7 (hier andere Kameraposition). Sonst pixelgleich."""
+tags   = ["dlg_south"]
+
+[[mask]]
+file   = "fb"
+start  = 0xc5a6
+end    = 0xc5a8
+reason = """Eine Flamme mit Palettenanimation, eine Phase versetzt wie $10E7 (hier andere Kameraposition). Sonst pixelgleich."""
+tags   = ["dlg_south"]
+
+[[mask]]
+file   = "fb"
+start  = 0xc6a6
+end    = 0xc6a8
+reason = """Eine Flamme mit Palettenanimation, eine Phase versetzt wie $10E7 (hier andere Kameraposition). Sonst pixelgleich."""
+tags   = ["dlg_south"]
+
+[[mask]]
+file   = "fb"
+start  = 0x44d7
+end    = 0x44d7
+reason = """Eine Flamme mit Palettenanimation, eine Phase versetzt wie $10E7 (hier andere Kameraposition). Sonst pixelgleich."""
+tags   = ["dlg_north", "b_dlg_north"]
+
+[[mask]]
+file   = "fb"
+start  = 0x45d6
+end    = 0x45d8
+reason = """Eine Flamme mit Palettenanimation, eine Phase versetzt wie $10E7 (hier andere Kameraposition). Sonst pixelgleich."""
+tags   = ["dlg_north", "b_dlg_north"]
+
+[[mask]]
+file   = "fb"
+start  = 0x46d6
+end    = 0x46d8
+reason = """Eine Flamme mit Palettenanimation, eine Phase versetzt wie $10E7 (hier andere Kameraposition). Sonst pixelgleich."""
+tags   = ["dlg_north", "b_dlg_north"]
+
+[[mask]]
+file   = "fb"
+start  = 0x2777
+end    = 0x2777
+reason = """Einzelpixel (119,39), Zeile 40. BG3 deckt es in der Referenz ab: Ohne BG3 zeigt sie dort den Recomp-Wert. Der BG3-HOFS kommt per HDMA aus der Tabelle $7E:5C01 (Kanal 5). Die CPU aendert sie mitten im Feld: Die Referenz liest auf Zeile 40 noch $FB, der Recomp liest am Feldende schon $FF. Grenze des nachgelagerten HDMA, siehe [[ppuw]] und docs/STATUS.md."""
+tags   = ["march2"]
+
+# Palettenanimation: CGRAM-Eintrag $5D, gleiche Phase wie die Flammen-Masken oben ($10E7).
+[[mask]]
+file   = "cgram"
+start  = 0x00ba
+end    = 0x00bb
+reason = """Eintrag $5D der Palettenanimation, eine Phase versetzt wie $10E7 (notes/field-ram.txt:663). Erklaert die Flammen-Pixel im Framebuffer."""
+tags   = ["start", "col_left", "col_right", "dlg_south", "back_south", "dlg_north", "b_dlg_north"]
+
+# snes9x rechnet Halb-Addition in RGB565 (compare_dumps.py, Kopfkommentar). Beleg: alle Abweichungen dieser
+# Tags sind genau Gruen +1 in der Referenz, R und B gleich (r10, 2026-10-30).
+[[fb_green]]
+reason = """Farbmathe mit Halb-Addition: snes9x hat 6 Bit Gruen, Referenz liegt bei ungerader Summe eine Stufe hoeher. Kein Recomp-Fehler."""
+tags   = ["m088", "m185", "m18a"]
+
+# Werte im PPU-Write-Strom (compare_ppuw.py): Der Recomp liest HDMA-Daten am Feldende.
+[[ppuw]]
+reg    = [0x2111, 0x2112]
+first  = 1
+last   = 7
+reason = """BG3-Scroll im ersten Streifen: Kanal 3 liest dort ab $7E:0000, also DP-Scratch ($14-$1B), den die CPU mitten im Feld aendert. Zeilen 1-7 liegen im schwarzen Rand, der Framebuffer ist gleich."""
+tags   = ["intro17", "intro14", "introF4", "cliff", "dlg1", "dlg7", "dlg8", "control", "start", "col_left", "col_right", "dlg_south", "back_south", "dlg_north", "m006", "m00d", "m00e", "m020", "m072", "m082", "m088", "m08d", "m0b1", "m0e7", "m105", "m116", "m12a", "m139", "m13d", "m150", "m15f", "m167", "m185", "m187", "m188", "m18a", "m18e", "m190", "door_n13", "door_m27", "door_n13b", "door_m006", "door_m007", "door_m006b", "b_dlg_north"]
+
+[[ppuw]]
+reg    = [0x2111]
+first  = 40
+last   = 56
+reason = """BG3-HOFS aus $7E:5C01 (Kanal 5), die CPU aendert die Tabelle mitten im Feld. Sichtbar nur als Einzelpixel (119,39), siehe Maske oben."""
+tags   = ["march2"]
+
+[[ppuw]]
+reg    = [0x210D, 0x210E, 0x210F, 0x2110, 0x2111, 0x2112]
+first  = 1
+last   = 7
+reason = """Wie der BG3-Streifen oben: Die Kanaele lesen in den Zeilen 1-7 aus DP-Scratch, den die CPU mitten im Feld aendert. Nach dem Neuladen der Map trifft das auch BG1/BG2. Die Zeilen liegen im schwarzen Rand, der Framebuffer ist gleich."""
+tags   = ["field_back", "field_shop", "field_shop2", "field_final", "field_colosseum", "field_party", "field_loaded", "b_after", "b_dlg_next"]
+# r04 (2026-11-01): Menue-Tour. Die Route wartet im Menue auf $CF (Durchlaeufe der Hauptschleife), nicht auf Frames.
+# Was in Frames zaehlt, weicht also um die Lag-Frames ab; $45-$47 setzt die Route vor dem Oeffnen gleich.
+
+[[mask]]
+file   = "wram"
+start  = 0x0630
+end    = 0x0632
+reason = """Gelatchte Beam-Position im Field-Hauptloop (siehe oben), eingefroren beim Oeffnen des Menues."""
+tags   = ["main", "item", "item_char", "item_used", "item_back", "item_moved", "item_opts", "item_arrange", "item_rare", "item_list2", "name_change", "name_letter", "main_rename", "main_char", "skills", "skills_magic", "magic_target", "magic_cast", "magic_back", "magic_order", "skills_genju", "genju_detail", "skills_bushido", "skills_blitz", "skills_lore", "skills_biggs", "skills_rage", "skills_dance", "main_skills", "equip", "equip_slot", "equip_items", "equip_changed", "equip_opts", "equip_optimum", "equip_remove", "equip_removed", "equip_opts2", "equip_biggs", "equip_empty", "equip_optimum2", "relic", "relic_slot", "relic_items", "relic_changed", "relic_remove", "relic_removed", "status", "status_2", "main_status", "config", "config_speed", "config_cmdset", "cmd_arrange", "config_back", "char_ctrl", "config_p2", "config_window", "config_color", "config_revert", "main_config", "order", "order_row", "order_swap", "main_order", "save", "save_saved", "save_confirm", "save_saved2", "main_save", "party_equip", "shop", "shop_buy", "shop_qty", "shop_bought", "shop_sell", "shop_sell_qty", "shop_sold", "shop2", "shop2_buy", "shop2_cursor", "final_order", "final_order_sel", "final_order_undo", "colosseum", "colosseum_char", "party", "party_group", "party_sel", "party_status", "party_back", "party_swap", "field_back", "field_shop", "field_shop2", "field_final", "field_colosseum", "field_party", "load", "load_confirm", "field_loaded"]
+
+[[mask]]
+file   = "wram"
+start  = 0xf230
+end    = 0xf232
+reason = """Schnappschuss von $0630-$0632 (siehe oben), taucht nur nach dem Marsch auf."""
+tags   = ["main", "item", "item_char", "item_used", "item_back", "item_moved", "item_opts", "item_arrange", "item_rare", "item_list2", "name_change", "name_letter", "main_rename", "main_char", "skills", "skills_magic", "magic_target", "magic_cast", "magic_back", "magic_order", "skills_genju", "genju_detail", "skills_bushido", "skills_blitz", "skills_lore", "skills_biggs", "skills_rage", "skills_dance", "main_skills", "equip", "equip_slot", "equip_items", "equip_changed", "equip_opts", "equip_optimum", "equip_remove", "equip_removed", "equip_opts2", "equip_biggs", "equip_empty", "equip_optimum2", "relic", "relic_slot", "relic_items", "relic_changed", "relic_remove", "relic_removed", "status", "status_2", "main_status", "config", "config_speed", "config_cmdset", "cmd_arrange", "config_back", "char_ctrl", "config_p2", "config_window", "config_color", "config_revert", "main_config", "order", "order_row", "order_swap", "main_order", "save", "save_saved", "save_confirm", "save_saved2", "main_save", "party_equip", "shop", "shop_buy", "shop_qty", "shop_bought", "shop_sell", "shop_sell_qty", "shop_sold", "shop2", "shop2_buy", "shop2_cursor", "final_order", "final_order_sel", "final_order_undo", "colosseum", "colosseum_char", "party", "party_group", "party_sel", "party_status", "party_back", "party_swap", "field_back", "field_shop", "field_shop2", "field_final", "field_colosseum", "field_party"]
+
+[[mask]]
+file   = "wram"
+start  = 0x10d1
+end    = 0x10d1
+reason = """Low-Byte des BG3-Animationszaehlers (siehe oben), waehrend des Menues eingefroren; die Rueckkehr aufs Field setzt ihn per poke gleich."""
+tags   = ["party_equip", "main", "item", "item_char", "item_used", "item_back", "item_moved", "item_opts", "item_arrange", "item_rare", "item_list2", "name_change", "name_letter", "main_rename", "main_char", "skills", "skills_magic", "magic_target", "magic_cast", "magic_back", "magic_order", "skills_genju", "genju_detail", "skills_bushido", "skills_blitz", "skills_lore", "skills_biggs", "skills_rage", "skills_dance", "main_skills", "equip", "equip_slot", "equip_items", "equip_changed", "equip_opts", "equip_optimum", "equip_remove", "equip_removed", "equip_opts2", "equip_biggs", "equip_empty", "equip_optimum2", "relic", "relic_slot", "relic_items", "relic_changed", "relic_remove", "relic_removed", "status", "status_2", "main_status", "config", "config_speed", "config_cmdset", "cmd_arrange", "config_back", "char_ctrl", "config_p2", "config_window", "config_color", "config_revert", "main_config", "order", "order_row", "order_swap", "main_order", "save", "save_saved", "save_confirm", "save_saved2", "main_save"]
+
+[[mask]]
+file   = "wram"
+start  = 0x10e7
+end    = 0x10e7
+reason = """Zaehler der Palettenanimation (notes/field-ram.txt:663), waehrend des Menues eingefroren; seine Phase haengt daran, wie lange das Laden der Map dauerte. Nach dem Neuladen der Map gleich."""
+tags   = ["party_equip", "main", "item", "item_char", "item_used", "item_back", "item_moved", "item_opts", "item_arrange", "item_rare", "item_list2", "name_change", "name_letter", "main_rename", "main_char", "skills", "skills_magic", "magic_target", "magic_cast", "magic_back", "magic_order", "skills_genju", "genju_detail", "skills_bushido", "skills_blitz", "skills_lore", "skills_biggs", "skills_rage", "skills_dance", "main_skills", "equip", "equip_slot", "equip_items", "equip_changed", "equip_opts", "equip_optimum", "equip_remove", "equip_removed", "equip_opts2", "equip_biggs", "equip_empty", "equip_optimum2", "relic", "relic_slot", "relic_items", "relic_changed", "relic_remove", "relic_removed", "status", "status_2", "main_status", "config", "config_speed", "config_cmdset", "cmd_arrange", "config_back", "char_ctrl", "config_p2", "config_window", "config_color", "config_revert", "main_config", "order", "order_row", "order_swap", "main_order", "save", "save_saved", "save_confirm", "save_saved2", "main_save"]
+
+[[mask]]
+file   = "wram"
+start  = 0x00cf
+end    = 0x00cf
+reason = """Menue-Framezaehler zCF (+1 je Frame, in dem der Hauptloop vor dem NMI fertig war, menu_common.asm:3432). Equip-Optimum und Shop-Kauf rechnen auf der Referenz ueber eine Frame-Grenze; der Recomp bleibt im Frame (CPU-Zeitmodell). Nur Ending-Szenen lesen ihn."""
+tags   = ["main", "item", "item_char", "item_used", "item_back", "item_moved", "item_opts", "item_arrange", "item_rare", "item_list2", "name_change", "name_letter", "main_rename", "main_char", "skills", "skills_magic", "magic_target", "magic_cast", "magic_back", "magic_order", "skills_genju", "genju_detail", "skills_bushido", "skills_blitz", "skills_lore", "skills_biggs", "skills_rage", "skills_dance", "main_skills", "equip", "equip_slot", "equip_items", "equip_changed", "equip_opts", "equip_optimum", "equip_remove", "equip_removed", "equip_opts2", "equip_biggs", "equip_empty", "equip_optimum2", "relic", "relic_slot", "relic_items", "relic_changed", "relic_remove", "relic_removed", "status", "status_2", "main_status", "config", "config_speed", "config_cmdset", "cmd_arrange", "config_back", "char_ctrl", "config_p2", "config_window", "config_color", "config_revert", "main_config", "order", "order_row", "order_swap", "main_order", "save", "save_saved", "save_confirm", "save_saved2", "main_save", "party_equip", "shop", "shop_buy", "shop_qty", "shop_bought", "shop_sell", "shop_sell_qty", "shop_sold", "shop2", "shop2_buy", "shop2_cursor", "final_order", "final_order_sel", "final_order_undo", "colosseum", "colosseum_char", "party", "party_group", "party_sel", "party_status", "party_back", "party_swap"]
+
+[[mask]]
+file   = "wram"
+start  = 0x0228
+end    = 0x0228
+reason = """Wiederholzaehler der Richtungstasten (notes/menu-ram.txt:274), zaehlt nur in Frames mit Eingabeabfrage, daher derselbe Versatz wie zCF."""
+tags   = ["main", "item", "item_char", "item_used", "item_back", "item_moved", "item_opts", "item_arrange", "item_rare", "item_list2", "name_change", "name_letter", "main_rename", "main_char", "skills", "skills_magic", "magic_target", "magic_cast", "magic_back", "magic_order", "skills_genju", "genju_detail", "skills_bushido", "skills_blitz", "skills_lore", "skills_biggs", "skills_rage", "skills_dance", "main_skills", "equip", "equip_slot", "equip_items", "equip_changed", "equip_opts", "equip_optimum", "equip_remove", "equip_removed", "equip_opts2", "equip_biggs", "equip_empty", "equip_optimum2", "relic", "relic_slot", "relic_items", "relic_changed", "relic_remove", "relic_removed", "status", "status_2", "main_status", "config", "config_speed", "config_cmdset", "cmd_arrange", "config_back", "char_ctrl", "config_p2", "config_window", "config_color", "config_revert", "main_config", "order", "order_row", "order_swap", "main_order", "save", "save_saved", "save_confirm", "save_saved2", "main_save", "party_equip", "shop", "shop_buy", "shop_qty", "shop_bought", "shop_sell", "shop_sell_qty", "shop_sold", "shop2", "shop2_buy", "shop2_cursor", "final_order", "final_order_sel", "final_order_undo", "colosseum", "colosseum_char", "party", "party_group", "party_sel", "party_status", "party_back", "party_swap"]
+
+[[mask]]
+file   = "wram"
+start  = 0x36ea
+end    = 0x36ea
+reason = """wTaskProp::AnimCounter einer beendeten Sprite-Task im Shop (menu_ram.inc:368). Der Zaehler bleibt beim Beenden stehen; derselbe Lag-Frame wie zCF. Nach dem Schliessen des Shops gleich."""
+tags   = ["party_equip", "shop", "shop_buy", "shop_qty", "shop_bought", "shop_sell", "shop_sell_qty", "shop_sold", "shop2", "shop2_buy", "shop2_cursor", "final_order", "final_order_sel", "final_order_undo", "colosseum", "colosseum_char", "party", "party_group", "party_sel", "party_status", "party_back", "party_swap"]
+
+[[mask]]
+file   = "wram"
+start  = 0x1508
+end    = 0x15f0
+reason = """Toter CPU-Stack unter MenuLoop: In WaitVblank steht S=$15F0 ($15F1-$15FF sind geprueft: Ruecksprung in WaitFrame, MenuLoop, OpenMenu, php/phb/phd). $15ED-$15F0 traegt in der Referenz den NMI-Rahmen (P, PC in WaitVblank), im Recomp Reste der letzten Aufrufe. Haengt nur an der Dump-Phase, wie Tag title."""
+tags   = ["party_equip", "main", "item", "item_char", "item_used", "item_back", "item_moved", "item_opts", "item_arrange", "item_rare", "item_list2", "name_change", "name_letter", "main_rename", "main_char", "skills", "skills_magic", "magic_target", "magic_cast", "magic_back", "magic_order", "skills_genju", "genju_detail", "skills_bushido", "skills_blitz", "skills_lore", "skills_biggs", "skills_rage", "skills_dance", "main_skills", "equip", "equip_slot", "equip_items", "equip_changed", "equip_opts", "equip_optimum", "equip_remove", "equip_removed", "equip_opts2", "equip_biggs", "equip_empty", "equip_optimum2", "relic", "relic_slot", "relic_items", "relic_changed", "relic_remove", "relic_removed", "status", "status_2", "main_status", "config", "config_speed", "config_cmdset", "cmd_arrange", "config_back", "char_ctrl", "config_p2", "config_window", "config_color", "config_revert", "main_config", "order", "order_row", "order_swap", "main_order", "save", "save_saved", "save_confirm", "save_saved2", "main_save"]
+
+[[mask]]
+file   = "wram"
+start  = 0x1508
+end    = 0x15ee
+reason = """Toter CPU-Stack unter MenuLoop bei Menues aus dem Event-Befehl (S=$15EE, zwei Bytes hoeher als beim Hauptmenue), wie oben."""
+tags   = ["shop", "shop_buy", "shop_qty", "shop_bought", "shop_sell", "shop_sell_qty", "shop_sold", "shop2", "shop2_buy", "shop2_cursor", "final_order", "final_order_sel", "final_order_undo", "colosseum", "colosseum_char", "party", "party_group", "party_sel", "party_status", "party_back", "party_swap", "load", "load_confirm"]
+
+[[mask]]
+file   = "wram"
+start  = 0x1508
+end    = 0x15fd
+reason = """Toter CPU-Stack unter dem Field-Hauptloop (siehe oben)."""
+tags   = ["field_back", "field_shop", "field_shop2", "field_final", "field_colosseum", "field_party", "field_loaded"]
+
+[[mask]]
+file   = "wram"
+start  = 0x0000
+end    = 0x15ff
+reason = """snes9x behaelt beim Reset den WRAM wie die Hardware, der Recomp nullt ihn (snes_reset hard, RtlReset). Das Spiel initialisiert, was es liest: VRAM, CGRAM, OAM, Framebuffer sind gleich. Niedriger WRAM vor dem Laden: alte Inhalte."""
+tags   = ["load", "load_confirm"]
+
+[[mask]]
+file   = "wram"
+start  = 0x1600
+end    = 0x1fff
+reason = """snes9x behaelt beim Reset den WRAM wie die Hardware, der Recomp nullt ihn (snes_reset hard, RtlReset). Das Spiel initialisiert, was es liest: VRAM, CGRAM, OAM, Framebuffer sind gleich. Spieldaten sind im Lademenue noch die alte Sitzung; ab load_confirm geprueft."""
+tags   = ["load"]
+
+[[mask]]
+file   = "wram"
+start  = 0x2000
+end    = 0x1ffff
+reason = """snes9x behaelt beim Reset den WRAM wie die Hardware, der Recomp nullt ihn (snes_reset hard, RtlReset). Das Spiel initialisiert, was es liest: VRAM, CGRAM, OAM, Framebuffer sind gleich. Puffer und Bank $7F: alte Inhalte."""
+tags   = ["load", "load_confirm", "field_loaded"]
+
+[[mask]]
+file   = "wram"
+start  = 0x1018
+end    = 0x1018
+reason = """snes9x behaelt beim Reset den WRAM wie die Hardware, der Recomp nullt ihn (snes_reset hard, RtlReset). Das Spiel initialisiert, was es liest: VRAM, CGRAM, OAM, Framebuffer sind gleich. Einzelnes nie initialisiertes Byte, im Quelltext ohne Zugriff."""
+tags   = ["field_loaded"]
+
+[[mask]]
+file   = "wram"
+start  = 0x1200
+end    = 0x12ff
+reason = """snes9x behaelt beim Reset den WRAM wie die Hardware, der Recomp nullt ihn (snes_reset hard, RtlReset). Das Spiel initialisiert, was es liest: VRAM, CGRAM, OAM, Framebuffer sind gleich. Gesicherte Direct Page (notes/field-ram.txt:843) aus der Sitzung vor dem Laden."""
+tags   = ["field_loaded"]
+
+[[mask]]
+file   = "wram"
+start  = 0x021b
+end    = 0x021e
+reason = """Spielzeit (siehe oben), zaehlt Frames, also auch die Lag-Frames der Referenz. Nur Stunden und Minuten erscheinen im Bild."""
+tags   = ["main", "item", "item_char", "item_used", "item_back", "item_moved", "item_opts", "item_arrange", "item_rare", "item_list2", "name_change", "name_letter", "main_rename", "main_char", "skills", "skills_magic", "magic_target", "magic_cast", "magic_back", "magic_order", "skills_genju", "genju_detail", "skills_bushido", "skills_blitz", "skills_lore", "skills_biggs", "skills_rage", "skills_dance", "main_skills", "equip", "equip_slot", "equip_items", "equip_changed", "equip_opts", "equip_optimum", "equip_remove", "equip_removed", "equip_opts2", "equip_biggs", "equip_empty", "equip_optimum2", "party_equip", "relic", "relic_slot", "relic_items", "relic_changed", "relic_remove", "relic_removed", "status", "status_2", "main_status", "config", "config_speed", "config_cmdset", "cmd_arrange", "config_back", "char_ctrl", "config_p2", "config_window", "config_color", "config_revert", "main_config", "order", "order_row", "order_swap", "main_order", "save", "save_saved", "save_confirm", "save_saved2", "main_save", "shop", "shop_buy", "shop_qty", "shop_bought", "shop_sell", "shop_sell_qty", "shop_sold", "shop2", "shop2_buy", "shop2_cursor", "final_order", "final_order_sel", "final_order_undo", "colosseum", "colosseum_char", "party", "party_group", "party_sel", "party_status", "party_back", "party_swap", "field_back", "field_shop", "field_shop2", "field_final", "field_colosseum", "field_party"]
+
+[[mask]]
+file   = "wram"
+start  = 0x0023
+end    = 0x0023
+reason = """zFrameCounter (menu_ram.inc), +1 in jedem NMI, auch ohne fertige Hauptschleife: Lag-Frames."""
+tags   = ["main", "item", "item_char", "item_used", "item_back", "item_moved", "item_opts", "item_arrange", "item_rare", "item_list2", "name_change", "name_letter", "main_rename", "main_char", "skills", "skills_magic", "magic_target", "magic_cast", "magic_back", "magic_order", "skills_genju", "genju_detail", "skills_bushido", "skills_blitz", "skills_lore", "skills_biggs", "skills_rage", "skills_dance", "main_skills", "equip", "equip_slot", "equip_items", "equip_changed", "equip_opts", "equip_optimum", "equip_remove", "equip_removed", "equip_opts2", "equip_biggs", "equip_empty", "equip_optimum2", "party_equip", "relic", "relic_slot", "relic_items", "relic_changed", "relic_remove", "relic_removed", "status", "status_2", "main_status", "config", "config_speed", "config_cmdset", "cmd_arrange", "config_back", "char_ctrl", "config_p2", "config_window", "config_color", "config_revert", "main_config", "order", "order_row", "order_swap", "main_order", "save", "save_saved", "save_confirm", "save_saved2", "main_save", "shop", "shop_buy", "shop_qty", "shop_bought", "shop_sell", "shop_sell_qty", "shop_sold", "shop2", "shop2_buy", "shop2_cursor", "final_order", "final_order_sel", "final_order_undo", "colosseum", "colosseum_char", "party", "party_group", "party_sel", "party_status", "party_back", "party_swap"]
+
+[[mask]]
+file   = "wram"
+start  = 0x0019
+end    = 0x001e
+reason = """DMA-2-Parameter des Menues. In der Magie-Liste wechselt die Quelle mit dem untersten Bit der Spielzeit (field_menu.asm:2365); die Spielzeit zaehlt Frames, das Ziel bekommt beide Inhalte im Wechsel."""
+tags   = ["main", "item", "item_char", "item_used", "item_back", "item_moved", "item_opts", "item_arrange", "item_rare", "item_list2", "name_change", "name_letter", "main_rename", "main_char", "skills", "skills_magic", "magic_target", "magic_cast", "magic_back", "magic_order", "skills_genju", "genju_detail", "skills_bushido", "skills_blitz", "skills_lore", "skills_biggs", "skills_rage", "skills_dance", "main_skills", "equip", "equip_slot", "equip_items", "equip_changed", "equip_opts", "equip_optimum", "equip_remove", "equip_removed", "equip_opts2", "equip_biggs", "equip_empty", "equip_optimum2", "party_equip", "relic", "relic_slot", "relic_items", "relic_changed", "relic_remove", "relic_removed", "status", "status_2", "main_status", "config", "config_speed", "config_cmdset", "cmd_arrange", "config_back", "char_ctrl", "config_p2", "config_window", "config_color", "config_revert", "main_config", "order", "order_row", "order_swap", "main_order", "save", "save_saved", "save_confirm", "save_saved2", "main_save", "shop", "shop_buy", "shop_qty", "shop_bought", "shop_sell", "shop_sell_qty", "shop_sold", "shop2", "shop2_buy", "shop2_cursor", "final_order", "final_order_sel", "final_order_undo", "colosseum", "colosseum_char", "party", "party_group", "party_sel", "party_status", "party_back", "party_swap"]
+
+[[mask]]
+file   = "wram"
+start  = 0x0020
+end    = 0x0021
+reason = """zWaitCounter (menu_ram.inc): Das NMI zaehlt ihn nur bei fertiger Hauptschleife herunter, sein Stand am Dump haengt an den Lag-Frames."""
+tags   = ["main", "item", "item_char", "item_used", "item_back", "item_moved", "item_opts", "item_arrange", "item_rare", "item_list2", "name_change", "name_letter", "main_rename", "main_char", "skills", "skills_magic", "magic_target", "magic_cast", "magic_back", "magic_order", "skills_genju", "genju_detail", "skills_bushido", "skills_blitz", "skills_lore", "skills_biggs", "skills_rage", "skills_dance", "main_skills", "equip", "equip_slot", "equip_items", "equip_changed", "equip_opts", "equip_optimum", "equip_remove", "equip_removed", "equip_opts2", "equip_biggs", "equip_empty", "equip_optimum2", "party_equip", "relic", "relic_slot", "relic_items", "relic_changed", "relic_remove", "relic_removed", "status", "status_2", "main_status", "config", "config_speed", "config_cmdset", "cmd_arrange", "config_back", "char_ctrl", "config_p2", "config_window", "config_color", "config_revert", "main_config", "order", "order_row", "order_swap", "main_order", "save", "save_saved", "save_confirm", "save_saved2", "main_save", "shop", "shop_buy", "shop_qty", "shop_bought", "shop_sell", "shop_sell_qty", "shop_sold", "shop2", "shop2_buy", "shop2_cursor", "final_order", "final_order_sel", "final_order_undo", "colosseum", "colosseum_char", "party", "party_group", "party_sel", "party_status", "party_back", "party_swap"]
+
+[[mask]]
+file   = "wram"
+start  = 0x1865
+end    = 0x1865
+reason = """Sekunden in den Spieldaten, kopiert aus der Spielzeit beim Speichern (s.o.). Minuten und Stunden bleiben geprueft."""
+tags   = ["main", "item", "item_char", "item_used", "item_back", "item_moved", "item_opts", "item_arrange", "item_rare", "item_list2", "name_change", "name_letter", "main_rename", "main_char", "skills", "skills_magic", "magic_target", "magic_cast", "magic_back", "magic_order", "skills_genju", "genju_detail", "skills_bushido", "skills_blitz", "skills_lore", "skills_biggs", "skills_rage", "skills_dance", "main_skills", "equip", "equip_slot", "equip_items", "equip_changed", "equip_opts", "equip_optimum", "equip_remove", "equip_removed", "equip_opts2", "equip_biggs", "equip_empty", "equip_optimum2", "party_equip", "relic", "relic_slot", "relic_items", "relic_changed", "relic_remove", "relic_removed", "status", "status_2", "main_status", "config", "config_speed", "config_cmdset", "cmd_arrange", "config_back", "char_ctrl", "config_p2", "config_window", "config_color", "config_revert", "main_config", "order", "order_row", "order_swap", "main_order", "save", "save_saved", "save_confirm", "save_saved2", "main_save", "shop", "shop_buy", "shop_qty", "shop_bought", "shop_sell", "shop_sell_qty", "shop_sold", "shop2", "shop2_buy", "shop2_cursor", "final_order", "final_order_sel", "final_order_undo", "colosseum", "colosseum_char", "party", "party_group", "party_sel", "party_status", "party_back", "party_swap", "field_back", "field_shop", "field_shop2", "field_final", "field_colosseum", "field_party"]
+
+[[mask]]
+file   = "wram"
+start  = 0x1ffe
+end    = 0x1fff
+reason = """Pruefsumme der Spieldaten, folgt aus $1865."""
+tags   = ["main", "item", "item_char", "item_used", "item_back", "item_moved", "item_opts", "item_arrange", "item_rare", "item_list2", "name_change", "name_letter", "main_rename", "main_char", "skills", "skills_magic", "magic_target", "magic_cast", "magic_back", "magic_order", "skills_genju", "genju_detail", "skills_bushido", "skills_blitz", "skills_lore", "skills_biggs", "skills_rage", "skills_dance", "main_skills", "equip", "equip_slot", "equip_items", "equip_changed", "equip_opts", "equip_optimum", "equip_remove", "equip_removed", "equip_opts2", "equip_biggs", "equip_empty", "equip_optimum2", "party_equip", "relic", "relic_slot", "relic_items", "relic_changed", "relic_remove", "relic_removed", "status", "status_2", "main_status", "config", "config_speed", "config_cmdset", "cmd_arrange", "config_back", "char_ctrl", "config_p2", "config_window", "config_color", "config_revert", "main_config", "order", "order_row", "order_swap", "main_order", "save", "save_saved", "save_confirm", "save_saved2", "main_save", "shop", "shop_buy", "shop_qty", "shop_bought", "shop_sell", "shop_sell_qty", "shop_sold", "shop2", "shop2_buy", "shop2_cursor", "final_order", "final_order_sel", "final_order_undo", "colosseum", "colosseum_char", "party", "party_group", "party_sel", "party_status", "party_back", "party_swap", "field_back", "field_shop", "field_shop2", "field_final", "field_colosseum", "field_party"]
+
+
+# r12 (2026-11-02): Listen-Scrollen im Menue. Einstieg und Zeitbasis wie r04; die Route laeuft auf beiden Seiten
+# ohne Lag-Unterschied ($CF, $0228, Spielzeit, Frame- und Wartezaehler gleich). Es weichen nur Field-Werte ab,
+# die beim Oeffnen des Menues einfrieren, und der tote Stack unter der Menue-Schleife.
+
+[[mask]]
+file   = "wram"
+start  = 0x0630
+end    = 0x0632
+reason = """Gelatchte Beam-Position im Field-Hauptloop (Abschnitt r02/r03), eingefroren beim Oeffnen des Menues."""
+tags   = ["s_main", "s_item", "s_itd1_0", "s_itd1_1", "s_itd1_2", "s_itd1_3", "s_itd1_4", "s_itd1_5", "s_itd1_6", "s_itd2_0", "s_itd2_1", "s_itd2_2", "s_itd2_3", "s_itd2_4", "s_itd2_5", "s_itd2_6", "s_ithd_0", "s_ithd_1", "s_itu1_0", "s_itu1_1", "s_itu1_2", "s_itu1_3", "s_itu1_4", "s_itu1_5", "s_itu1_6", "s_ithu_0", "s_ithu_1", "s_main2", "s_skills", "s_magic", "s_mgd1_0", "s_mgd1_1", "s_mgd1_2", "s_mgd1_3", "s_mgd1_4", "s_mgd1_5", "s_mgd1_6", "s_mgd2_0", "s_mgd2_1", "s_mgd2_2", "s_mgd2_3", "s_mgd2_4", "s_mgd2_5", "s_mgd2_6", "s_mghd_0", "s_mghd_1", "s_mgu1_0", "s_mgu1_1", "s_mgu1_2", "s_mgu1_3", "s_mgu1_4", "s_mgu1_5", "s_mgu1_6", "s_mghu_0", "s_mghu_1", "s_main3", "s_equip", "s_eqlist", "s_eqd1_0", "s_eqd1_1", "s_eqd1_2", "s_eqd1_3", "s_eqd1_4", "s_eqd1_5", "s_eqd1_6", "s_eqd2_0", "s_eqd2_1", "s_eqd2_2", "s_eqd2_3", "s_eqd2_4", "s_eqd2_5", "s_eqd2_6", "s_eqhd_0", "s_eqhd_1", "s_equ1_0", "s_equ1_1", "s_equ1_2", "s_equ1_3", "s_equ1_4", "s_equ1_5", "s_equ1_6", "s_eqhu_0", "s_eqhu_1", "s_main4", "s_shop", "s_shsell", "s_shd1_0", "s_shd1_1", "s_shd1_2", "s_shd1_3", "s_shd1_4", "s_shd1_5", "s_shd1_6", "s_shd2_0", "s_shd2_1", "s_shd2_2", "s_shd2_3", "s_shd2_4", "s_shd2_5", "s_shd2_6", "s_shhd_0", "s_shhd_1", "s_shu1_0", "s_shu1_1", "s_shu1_2", "s_shu1_3", "s_shu1_4", "s_shu1_5", "s_shu1_6", "s_shhu_0", "s_shhu_1", "s_shop2"]
+
+[[mask]]
+file   = "wram"
+start  = 0xf230
+end    = 0xf232
+reason = """Schnappschuss von $0630-$0632 (Abschnitt r02/r03)."""
+tags   = ["s_main", "s_item", "s_itd1_0", "s_itd1_1", "s_itd1_2", "s_itd1_3", "s_itd1_4", "s_itd1_5", "s_itd1_6", "s_itd2_0", "s_itd2_1", "s_itd2_2", "s_itd2_3", "s_itd2_4", "s_itd2_5", "s_itd2_6", "s_ithd_0", "s_ithd_1", "s_itu1_0", "s_itu1_1", "s_itu1_2", "s_itu1_3", "s_itu1_4", "s_itu1_5", "s_itu1_6", "s_ithu_0", "s_ithu_1", "s_main2", "s_skills", "s_magic", "s_mgd1_0", "s_mgd1_1", "s_mgd1_2", "s_mgd1_3", "s_mgd1_4", "s_mgd1_5", "s_mgd1_6", "s_mgd2_0", "s_mgd2_1", "s_mgd2_2", "s_mgd2_3", "s_mgd2_4", "s_mgd2_5", "s_mgd2_6", "s_mghd_0", "s_mghd_1", "s_mgu1_0", "s_mgu1_1", "s_mgu1_2", "s_mgu1_3", "s_mgu1_4", "s_mgu1_5", "s_mgu1_6", "s_mghu_0", "s_mghu_1", "s_main3", "s_equip", "s_eqlist", "s_eqd1_0", "s_eqd1_1", "s_eqd1_2", "s_eqd1_3", "s_eqd1_4", "s_eqd1_5", "s_eqd1_6", "s_eqd2_0", "s_eqd2_1", "s_eqd2_2", "s_eqd2_3", "s_eqd2_4", "s_eqd2_5", "s_eqd2_6", "s_eqhd_0", "s_eqhd_1", "s_equ1_0", "s_equ1_1", "s_equ1_2", "s_equ1_3", "s_equ1_4", "s_equ1_5", "s_equ1_6", "s_eqhu_0", "s_eqhu_1", "s_main4", "s_shop", "s_shsell", "s_shd1_0", "s_shd1_1", "s_shd1_2", "s_shd1_3", "s_shd1_4", "s_shd1_5", "s_shd1_6", "s_shd2_0", "s_shd2_1", "s_shd2_2", "s_shd2_3", "s_shd2_4", "s_shd2_5", "s_shd2_6", "s_shhd_0", "s_shhd_1", "s_shu1_0", "s_shu1_1", "s_shu1_2", "s_shu1_3", "s_shu1_4", "s_shu1_5", "s_shu1_6", "s_shhu_0", "s_shhu_1", "s_shop2"]
+
+[[mask]]
+file   = "wram"
+start  = 0x10d1
+end    = 0x10d1
+reason = """Low-Byte des BG3-Animationszaehlers (Abschnitt r02/r03), waehrend des Menues eingefroren. Die Rueckkehr aufs Field setzt ihn per poke gleich, die Shop-Dumps danach sind ohne Maske gleich."""
+tags   = ["s_main", "s_item", "s_itd1_0", "s_itd1_1", "s_itd1_2", "s_itd1_3", "s_itd1_4", "s_itd1_5", "s_itd1_6", "s_itd2_0", "s_itd2_1", "s_itd2_2", "s_itd2_3", "s_itd2_4", "s_itd2_5", "s_itd2_6", "s_ithd_0", "s_ithd_1", "s_itu1_0", "s_itu1_1", "s_itu1_2", "s_itu1_3", "s_itu1_4", "s_itu1_5", "s_itu1_6", "s_ithu_0", "s_ithu_1", "s_main2", "s_skills", "s_magic", "s_mgd1_0", "s_mgd1_1", "s_mgd1_2", "s_mgd1_3", "s_mgd1_4", "s_mgd1_5", "s_mgd1_6", "s_mgd2_0", "s_mgd2_1", "s_mgd2_2", "s_mgd2_3", "s_mgd2_4", "s_mgd2_5", "s_mgd2_6", "s_mghd_0", "s_mghd_1", "s_mgu1_0", "s_mgu1_1", "s_mgu1_2", "s_mgu1_3", "s_mgu1_4", "s_mgu1_5", "s_mgu1_6", "s_mghu_0", "s_mghu_1", "s_main3", "s_equip", "s_eqlist", "s_eqd1_0", "s_eqd1_1", "s_eqd1_2", "s_eqd1_3", "s_eqd1_4", "s_eqd1_5", "s_eqd1_6", "s_eqd2_0", "s_eqd2_1", "s_eqd2_2", "s_eqd2_3", "s_eqd2_4", "s_eqd2_5", "s_eqd2_6", "s_eqhd_0", "s_eqhd_1", "s_equ1_0", "s_equ1_1", "s_equ1_2", "s_equ1_3", "s_equ1_4", "s_equ1_5", "s_equ1_6", "s_eqhu_0", "s_eqhu_1", "s_main4"]
+
+[[mask]]
+file   = "wram"
+start  = 0x10e7
+end    = 0x10e7
+reason = """Zaehler der Palettenanimation (notes/field-ram.txt:663), waehrend des Menues eingefroren (wie r04)."""
+tags   = ["s_main", "s_item", "s_itd1_0", "s_itd1_1", "s_itd1_2", "s_itd1_3", "s_itd1_4", "s_itd1_5", "s_itd1_6", "s_itd2_0", "s_itd2_1", "s_itd2_2", "s_itd2_3", "s_itd2_4", "s_itd2_5", "s_itd2_6", "s_ithd_0", "s_ithd_1", "s_itu1_0", "s_itu1_1", "s_itu1_2", "s_itu1_3", "s_itu1_4", "s_itu1_5", "s_itu1_6", "s_ithu_0", "s_ithu_1", "s_main2", "s_skills", "s_magic", "s_mgd1_0", "s_mgd1_1", "s_mgd1_2", "s_mgd1_3", "s_mgd1_4", "s_mgd1_5", "s_mgd1_6", "s_mgd2_0", "s_mgd2_1", "s_mgd2_2", "s_mgd2_3", "s_mgd2_4", "s_mgd2_5", "s_mgd2_6", "s_mghd_0", "s_mghd_1", "s_mgu1_0", "s_mgu1_1", "s_mgu1_2", "s_mgu1_3", "s_mgu1_4", "s_mgu1_5", "s_mgu1_6", "s_mghu_0", "s_mghu_1", "s_main3", "s_equip", "s_eqlist", "s_eqd1_0", "s_eqd1_1", "s_eqd1_2", "s_eqd1_3", "s_eqd1_4", "s_eqd1_5", "s_eqd1_6", "s_eqd2_0", "s_eqd2_1", "s_eqd2_2", "s_eqd2_3", "s_eqd2_4", "s_eqd2_5", "s_eqd2_6", "s_eqhd_0", "s_eqhd_1", "s_equ1_0", "s_equ1_1", "s_equ1_2", "s_equ1_3", "s_equ1_4", "s_equ1_5", "s_equ1_6", "s_eqhu_0", "s_eqhu_1", "s_main4"]
+
+[[mask]]
+file   = "wram"
+start  = 0x1508
+end    = 0x15f0
+reason = """Toter CPU-Stack unter MenuLoop (S=$15F0 in WaitVblank, wie r04). $15F1-$15FF bleiben geprueft."""
+tags   = ["s_main", "s_item", "s_itd1_0", "s_itd1_1", "s_itd1_2", "s_itd1_3", "s_itd1_4", "s_itd1_5", "s_itd1_6", "s_itd2_0", "s_itd2_1", "s_itd2_2", "s_itd2_3", "s_itd2_4", "s_itd2_5", "s_itd2_6", "s_ithd_0", "s_ithd_1", "s_itu1_0", "s_itu1_1", "s_itu1_2", "s_itu1_3", "s_itu1_4", "s_itu1_5", "s_itu1_6", "s_ithu_0", "s_ithu_1", "s_main2", "s_skills", "s_magic", "s_mgd1_0", "s_mgd1_1", "s_mgd1_2", "s_mgd1_3", "s_mgd1_4", "s_mgd1_5", "s_mgd1_6", "s_mgd2_0", "s_mgd2_1", "s_mgd2_2", "s_mgd2_3", "s_mgd2_4", "s_mgd2_5", "s_mgd2_6", "s_mghd_0", "s_mghd_1", "s_mgu1_0", "s_mgu1_1", "s_mgu1_2", "s_mgu1_3", "s_mgu1_4", "s_mgu1_5", "s_mgu1_6", "s_mghu_0", "s_mghu_1", "s_main3", "s_equip", "s_eqlist", "s_eqd1_0", "s_eqd1_1", "s_eqd1_2", "s_eqd1_3", "s_eqd1_4", "s_eqd1_5", "s_eqd1_6", "s_eqd2_0", "s_eqd2_1", "s_eqd2_2", "s_eqd2_3", "s_eqd2_4", "s_eqd2_5", "s_eqd2_6", "s_eqhd_0", "s_eqhd_1", "s_equ1_0", "s_equ1_1", "s_equ1_2", "s_equ1_3", "s_equ1_4", "s_equ1_5", "s_equ1_6", "s_eqhu_0", "s_eqhu_1", "s_main4"]
+
+[[mask]]
+file   = "wram"
+start  = 0x1508
+end    = 0x15ee
+reason = """Toter CPU-Stack unter MenuLoop beim Shop aus dem Event-Befehl (S=$15EE, wie r04)."""
+tags   = ["s_shop", "s_shsell", "s_shd1_0", "s_shd1_1", "s_shd1_2", "s_shd1_3", "s_shd1_4", "s_shd1_5", "s_shd1_6", "s_shd2_0", "s_shd2_1", "s_shd2_2", "s_shd2_3", "s_shd2_4", "s_shd2_5", "s_shd2_6", "s_shhd_0", "s_shhd_1", "s_shu1_0", "s_shu1_1", "s_shu1_2", "s_shu1_3", "s_shu1_4", "s_shu1_5", "s_shu1_6", "s_shhu_0", "s_shhu_1", "s_shop2"]
+
+# r05 (2026-11-03): erster Kampf. Gegen snes9x nur szenengekeyt (PLAN Phase 8): Die Referenz hat beim Laden
+# und waehrend der Strahl-Animation mehr Lag-Frames. Alle Masken unten betreffen Zaehler, Frame-Phasen oder den
+# Zugstatus, der daran haengt. Spieldaten $1600-$1FFF (HP, MP, EXP, Level, Inventar, Gil) bleiben in allen Dumps geprueft.
+
+[[mask]]
+file   = "wram"
+start  = 0x000e
+end    = 0x0045
+reason = """Grafik-DP des Kampfes: $0E Bildzaehler, $10-$45 Scratch (notes/battle-ram.txt:24-27)."""
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3"]
+
+[[mask]]
+file   = "wram"
+start  = 0x0047
+end    = 0x004c
+reason = """$47 Warten auf VBlank, $48-$4C Zeiger von DrawMenuText (btlgfx/menu.asm:6839): welche Menuezeile zuletzt gezeichnet wurde, haengt an der Frame-Phase."""
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3"]
+
+[[mask]]
+file   = "wram"
+start  = 0x0069
+end    = 0x0070
+reason = """Ergebnis der letzten Hex->Dec-Umwandlung (notes/battle-ram.txt:50), wie oben eine Frage der Zeichenreihenfolge."""
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3"]
+
+[[mask]]
+file   = "wram"
+start  = 0x0076
+end    = 0x0077
+reason = """Zeiger in die Kampfskriptbefehle (notes/battle-ram.txt:57). In der Referenz war beim Sieg Figur 0 am Zug ($62CA = 00), siehe Zugstatus unten."""
+tags   = ["b_victory", "b_msg1", "b_msg2", "b_msg3"]
+
+[[mask]]
+file   = "wram"
+start  = 0x0098
+end    = 0x0098
+reason = """Bildzaehler des Grafikmoduls, +1 je Frame (notes/battle-ram.txt:90)."""
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3"]
+
+[[mask]]
+file   = "wram"
+start  = 0x0201
+end    = 0x0201
+reason = """Kopie von $62CA & 3 fuer die Steuerung (btlgfx/ctrl.asm:12), aktive Figur; bleibt nach dem Kampf stehen."""
+tags   = ["b_victory", "b_msg1", "b_msg2", "b_msg3", "b_after", "b_dlg_next"]
+
+[[mask]]
+file   = "wram"
+start  = 0x021b
+end    = 0x021e
+reason = """Spielzeit (siehe oben). Die Route setzt sie am Mosaik gleich, danach zaehlen die Lag-Frames der Referenz mit."""
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3"]
+
+[[mask]]
+file   = "wram"
+start  = 0x0228
+end    = 0x0228
+reason = """Tasten-Wiederholzaehler (siehe r04); haengt daran, in welchem Frame eine gehaltene Taste losgelassen wird."""
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "b_after", "b_dlg_next"]
+
+[[mask]]
+file   = "wram"
+start  = 0x0630
+end    = 0x0632
+reason = """Gelatchte Beam-Position im Field-Hauptloop (siehe oben), beim Kampfbeginn eingefroren."""
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3"]
+
+[[mask]]
+file   = "wram"
+start  = 0xf230
+end    = 0xf232
+reason = """Schnappschuss von $0630-$0632 (siehe oben)."""
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3"]
+
+[[mask]]
+file   = "wram"
+start  = 0x106a
+end    = 0x10e9
+reason = """Field-Animationszaehler (notes/field-ram.txt:649-663), beim Kampfbeginn eingefroren. Der Kampf beginnt in der Referenz rund 3 Lag-Frames spaeter (docs/STATUS.md, Route r05)."""
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3"]
+
+[[mask]]
+file   = "wram"
+start  = 0x121e
+end    = 0x1222
+reason = """Kopie der Field-DP beim Kampfbeginn (notes/field-ram.txt:843), Scratch $1E-$22; das Field liest die Kopie nach dem Kampf nicht mehr."""
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "b_after", "b_dlg_next"]
+
+[[mask]]
+file   = "wram"
+start  = 0x1245
+end    = 0x1247
+reason = """Kopie der Field-DP: Zaehler $45-$47 beim Kampfbeginn (siehe oben)."""
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "b_after", "b_dlg_next"]
+
+[[mask]]
+file   = "wram"
+start  = 0x1508
+end    = 0x15e4
+reason = """Toter CPU-Stack unter dem Kampf-Hauptloop; $15E5-$15FF ist gleich und bleibt geprueft."""
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3"]
+
+[[mask]]
+file   = "wram"
+start  = 0x2022
+end    = 0x2025
+reason = """ATB-Anzeige je Figur (notes/battle-ram.txt:433), fuellt sich je Frame."""
+tags   = ["b_victory", "b_msg1", "b_msg2", "b_msg3"]
+
+[[mask]]
+file   = "wram"
+start  = 0x3218
+end    = 0x322b
+reason = """ATB-Zaehler je Ziel (notes/battle-ram.txt:698)."""
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3"]
+
+[[mask]]
+file   = "wram"
+start  = 0x3a3e
+end    = 0x3a3f
+reason = """Rundenzaehler (notes/battle-ram.txt:823)."""
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3"]
+
+[[mask]]
+file   = "wram"
+start  = 0x3a44
+end    = 0x3a44
+reason = """Kampfzaehler, +1 alle 16 Frames (notes/battle-ram.txt:826). Beim Sieg in der Referenz eins hoeher bei gleichem zbe ($14): gleich viele BattleLoop-Durchlaeufe, mehr Frames."""
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3"]
+
+[[mask]]
+file   = "wram"
+start  = 0x3a6c
+end    = 0x3a6c
+reason = """Bildzaehler des Vor-Frames (notes/battle-ram.txt:853)."""
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3"]
+
+[[mask]]
+file   = "wram"
+start  = 0x3a91
+end    = 0x3a91
+reason = """Umlaufzaehler der Statuspruefung (notes/battle-ram.txt:896)."""
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3"]
+
+[[mask]]
+file   = "wram"
+start  = 0x3ab4
+end    = 0x3abb
+reason = """Advance-Wait-Zaehler (notes/battle-ram.txt:930)."""
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3"]
+
+[[mask]]
+file   = "wram"
+start  = 0x3adc
+end    = 0x3aef
+reason = """Slow/Normal/Haste-Zaehler je Ziel (notes/battle-ram.txt:932)."""
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3"]
+
+[[mask]]
+file   = "wram"
+start  = 0x3dc0
+end    = 0x3dd3
+reason = """Lebenszeit je Ziel in Frames (notes/battle-ram.txt:1048)."""
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3"]
+
+[[mask]]
+file   = "wram"
+start  = 0x3200
+end    = 0x3200
+reason = """Zugstatus: In der Referenz fuellte sich vor dem Sieg noch die ATB-Leiste von Figur 0 ($62CA = 00, Befehlsfenster gezeichnet), im Recomp nicht (Sieg 54 Frames frueher, Lag). Erst ab dem Sieg verschieden. Den Kampfzustand exakt prueft die Co-Sim (PLAN Phase 8)."""
+tags   = ["b_victory", "b_msg1", "b_msg2", "b_msg3"]
+
+[[mask]]
+file   = "wram"
+start  = 0x32d8
+end    = 0x32d8
+reason = """Zugstatus (siehe $3200)."""
+tags   = ["b_victory", "b_msg1", "b_msg2", "b_msg3"]
+
+[[mask]]
+file   = "wram"
+start  = 0x3a57
+end    = 0x3a57
+reason = """Zugstatus (siehe $3200)."""
+tags   = ["b_victory", "b_msg1", "b_msg2", "b_msg3"]
+
+[[mask]]
+file   = "wram"
+start  = 0x3aad
+end    = 0x3aaf
+reason = """Zugstatus (siehe $3200), nur Bit 7 je Figur verschieden."""
+tags   = ["b_victory", "b_msg1", "b_msg2", "b_msg3"]
+
+[[mask]]
+file   = "wram"
+start  = 0x3ef1
+end    = 0x3ef1
+reason = """Zugstatus (siehe $3200)."""
+tags   = ["b_victory", "b_msg1", "b_msg2", "b_msg3"]
+
+[[mask]]
+file   = "wram"
+start  = 0x56d5
+end    = 0x5714
+reason = """Textpuffer w7e56d5 (btlgfx/btlgfx_ram.inc, 64 Byte), Vorlage der zuletzt gezeichneten Menuezeile (LoadMenuText, btlgfx/menu.asm:1180)."""
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3"]
+
+[[mask]]
+file   = "wram"
+start  = 0x5855
+end    = 0x5ad4
+reason = """Menuetext-Kachelpuffer 32x10 (btlgfx/btlgfx_ram.inc): das Befehlsfenster, das die Referenz fuer Figur 0 noch aufbaute (siehe $3200). Nicht sichtbar, das Bild ist dort gleich."""
+tags   = ["b_victory", "b_msg1", "b_msg2", "b_msg3"]
+
+[[mask]]
+file   = "wram"
+start  = 0x5c45
+end    = 0x5ca4
+reason = """Gauge-Textpuffer (btlgfx/btlgfx_ram.inc), Kacheln der ATB-Leisten."""
+tags   = ["b_victory", "b_msg1", "b_msg2", "b_msg3"]
+
+[[mask]]
+file   = "wram"
+start  = 0x5d15
+end    = 0x5d22
+reason = """MP-Textpuffer (btlgfx/btlgfx_ram.inc), Teil des Befehlsfensters der Referenz (siehe $5855)."""
+tags   = ["b_victory", "b_msg1", "b_msg2", "b_msg3"]
+
+[[mask]]
+file   = "wram"
+start  = 0x8d13
+end    = 0x9012
+reason = """Tilemap-Puffer 32x12 der Menues (btlgfx/btlgfx_ram.inc), Befehlsfenster der Referenz (siehe $5855)."""
+tags   = ["b_victory", "b_msg1", "b_msg2", "b_msg3"]
+
+[[mask]]
+file   = "wram"
+start  = 0x619f
+end    = 0x61a0
+reason = """Zaehler im Grafikmodul, laeuft je Frame weiter (Wertverlauf in r05: +18/+19 je Meldung auf beiden Seiten, nur verschoben); bleibt nach dem Kampf stehen."""
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "b_after", "b_dlg_next"]
+
+[[mask]]
+file   = "wram"
+start  = 0x61c2
+end    = 0x61c2
+reason = """Aktionszaehler der Figurengrafik, +1 je Frame (notes/battle-ram.txt:1468), Figur 0."""
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "b_after", "b_dlg_next"]
+
+[[mask]]
+file   = "wram"
+start  = 0x61e2
+end    = 0x61e2
+reason = """Wie $61C2, Figur 1."""
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "b_after", "b_dlg_next"]
+
+[[mask]]
+file   = "wram"
+start  = 0x6202
+end    = 0x6202
+reason = """Wie $61C2, Figur 2."""
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "b_after", "b_dlg_next"]
+
+[[mask]]
+file   = "wram"
+start  = 0x62ca
+end    = 0x62ca
+reason = """Aktive Figur der Befehlsauswahl (notes/battle-ram.txt:1613), siehe Zugstatus $3200."""
+tags   = ["b_victory", "b_msg1", "b_msg2", "b_msg3", "b_after", "b_dlg_next"]
+
+[[mask]]
+file   = "wram"
+start  = 0x64bb
+end    = 0x64cb
+reason = """Magitek-Zustand ($64BA-$64CC, notes/battle-ram.txt:1655-1666): Kachelnummern des aktuellen Animationsbilds je Figur, im Wechsel $C030/$C034/$C038."""
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "b_after", "b_dlg_next"]
+
+[[mask]]
+file   = "wram"
+start  = 0x7b68
+end    = 0x7b68
+reason = """Grafikmodul-Zustand (btlgfx_ram.inc w7e7b68), wechselt zwischen den Dumps auf beiden Seiten."""
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3"]
+
+[[mask]]
+file   = "wram"
+start  = 0x7b78
+end    = 0x7b78
+reason = """Figur fuer Statuswechsel-Animationen (notes/battle-ram.txt:1843), laeuft als Zaehler (beide Seiten +1 versetzt)."""
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3"]
+
+[[mask]]
+file   = "wram"
+start  = 0x7b99
+end    = 0x7b9d
+reason = """Figur, deren HP/MP-Text als naechstes aktualisiert wird (notes/battle-ram.txt:1868), reihum je Frame."""
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "b_after", "b_dlg_next"]
+
+[[mask]]
+file   = "wram"
+start  = 0x7bbf
+end    = 0x7bbf
+reason = """Grafikmodul-Zustand, ab dem Sieg um eins verschieden (Befehlsfenster der Referenz)."""
+tags   = ["b_victory", "b_msg1", "b_msg2", "b_msg3"]
+
+[[mask]]
+file   = "wram"
+start  = 0x88d9
+end    = 0x88d9
+reason = """Grafikmodul-Zustand (btlgfx_ram.inc w7e88d9), rotiert durch $45/$5D/$75/$8D."""
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "b_after", "b_dlg_next"]
+
+[[mask]]
+file   = "wram"
+start  = 0xe9db
+end    = 0xe9db
+reason = """Zaehler der Condemned-Ziffern (notes/battle-ram.txt:2197); liegt nach dem Kampf in Zeile 0 der Field-BG3-Map, die das Field nicht beschreibt (VRAM gleich)."""
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "b_after", "b_dlg_next"]
+
+[[mask]]
+file   = "wram"
+start  = 0xe9ef
+end    = 0xe9ef
+reason = """Kampfzeit angehalten (notes/battle-ram.txt:2216), haengt an der Meldungsphase."""
+tags   = ["b_victory", "b_msg1", "b_msg2", "b_msg3"]
+
+[[mask]]
+file   = "wram"
+start  = 0x0028
+end    = 0x0028
+reason = """Field-DP-Scratch ($0E-$3F, notes/field-ram.txt:24)."""
+tags   = ["b_after", "b_dlg_next"]
+
+[[mask]]
+file   = "vram"
+start  = 0x4000
+end    = 0x47ff
+reason = """Figuren- und Statuskacheln. Der Kampf-NMI laedt je Frame einen Ausschnitt nach z98: Figur z98 & 3, Status zwei Kacheln nach z98 & 31 (btlgfx/interrupt.asm:960-990, Ziele in btlgfx/interrupt_2.asm:239-262). Die Quellen in Bank 7F sind gleich, nur die Upload-Phase weicht ab."""
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3"]
+
+[[mask]]
+file   = "vram"
+start  = 0xd540
+end    = 0xd57f
+reason = """BG1-Map-Zeile der ATB-Leiste."""
+tags   = ["b_victory", "b_msg1", "b_msg2", "b_msg3"]
+
+[[mask]]
+file   = "vram"
+start  = 0xf0c0
+end    = 0xf4ff
+reason = """BG3-Map der Menuetexte; enthaelt das Befehlsfenster der Referenz (siehe $5855) und die Gauge-Kacheln. Bild dort gleich."""
+tags   = ["b_victory", "b_msg1", "b_msg2", "b_msg3"]
+
+[[mask]]
+file   = "fb"
+rect   = [186, 40, 233, 131]
+reason = """Die drei Figuren (OAM der Referenz, OBSEL $61): Animationsbild nach der Upload-Phase der Figurenkacheln (siehe VRAM $4000-$47FF)."""
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3"]
+
+[[mask]]
+file   = "fb"
+rect   = [208, 178, 240, 180]
+reason = """Innenraum der ATB-Leiste von WEDGE, fuellt sich je Frame (siehe $2022)."""
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3"]

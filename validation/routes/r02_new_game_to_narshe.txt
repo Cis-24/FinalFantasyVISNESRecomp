@@ -1,0 +1,74 @@
+# r02: Titel -> Neues Spiel -> Intro -> erste Steuerung in Narshe.
+# Szenenschluessel aus der snes9x-Referenz (notes/field-ram.txt):
+#   $0082 = Map-Index, $00D3 = Tastenstatus Dialog (1 = wartet auf Taste),
+#   $00E5-E7 = Event-PC (CA0000 = kein Event aktiv).
+# Maps: 17, 14, F4 = Vorspanntext, 12 = Klippe mit den Magitek-Ruestungen, 13 = Narshe.
+# Ohne Spielstand startet A auf dem Titel direkt das neue Spiel.
+# Bewegte Szenen werden auf einen Szenenwert gekeyt statt auf eine Wartezeit, weil Ladephasen
+# zwischen Referenz und Recomp um wenige Frames abweichen (Masken: validation/masks.toml).
+until 0019 == 09 6000
+wait 60
+press a 2
+
+# Vorspann, Kamerafahrt auf Map 17: $22 = Scroll-Nachkommastelle, faellt alle 2 Frames um 1.
+# Erst nach dem Einblenden: Bei INIDISP < $0F runden snes9x und der Recomp-Renderer die Helligkeit
+# unterschiedlich (bis 1 Stufe je Kanal), das ist keine Spielzustands-Abweichung.
+until 0082 == 17 2000
+wait 370
+until 0022 == 40 400
+dump intro17
+until 0082 == 14 2000
+wait 300
+dump intro14
+until 0082 == F4 2000
+wait 300
+dump introF4
+until 0082 == 12 2000
+wait 300
+dump cliff
+
+# Sieben Dialogseiten von Wedge und Vicks auf der Klippe
+until 00D3 == 01 4000
+dump dlg1
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+dump dlg7
+press a 2
+
+# Magitek-Marsch (Mode 7, Karte bleibt $12), laeuft ohne Eingabe. $18 faellt je Frame um 1.
+# Dump einen Frame nach dem Schluessel: Im Schluesselframe ist der Hauptloop der Referenz noch nicht
+# fertig, einen Frame spaeter ist der WRAM gleich (Messung work/routes/r02_phase2.txt).
+wait 1500
+until 0018 == 40 400
+wait 1
+dump march1
+wait 3000
+until 0018 == 80 400
+wait 1
+dump march2
+
+# Narshe: letzte Dialogseite, danach Steuerung
+# $106A = BG1/2-Animationszaehler (+1 alle 2 Frames): Dumps auf ungerade Werte gekeyt, dort ist auch
+# $10D2 (BG3-Frame, +1 alle 4 Frames) gleich. Sonst weichen die
+# animierten Tiles im VRAM um eine Phase ab, weil das Laden der Map unterschiedlich lange dauert.
+until 0082 == 13 20000
+until 00D3 == 01 1500
+until 106A == B9 40
+dump dlg8
+press a 2
+until16 00E5 == 0000 3000
+until 00E7 == CA 100
+wait 60
+until 106A == 21 40
+dump control
+quit

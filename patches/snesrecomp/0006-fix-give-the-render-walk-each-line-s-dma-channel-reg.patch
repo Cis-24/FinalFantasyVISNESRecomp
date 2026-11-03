@@ -1,0 +1,299 @@
+From c2d515ccd146fc8e17673c1cb9bea9d503b2d6b1 Mon Sep 17 00:00:00 2001
+From: Neivin Detlefsen <neivin.detlefsen@gmx.de>
+Date: Sat, 31 Oct 2026 21:31:34 +0100
+Subject: [PATCH 06/10] fix: give the render walk each line's dma channel
+ registers
+
+HDMA runs in the render walk, after the CPU half, and read the channel
+registers as the CPU half had left them. FF6's raster IRQ switches HDMA off at
+V=215 (reset.asm:328) and TfrBG3AnimGfx (anim.asm:536) then points channel 0 at
+$2118. Harmless on hardware. Read at the end of the field, the channel wrote the
+BG2 wave table into VRAM at word $3000 instead of $2110, on every odd frame of
+the two maps with an animated wave ($0521 bit 3, maps 0x13D and 0x15F): the wave
+was gone every second frame and the BG graphics corrupt.
+
+The journal now also records $4300-$437F. The walk starts from the channel
+registers of the field's start, replays the writes in beam order and gives the
+guest its own registers back at the end. Only the beam frame driver names a
+writer; another host records the writes and ignores them.
+
+Measured on FF6 against snes9x, the two maps: 24180 and 19168 wrong pixels and
+333 and 407 wrong VRAM bytes before; 0 VRAM bytes after.
+---
+ runner/src/beam_frame_driver.c              |  5 ++
+ runner/src/common_rtl.c                     |  1 +
+ runner/src/snes/ppu.c                       | 56 ++++++++++++++++++++-
+ runner/src/snes/ppu.h                       |  6 +++
+ runner/src/snes/snes.c                      |  1 +
+ tests/frame_driver/beam_frame_driver_test.c | 48 ++++++++++++++++++
+ 6 files changed, 115 insertions(+), 2 deletions(-)
+
+diff --git a/runner/src/beam_frame_driver.c b/runner/src/beam_frame_driver.c
+index 61a9f08..7015f1b 100644
+--- a/runner/src/beam_frame_driver.c
++++ b/runner/src/beam_frame_driver.c
+@@ -273,6 +273,10 @@ void snes_beam_frame_driver_draw_ppu_frame(void) {
+   snes_beam_frame_driver_draw_ppu_frame_observed(NULL, NULL);
+ }
+ 
++static void raster_dma_write(uint16_t reg, uint8_t val) {
++  dma_write(g_snes->dma, reg, val);
++}
++
+ void snes_beam_frame_driver_draw_ppu_frame_observed(
+     SnesBeamRasterObserver *observer, void *context) {
+   int line;
+@@ -281,6 +285,7 @@ void snes_beam_frame_driver_draw_ppu_frame_observed(
+    * entries and HDMA in beam order. HDMA here is the real unit (dma.c), so
+    * the beam must not also step it from inside guest register writes. */
+   snes_set_hdma_beam_enabled(g_snes, false);
++  ppu_rasterSetDmaWriter(raster_dma_write);
+   ppu_rasterRenderBegin(g_ppu);
+   /* The field's vblank writes come before V=0. A channel its NMI switches back
+    * on is armed when the init runs: FF6 turns HDMA off in a raster IRQ near the
+diff --git a/runner/src/common_rtl.c b/runner/src/common_rtl.c
+index e101618..82fc9c7 100644
+--- a/runner/src/common_rtl.c
++++ b/runner/src/common_rtl.c
+@@ -1653,6 +1653,7 @@ void WriteReg(uint16 reg, uint8 value) {
+       g_memsel = (uint8_t)(value & 1);  /* FastROM select; paces $80-FF code */
+     recomp_write_internal_reg(reg, value);
+   } else if (reg >= 0x4300 && reg < 0x4380) {
++    ppu_rasterRecord(reg, g_snes->vPos, value);
+     dma_write(g_dma, reg, value);
+   } else if (reg >= 0x4800 && reg < 0x4808 &&
+              g_snes && g_snes->cart &&
+diff --git a/runner/src/snes/ppu.c b/runner/src/snes/ppu.c
+index bfa0e8f..84d03fa 100644
+--- a/runner/src/snes/ppu.c
++++ b/runner/src/snes/ppu.c
+@@ -12,6 +12,7 @@ extern unsigned char g_snesrecomp_last_hdmaen;
+ #include <stddef.h>
+ 
+ #include "snes.h"
++#include "dma.h"
+ #include "../debug_server.h"
+ #if SNESRECOMP_ENABLE_MODS
+ #include "../snes_text_xlate.h"
+@@ -3194,6 +3195,14 @@ uint8_t ppu_read(Ppu* ppu, uint8_t adr) {
+  * unit. The set used to be the five registers one title's handlers wrote;
+  * the next title wrote a sixth and drew black.
+  *
++ * The DMA channel registers ($4300-$437F) are journaled for the same reason:
++ * the walk runs HDMA after the CPU half, and by then a channel may be set up
++ * for something else. FF6's raster IRQ switches HDMA off at V=215 and reuses
++ * channel 0 for a VRAM upload; read at the end of the field, the channel sent
++ * the BG2 wave table to VRAM instead of the scroll registers. The walk sees
++ * each field's baseline plus its writes in beam order, and RenderEnd puts back
++ * the registers the guest left.
++ *
+  * Writes the render walk makes itself (its HDMA, and this replay) are not
+  * journaled: they are the field being reconstructed, not new history. HDMA
+  * the beam performs during the CPU half (a host that leaves beam HDMA on) is
+@@ -3223,6 +3232,8 @@ typedef struct {
+   uint8_t regs[PPU_SAVESTATE_REGS_SIZE];   /* inidisp..cgwsel at field start */
+   uint8_t scrollPrev, scrollPrev2, m7prev;
+   uint8_t hdmaen;
++  DmaChannel dma[8];                       /* channel registers at field start */
++  bool has_dma;
+   int count;
+   uint32_t dropped;
+   PpuRasterEntry e[PPU_RASTER_MAX];
+@@ -3236,6 +3247,9 @@ static const PpuRasterField *s_raster_render;
+ static int s_raster_next;
+ static uint8_t s_raster_hdmaen;
+ static int s_raster_hdmaen_pending;
++static PpuRasterDmaWrite *s_raster_dma_writer;
++static DmaChannel s_raster_guest_dma[8];
++static bool s_raster_dma_saved;
+ static struct {
+   uint8_t oamAdr, oamInHigh, oamSecondWrite, oamBuffer;
+ } s_raster_port;
+@@ -3251,7 +3265,7 @@ static uint16_t raster_key(uint16_t line) {
+ }
+ 
+ static int raster_reg_journaled(uint16_t reg) {
+-  if (reg == 0x420C)
++  if (reg == 0x420C || (reg >= 0x4300 && reg < 0x4380))
+     return 1;
+   if (reg < 0x2100 || reg > 0x2133)
+     return 0;
+@@ -3272,10 +3286,33 @@ static void raster_snapshot(PpuRasterField *f, const Ppu *ppu) {
+   f->scrollPrev2 = ppu->scrollPrev2;
+   f->m7prev = ppu->m7prev;
+   f->hdmaen = g_snesrecomp_last_hdmaen;
++  f->has_dma = g_snes && g_snes->dma;
++  if (f->has_dma)
++    memcpy(f->dma, g_snes->dma->channel, sizeof(f->dma));
+   f->count = 0;
+   f->dropped = 0;
+ }
+ 
++/* The channel's registers, not the walk's table state or the armed flags. */
++static void raster_dma_copy_regs(DmaChannel *dst, const DmaChannel *src) {
++  dst->bAdr = src->bAdr;
++  dst->aAdr = src->aAdr;
++  dst->aBank = src->aBank;
++  dst->size = src->size;
++  dst->indBank = src->indBank;
++  dst->unusedByte = src->unusedByte;
++  dst->mode = src->mode;
++  dst->fixed = src->fixed;
++  dst->decrement = src->decrement;
++  dst->indirect = src->indirect;
++  dst->fromB = src->fromB;
++  dst->unusedBit = src->unusedBit;
++}
++
++void ppu_rasterSetDmaWriter(PpuRasterDmaWrite *writer) {
++  s_raster_dma_writer = writer;
++}
++
+ void ppu_rasterBegin(Ppu *ppu) {
+   /* A host that renders has finished with the previous field's replay. */
+   s_raster_rendering = 0;
+@@ -3303,6 +3340,7 @@ void ppu_rasterReset(void) {
+   s_raster_rendering = 0;
+   s_raster_render = NULL;
+   s_raster_hdmaen_pending = 0;
++  s_raster_dma_saved = false;
+ }
+ 
+ void ppu_rasterRecord(uint16_t reg, uint16_t line, uint8_t val) {
+@@ -3348,6 +3386,12 @@ void ppu_rasterRenderBegin(Ppu *ppu) {
+   ppu->scrollPrev = f->scrollPrev;
+   ppu->scrollPrev2 = f->scrollPrev2;
+   ppu->m7prev = f->m7prev;
++  if (s_raster_dma_writer && f->has_dma && g_snes && g_snes->dma) {
++    memcpy(s_raster_guest_dma, g_snes->dma->channel, sizeof(s_raster_guest_dma));
++    for (int i = 0; i < 8; i++)
++      raster_dma_copy_regs(&g_snes->dma->channel[i], &f->dma[i]);
++    s_raster_dma_saved = true;
++  }
+   s_raster_render = f;
+   s_raster_next = 0;
+   s_raster_hdmaen_pending = 0;
+@@ -3380,6 +3424,9 @@ void ppu_rasterApplyLine(Ppu *ppu, int line) {
+        * owns the render loop and calls dma_initHdma/dma_doHdma. */
+       s_raster_hdmaen = val;
+       s_raster_hdmaen_pending = 1;
++    } else if (reg >= 0x4300 && reg < 0x4380) {
++      if (s_raster_dma_writer)
++        s_raster_dma_writer(reg, val);
+     } else {
+       raster_replay(ppu, reg, val);
+     }
+@@ -3400,9 +3447,14 @@ void ppu_rasterRenderEnd(Ppu *ppu) {
+   if (s_raster_have_completed) {
+     f = &s_field[s_raster_cur];
+     for (i = 0; i < f->count; i++)
+-      if (f->e[i].reg != 0x420C)
++      if (f->e[i].reg >= 0x2100 && f->e[i].reg <= 0x2133)
+         raster_replay(ppu, f->e[i].reg, f->e[i].val);
+   }
++  if (s_raster_dma_saved) {
++    for (i = 0; i < 8; i++)
++      raster_dma_copy_regs(&g_snes->dma->channel[i], &s_raster_guest_dma[i]);
++    s_raster_dma_saved = false;
++  }
+   ppu->oamAdr = s_raster_port.oamAdr;
+   ppu->oamInHigh = s_raster_port.oamInHigh;
+   ppu->oamSecondWrite = s_raster_port.oamSecondWrite;
+diff --git a/runner/src/snes/ppu.h b/runner/src/snes/ppu.h
+index 1fd5853..a5fe8ab 100644
+--- a/runner/src/snes/ppu.h
++++ b/runner/src/snes/ppu.h
+@@ -611,6 +611,12 @@ void ppu_rasterBegin(Ppu *ppu);
+ void ppu_rasterRenderBegin(Ppu *ppu);
+ void ppu_rasterRenderEnd(Ppu *ppu);
+ int  ppu_rasterTakeHdmaen(uint8_t *out);
++/* DMA channel registers ($4300-$437F) are journaled too: HDMA runs in the
++ * render walk, so it has to see them as they stood on each line. The host that
++ * owns the DMA unit names the function that applies one write; until it does,
++ * they are recorded and ignored. */
++typedef void PpuRasterDmaWrite(uint16_t reg, uint8_t val);
++void ppu_rasterSetDmaWriter(PpuRasterDmaWrite *writer);
+ void ppu_rasterRecord(uint16_t reg, uint16_t line, uint8_t val);
+ void ppu_rasterApplyLine(Ppu *ppu, int line);
+ /* Called by the beam walk when it reaches V=225. */
+diff --git a/runner/src/snes/snes.c b/runner/src/snes/snes.c
+index 6ce8b08..25b5acf 100644
+--- a/runner/src/snes/snes.c
++++ b/runner/src/snes/snes.c
+@@ -963,6 +963,7 @@ void snes_write(Snes* snes, uint32_t adr, uint8_t val) {
+       snes_writeReg(snes, adr, val); // manual joypad strobe
+     }
+     if(adr >= 0x4300 && adr < 0x4380) {
++      ppu_rasterRecord(adr, snes->vPos, val);
+       dma_write(snes->dma, adr, val); // dma registers
+       /* S-DD1 spies on DMA channel register writes */
+       if (snes->cart && snes->cart->type == CART_SDD1 && snes->cart->sdd1)
+diff --git a/tests/frame_driver/beam_frame_driver_test.c b/tests/frame_driver/beam_frame_driver_test.c
+index f51461e..4f35d58 100644
+--- a/tests/frame_driver/beam_frame_driver_test.c
++++ b/tests/frame_driver/beam_frame_driver_test.c
+@@ -297,6 +297,53 @@ static int test_hdma_mid_field_enable_keeps_its_delay(void) {
+   return failures;
+ }
+ 
++/* A guest write to a channel register, as snes.c does it. */
++static void guest_channel_write(uint16_t line, uint16_t reg, uint8_t val) {
++  ppu_rasterRecord(reg, line, val);
++  dma_write(s_snes.dma, reg, val);
++}
++
++/* FF6's frame: NMI sets channel 0 up for HDMA and arms it, the raster IRQ at
++ * V=215 switches HDMA off and reuses the channel for a VRAM upload. The walk
++ * runs after all of it and has to see the channel as it was on each line. */
++static int test_hdma_sees_the_channel_of_its_line(void) {
++  Dma *dma = s_snes.dma;
++  int failures = 0;
++
++  begin_field(kStepTable, sizeof kStepTable);
++  for (int field = 0; field < 2; field++) {
++    guest_channel_write(230, 0x4300, 0x00);
++    guest_channel_write(230, 0x4301, 0x26);
++    ppu_rasterRecord(0x420C, 231, 0x01);
++    ppu_rasterRecord(0x420C, 215, 0x00);
++    guest_channel_write(215, 0x4300, 0x41);
++    guest_channel_write(215, 0x4301, 0x18);
++    const uint32_t vram_writes = g_ppu->vramWriteCount;
++    render_field();
++    failures += check(s_line_wh0[1] == 0x11, "reused channel: line 1 has the first entry");
++    failures += check(s_line_wh0[3] == 0x22, "reused channel: line 3 has the second entry");
++    failures += check(g_ppu->vramWriteCount == vram_writes,
++                      "reused channel: the walk does not write the VRAM port");
++    failures += check(dma->channel[0].bAdr == 0x18 && dma->channel[0].mode == 1,
++                      "the guest gets its channel registers back");
++  }
++
++  /* A split: the channel changes register on a visible line, with HDMA running.
++   * Table: 6 lines each on its own transfer. */
++  static const uint8_t kSplitTable[] = {0x86, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x00};
++  begin_field(kSplitTable, sizeof kSplitTable);
++  ppu_write(g_ppu, 0x27, WH0_BASELINE);
++  ppu_rasterRecord(0x420C, 230, 0x01);
++  guest_channel_write(2, 0x4301, 0x27);
++  guest_channel_write(150, 0x4301, 0x26);
++  render_field();
++  failures += check(s_line_wh0[3] == 0x33, "split: before it the channel still drives $2126");
++  failures += check(s_line_wh0[4] == 0x33, "split: after it $2126 keeps its value");
++  failures += check(g_ppu->window1right == 0x36, "split: the rest of the table went to $2127");
++  failures += check(dma->channel[0].bAdr == 0x26, "split: the last write is what the guest has");
++  return failures;
++}
++
+ int main(void) {
+   int failures = 0;
+ 
+@@ -317,6 +364,7 @@ int main(void) {
+   failures += test_hdma_steps_from_line_zero();
+   failures += test_hdma_armed_by_a_vblank_write();
+   failures += test_hdma_mid_field_enable_keeps_its_delay();
++  failures += test_hdma_sees_the_channel_of_its_line();
+ 
+   dma_free(s_snes.dma);
+   ppu_free(g_ppu);
+-- 
+2.56.0.windows.3
+

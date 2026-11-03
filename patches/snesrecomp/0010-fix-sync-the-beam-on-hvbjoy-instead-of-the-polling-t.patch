@@ -1,0 +1,148 @@
+From a76eb19a0d9dd2da14a1451f7fc1c4dd771c2ed5 Mon Sep 17 00:00:00 2001
+From: Neivin Detlefsen <neivin.detlefsen@gmx.de>
+Date: Mon, 2 Nov 2026 18:08:40 +0100
+Subject: [PATCH 10/10] fix: sync the beam on hvbjoy instead of the polling
+ tick
+
+Every $4212 read in compiled code moved the beam 64 master clocks ahead, the
+static-recomp polling tick for hosts without a beam of their own. It moves
+hPos/vPos without beamMasterLast. FF6's menus wait for H-blank some 60 times a
+frame: the next V=225 by the clock lay up to three lines past V=225 by the
+beam, NMI started that late, and in the Equip list the HDMA enable slid past
+V=0 (colour gradient 3-4 lines off). The NMI itself takes 35 lines on both
+sides; the offset came from its start alone.
+
+New host policy snes_set_beam_on_master_clock (default off, kept out of the
+Snes struct like the raster IRQ switch). The beam frame driver sets it; then
+snes_readReg skips the tick and ReadRegOpenBus syncs the beam on $4212 as it
+does on $2137.
+---
+ runner/src/beam_frame_driver.c              |  1 +
+ runner/src/common_rtl.c                     |  2 +-
+ runner/src/snes/snes.c                      | 17 +++++++++++++++--
+ runner/src/snes/snes.h                      |  6 ++++++
+ tests/dma/rdnmi_test.c                      |  8 ++++++++
+ tests/frame_driver/beam_frame_driver_test.c |  3 +++
+ 6 files changed, 34 insertions(+), 3 deletions(-)
+
+diff --git a/runner/src/beam_frame_driver.c b/runner/src/beam_frame_driver.c
+index 7015f1b..894817d 100644
+--- a/runner/src/beam_frame_driver.c
++++ b/runner/src/beam_frame_driver.c
+@@ -168,6 +168,7 @@ void snes_beam_frame_driver_run_frame(void) {
+    * comparator. Re-asserted per frame: a save-state load restores Snes. */
+   snes_set_hdma_beam_enabled(g_snes, false);
+   snes_set_raster_irq_beam_enabled(true);
++  snes_set_beam_on_master_clock(true);
+   ppu_rasterBegin(g_ppu);
+ 
+   /* NMITIMEN gates NMI; nothing is delivered before reset has run, since
+diff --git a/runner/src/common_rtl.c b/runner/src/common_rtl.c
+index 82fc9c7..da9a046 100644
+--- a/runner/src/common_rtl.c
++++ b/runner/src/common_rtl.c
+@@ -1683,7 +1683,7 @@ uint8 ReadRegOpenBus(uint16 reg, uint8 open_bus) {
+   if (reg >= 0x2000 && reg < 0x2008) {
+     return msu1_enabled() ? msu1_read(reg) : open_bus;
+   }
+-  if (reg == 0x2137)
++  if (reg == 0x2137 || (reg == 0x4212 && snes_beam_on_master_clock()))
+     snes_sync_master_clock(g_snes, g_cpu.master_cycles);
+   if (reg >= 0x3000 && reg < 0x3300 && g_snes->cart->type == CART_SUPERFX) {
+     cart_sync_coprocessors(g_snes->cart, g_cpu.master_cycles);
+diff --git a/runner/src/snes/snes.c b/runner/src/snes/snes.c
+index 25b5acf..55864b2 100644
+--- a/runner/src/snes/snes.c
++++ b/runner/src/snes/snes.c
+@@ -73,6 +73,14 @@ void snes_set_raster_irq_beam_enabled(bool enabled) {
+   s_raster_irq_beam_off = !enabled;
+ }
+ 
++static bool s_beam_on_master_clock;
++void snes_set_beam_on_master_clock(bool enabled) {
++  s_beam_on_master_clock = enabled;
++}
++bool snes_beam_on_master_clock(void) {
++  return s_beam_on_master_clock;
++}
++
+ static SnesMasterClockChargeHook s_master_clock_charge_hook;
+ static SnesWramWriteLogHook s_wram_write_log_hook;
+ 
+@@ -648,9 +656,14 @@ uint8_t snes_readReg(Snes* snes, uint16_t adr) {
+       /* Whole-program interpreter runs already advance the beam from every
+        * opcode's measured master clocks. Applying the legacy static-recomp
+        * polling tick as well doubles time in $4212 wait loops (SMRPG's boot
+-       * fades completed in half the reference frame count). */
++       * fades completed in half the reference frame count).
++       * Nor on a beam that follows the master clock: the read path has just
++       * synced it, and the tick moves hPos/vPos without beamMasterLast. FF6's
++       * menus wait for H-blank some 60 times a frame in compiled code, and the
++       * next V=225 by the clock came up to three lines into vblank by the beam:
++       * NMI ran that late and its HDMA enable slid past V=0. */
+       extern int g_interp_apu_driving;
+-      if (!g_interp_apu_driving)
++      if (!g_interp_apu_driving && !s_beam_on_master_clock)
+         snes_advance_beam(snes, 64, false);
+       // Bit 7 = vblank. The real frame loop drives vblank via inNmi, not
+       // inVblank (inVblank is never set true), so on the static-recomp
+diff --git a/runner/src/snes/snes.h b/runner/src/snes/snes.h
+index 013e785..b2cce02 100644
+--- a/runner/src/snes/snes.h
++++ b/runner/src/snes/snes.h
+@@ -160,6 +160,12 @@ void snes_set_hdma_beam_enabled(Snes *snes, bool enabled);
+  * frame, freezing the guest. Default: enabled (the beam latches). Host policy,
+  * not guest state: kept out of the Snes struct and so out of savestates. */
+ void snes_set_raster_irq_beam_enabled(bool enabled);
++/* The beam follows the master clock (frame-model host): an HVBJOY read syncs it
++ * instead of taking the static-recomp polling tick. The tick moves hPos/vPos
++ * without beamMasterLast, so the host's next V=225 by the clock is no longer
++ * V=225 by the beam. Default: off. Host policy, not guest state, like the above. */
++void snes_set_beam_on_master_clock(bool enabled);
++bool snes_beam_on_master_clock(void);
+ bool snes_next_irq_master(const Snes *snes, uint64_t now, uint64_t *out);
+ 
+ /* Master clocks from the current beam position to the next programmed H/V IRQ
+diff --git a/tests/dma/rdnmi_test.c b/tests/dma/rdnmi_test.c
+index 98ce817..fd9bf4c 100644
+--- a/tests/dma/rdnmi_test.c
++++ b/tests/dma/rdnmi_test.c
+@@ -55,6 +55,14 @@ int main(void) {
+     }
+   }
+   s.rdnmiPending=true;snes_reset(&s,false);assert(!s.rdnmiPending);
++  /* HVBJOY: the polling tick is for hosts with no beam of their own. On one that
++   * follows the master clock it would move hPos/vPos ahead of beamMasterLast. */
++  s.hPos=100;s.vPos=10;
++  snes_set_beam_on_master_clock(false);
++  (void)snes_readReg(&s,0x4212);assert(s.hPos==164 && s.vPos==10);
++  snes_set_beam_on_master_clock(true);
++  (void)snes_readReg(&s,0x4212);assert(s.hPos==164 && s.vPos==10);
++  snes_set_beam_on_master_clock(false);
+   puts("RDNMI: disabled/enabled NMI, read-clear, field expiry, instance isolation, host compatibility, v9/v10 snapshots and reset PASS");
+   return 0;
+ }
+diff --git a/tests/frame_driver/beam_frame_driver_test.c b/tests/frame_driver/beam_frame_driver_test.c
+index f4d4908..bcc73d5 100644
+--- a/tests/frame_driver/beam_frame_driver_test.c
++++ b/tests/frame_driver/beam_frame_driver_test.c
+@@ -50,6 +50,8 @@ void cpu_write8(CpuState *cpu, uint8 bank, uint16 addr, uint8 v) {
+ void snes_refresh_exempt(void) {}
+ void snes_set_hdma_beam_enabled(Snes *snes, bool enabled) { (void)snes; (void)enabled; }
+ void snes_set_raster_irq_beam_enabled(bool enabled) { (void)enabled; }
++static bool s_beam_on_master_clock;
++void snes_set_beam_on_master_clock(bool enabled) { s_beam_on_master_clock = enabled; }
+ uint32_t snes_master_clocks_until_irq(const Snes *snes) { (void)snes; return 0; }
+ uint32_t snes_master_clocks_until_line(const Snes *snes, uint32_t line) {
+   (void)snes; (void)line; return 0;
+@@ -170,6 +172,7 @@ static int test_rdnmi_poll_runs_before_nmi(void) {
+   int failures = 0;
+ 
+   run_nmi_frame(POLL_LDA, true, true);
++  failures += check(s_beam_on_master_clock, "the driver's beam follows the master clock");
+   failures += check(s_nmis == 1, "parked on lda: NMI still delivered");
+   failures += check(s_poll_saw_flag, "parked on lda: the poll reads the flag before the NMI");
+   failures += check(s_steps == 1, "parked on lda: one instruction runs");
+-- 
+2.56.0.windows.3
+

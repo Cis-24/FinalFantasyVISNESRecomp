@@ -1,0 +1,9 @@
+# r01: Kaltstart -> Square-Logo (Splash) -> Titelbild.
+# WRAM $0019 = Titelzustand (DP=0, cutscene/title.asm: TitleLoop/SplashLoop).
+# Splash nutzt 0..1 und setzt $19 danach auf 0; Zustand 9 (TitleState_09)
+# ist das fertig aufgebaute Titelbild und tritt nur im Titel auf.
+# Keine Eingabe noetig: Splash und Titel laufen selbststaendig.
+until 0019 == 09 6000
+wait 30
+dump title
+quit

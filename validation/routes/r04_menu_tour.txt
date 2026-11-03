@@ -1,0 +1,919 @@
+# r04: Menue-Tour (PLAN Phase 7): jedes Untermenue oeffnen und schliessen, Item und Magie benutzen, Ausruestung und
+# Relic wechseln, Config aendern, Reihenfolge, Speichern, Shops, Final Order, Colosseum, Party, Laden nach Reset.
+# Einstieg wie r03. Inventar und Skill-Listen per poke, weil das Spiel an dieser Stelle fast nichts davon hat; die
+# Menues selbst laufen danach nur ueber Tasten. Schluessel: $26 Menuezustand (menu_const.inc MENU_STATE), $4B Cursor.
+# Dumps nie in Ueberblendungen ($26 = 00/01/02), dort rundet die Helligkeit anders (STATUS, compare_dumps --fb-tol).
+# Im Menue wartet die Route nie auf Frames, sondern auf $CF: Das Menue zaehlt dort seine Hauptschleifen-Durchlaeufe
+# (menu_common.asm:3432), und daran haengen Eingaben und Animationen. Rechnet eine Seite ueber eine Frame-Grenze (Lag),
+# trifft ein fester Abstand in Frames auf beiden Seiten verschiedene Durchlaeufe. Die Staende misst work/r04_rekey.py
+# aus einem Referenzlauf; nach einem Umbau der Route neu messen.
+# $45-$47 und die Spielzeit werden vor dem Oeffnen auf beiden Seiten gleich gesetzt: Ladephasen dauern verschieden
+# lang, und die Magie-Liste verzweigt auf das unterste Bit der Spielzeit (field_menu.asm:2365).
+until 0019 == 09 6000
+wait 60
+press a 2
+until 0082 == 12 8000
+until 00D3 == 01 4000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 0019 == 02 3000
+wait 120
+press a 2
+until 0082 == 13 20000
+until 00D3 == 01 1500
+press a 2
+until16 00E5 == 0000 3000
+until 00E7 == CA 100
+wait 60
+# Testdaten: Inventar, Lebenspunkte, Befehle, Skill-Listen, Speicherpunkt-Flag
+until 106A == 21 60
+poke 0045 000000
+poke 021B 00000000
+poke 1869 E8E700E6F0F7
+poke 1969 050101010201
+poke 1609 1000
+poke 1616 02070A0C
+poke 181C 1013FF01
+poke 1A69 03
+poke 1CF7 0F
+poke 1D28 0F
+poke 1D29 FF
+poke 1D2C FF
+poke 1D4C 0F
+poke 1EB7 80
+press x 2
+until 0026 == 05 300
+wait 20
+poke 00CF 0000
+until16 00CF == 0002 600
+dump main
+
+# Item: Tonic auf Terra
+until16 00CF == 0002 600
+press a 2
+until 0026 == 08 120
+until16 00CF == 002B 600
+dump item
+until16 00CF == 002B 600
+press a 2
+until 0026 == 19 30
+until16 00CF == 0036 600
+press a 2
+until 0026 == 70 120
+until16 00CF == 005F 600
+dump item_char
+until16 00CF == 005F 600
+press a 2
+until16 00CF == 007F 600
+dump item_used
+until16 00CF == 007F 600
+press b 2
+until 0026 == 08 120
+until16 00CF == 00A8 600
+dump item_back
+# Tausch Tonic <-> Rename Card
+until16 00CF == 00A8 600
+press a 2
+until 0026 == 19 30
+until16 00CF == 00B3 600
+press down 2
+until16 00CF == 00BE 600
+press a 2
+until 0026 == 08 30
+until16 00CF == 00CD 600
+dump item_moved
+# Optionen: Arrange, Rare
+until16 00CF == 00CD 600
+press b 2
+until 0026 == 17 30
+until16 00CF == 00E4 600
+dump item_opts
+until16 00CF == 00E4 600
+press right 2
+until16 00CF == 00EF 600
+press a 2
+until16 00CF == 0103 600
+dump item_arrange
+until16 00CF == 0103 600
+press right 2
+until16 00CF == 010E 600
+press right 2
+until16 00CF == 0119 600
+press a 2
+until 0026 == 18 30
+until16 00CF == 0130 600
+dump item_rare
+until16 00CF == 0130 600
+press b 2
+until 0026 == 17 30
+# Zurueck zur Liste, Rename Card benutzen (Namenseingabe)
+until16 00CF == 013F 600
+press a 2
+until 0026 == 08 30
+until16 00CF == 0156 600
+dump item_list2
+# Rename Card an erster Stelle: Namenseingabe fuer Terra
+until16 00CF == 0156 600
+press a 2
+until 0026 == 19 30
+until16 00CF == 0161 600
+press a 2
+until 0026 == 70 120
+until16 00CF == 018A 600
+press a 2
+until 0026 == 5F 200
+until16 00CF == 01B3 600
+dump name_change
+until16 00CF == 01B3 600
+press down 2
+until16 00CF == 01BE 600
+press a 2
+until16 00CF == 01CD 600
+dump name_letter
+until16 00CF == 01CD 600
+press start 2
+until 0026 == 05 300
+until16 00CF == 01F6 600
+dump main_rename
+
+# Skills: Cursor startet auf Magic
+until16 00CF == 01F6 600
+press down 2
+until 004B == 01 20
+until16 00CF == 01FF 600
+press a 2
+until 0026 == 06 30
+until16 00CF == 020A 600
+dump main_char
+until16 00CF == 020A 600
+press a 2
+until 0026 == 0A 120
+until16 00CF == 0233 600
+dump skills
+until16 00CF == 0233 600
+press a 2
+until 0026 == 1A 60
+until16 00CF == 0249 600
+dump skills_magic
+# Cure auf Terra
+poke 1609 1000
+until16 00CF == 024B 600
+press a 2
+until 0026 == 3B 120
+until16 00CF == 0274 600
+dump magic_target
+until16 00CF == 0274 600
+press a 2
+until16 00CF == 0294 600
+dump magic_cast
+until16 00CF == 0294 600
+press b 2
+until 0026 == 1A 120
+until16 00CF == 02BE 600
+dump magic_back
+until16 00CF == 02BE 600
+press y 2
+until16 00CF == 02CD 600
+dump magic_order
+until16 00CF == 02CD 600
+press b 2
+until 0026 == 0A 60
+# Espers
+until16 00CF == 02DC 600
+press up 2
+until 004B == 00 20
+until16 00CF == 02E5 600
+press a 2
+until 0026 == 1E 60
+until16 00CF == 02FB 600
+dump skills_genju
+until16 00CF == 02FB 600
+press a 2
+until 0026 == 4D 60
+until16 00CF == 0312 600
+dump genju_detail
+until16 00CF == 0312 600
+press b 2
+until 0026 == 1E 60
+until16 00CF == 0321 600
+press b 2
+until 0026 == 0A 60
+# SwdTech, Blitz, Lore
+until16 00CF == 0330 600
+press down 2
+until16 00CF == 0339 600
+press down 2
+until 004B == 02 20
+until16 00CF == 0342 600
+press a 2
+until 0026 == 3E 60
+until16 00CF == 0359 600
+dump skills_bushido
+until16 00CF == 0359 600
+press b 2
+until 0026 == 0A 60
+until16 00CF == 0368 600
+press down 2
+until 004B == 03 20
+until16 00CF == 0371 600
+press a 2
+until 0026 == 33 60
+until16 00CF == 0388 600
+dump skills_blitz
+until16 00CF == 0388 600
+press b 2
+until 0026 == 0A 60
+until16 00CF == 0397 600
+press down 2
+until 004B == 04 20
+until16 00CF == 03A0 600
+press a 2
+until 0026 == 1B 60
+until16 00CF == 03B7 600
+dump skills_lore
+until16 00CF == 03B7 600
+press b 2
+until 0026 == 0A 60
+# Naechster Charakter (Biggs): Rage, Dance
+until16 00CF == 03C6 600
+press r 2
+until 0026 == 0A 120
+until16 00CF == 03E6 600
+dump skills_biggs
+until16 00CF == 03E6 600
+press down 2
+until16 00CF == 03EF 600
+press down 2
+until16 00CF == 03F8 600
+press down 2
+until16 00CF == 0401 600
+press down 2
+until 004B == 05 20
+until16 00CF == 040A 600
+press a 2
+until 0026 == 1D 60
+until16 00CF == 0420 600
+dump skills_rage
+until16 00CF == 0420 600
+press b 2
+until 0026 == 0A 60
+until16 00CF == 042F 600
+press down 2
+until 004B == 06 20
+until16 00CF == 0438 600
+press a 2
+until 0026 == 1C 60
+until16 00CF == 044F 600
+dump skills_dance
+until16 00CF == 044F 600
+press b 2
+until 0026 == 0A 60
+until16 00CF == 045E 600
+press b 2
+until 0026 == 05 120
+until16 00CF == 0487 600
+dump main_skills
+
+# Equip: Dirk anlegen, Optimum, Remove, Empty, Optimum (der Hauptmenue-Cursor startet wieder oben)
+until16 00CF == 0487 600
+press down 2
+until16 00CF == 0490 600
+press down 2
+until 004B == 02 20
+until16 00CF == 0499 600
+press a 2
+until 0026 == 06 30
+until16 00CF == 04A4 600
+press a 2
+until 0026 == 36 120
+until16 00CF == 04CD 600
+dump equip
+until16 00CF == 04CD 600
+press a 2
+until 0026 == 55 30
+until16 00CF == 04DC 600
+dump equip_slot
+until16 00CF == 04DC 600
+press a 2
+until 0026 == 57 30
+until16 00CF == 04F3 600
+dump equip_items
+until16 00CF == 04F3 600
+press a 2
+until 0026 == 55 30
+until16 00CF == 050A 600
+dump equip_changed
+until16 00CF == 050A 600
+press b 2
+until 0026 == 36 30
+until16 00CF == 0519 600
+dump equip_opts
+until16 00CF == 0519 600
+press right 2
+until 004B == 01 20
+until16 00CF == 0522 600
+press a 2
+until16 00CF == 0537 600
+dump equip_optimum
+until16 00CF == 0537 600
+press right 2
+until16 00CF == 0540 600
+press right 2
+until 004B == 02 20
+until16 00CF == 0549 600
+press a 2
+until 0026 == 56 30
+until16 00CF == 0558 600
+dump equip_remove
+until16 00CF == 0558 600
+press a 2
+until16 00CF == 0567 600
+dump equip_removed
+until16 00CF == 0567 600
+press b 2
+until 0026 == 36 30
+until16 00CF == 0576 600
+dump equip_opts2
+until16 00CF == 0576 600
+press r 2
+until 0026 == 36 120
+until16 00CF == 0596 600
+dump equip_biggs
+until16 00CF == 0596 600
+press b 2
+until 0026 == 05 120
+# Empty und Optimum
+until16 00CF == 05BF 600
+press down 2
+until16 00CF == 05C8 600
+press down 2
+until 004B == 02 20
+until16 00CF == 05D1 600
+press a 2
+until 0026 == 06 30
+until16 00CF == 05DC 600
+press a 2
+until 0026 == 36 120
+until16 00CF == 05FD 600
+press right 2
+until16 00CF == 0606 600
+press right 2
+until16 00CF == 060F 600
+press right 2
+until 004B == 03 20
+until16 00CF == 0618 600
+press a 2
+until16 00CF == 062F 600
+dump equip_empty
+until16 00CF == 062F 600
+press right 2
+until 004B == 01 20
+until16 00CF == 0638 600
+press a 2
+until16 00CF == 064E 600
+dump equip_optimum2
+until16 00CF == 064E 600
+press b 2
+until 0026 == 05 120
+# Ausruestung aller: Equip, Charakterwahl, links
+until16 00CF == 0677 600
+press down 2
+until16 00CF == 0680 600
+press down 2
+until 004B == 02 20
+until16 00CF == 0689 600
+press a 2
+until 0026 == 06 30
+until16 00CF == 0694 600
+press left 2
+until 0026 == 37 30
+until16 00CF == 069F 600
+press a 2
+until 0026 == 39 120
+until16 00CF == 06C8 600
+dump party_equip
+until16 00CF == 06C8 600
+press b 2
+until 0026 == 05 120
+
+# Relic: Sprint Shoes anlegen, wieder abnehmen
+until16 00CF == 06F1 600
+press down 2
+until16 00CF == 06FA 600
+press down 2
+until16 00CF == 0703 600
+press down 2
+until 004B == 03 20
+until16 00CF == 070C 600
+press a 2
+until 0026 == 06 30
+until16 00CF == 0717 600
+press a 2
+until 0026 == 59 120
+until16 00CF == 0740 600
+dump relic
+until16 00CF == 0740 600
+press a 2
+until 0026 == 5A 30
+until16 00CF == 074F 600
+dump relic_slot
+until16 00CF == 074F 600
+press a 2
+until 0026 == 5B 30
+until16 00CF == 0766 600
+dump relic_items
+until16 00CF == 0766 600
+press a 2
+until 0026 == 5A 30
+until16 00CF == 077D 600
+dump relic_changed
+until16 00CF == 077D 600
+press b 2
+until 0026 == 59 30
+until16 00CF == 078C 600
+press right 2
+until 004B == 01 20
+until16 00CF == 0795 600
+press a 2
+until 0026 == 5C 30
+until16 00CF == 07A4 600
+dump relic_remove
+until16 00CF == 07A4 600
+press a 2
+until16 00CF == 07B3 600
+dump relic_removed
+until16 00CF == 07B3 600
+press b 2
+until 0026 == 59 30
+until16 00CF == 07C2 600
+press b 2
+until 0026 == 05 300
+
+# Status, naechster Charakter
+until16 00CF == 07EB 600
+press down 2
+until16 00CF == 07F4 600
+press down 2
+until16 00CF == 07FD 600
+press down 2
+until16 00CF == 0806 600
+press down 2
+until 004B == 04 20
+until16 00CF == 080F 600
+press a 2
+until 0026 == 06 30
+until16 00CF == 081A 600
+press a 2
+until 0026 == 0C 120
+until16 00CF == 0843 600
+dump status
+until16 00CF == 0843 600
+press r 2
+until16 00CF == 085A 600
+dump status_2
+until16 00CF == 085A 600
+press b 2
+until 0026 == 05 120
+until16 00CF == 0883 600
+dump main_status
+
+# Config: Bat.Speed aendern, Cmd.Set auf Short mit Befehlsanordnung, Controller auf Multiple, Seite 2
+until16 00CF == 0883 600
+press down 2
+until16 00CF == 088C 600
+press down 2
+until16 00CF == 0895 600
+press down 2
+until16 00CF == 089E 600
+press down 2
+until16 00CF == 08A7 600
+press down 2
+until 004B == 05 20
+until16 00CF == 08B0 600
+press a 2
+until 0026 == 0E 120
+until16 00CF == 08D9 600
+dump config
+until16 00CF == 08D9 600
+press down 2
+until 004B == 01 20
+until16 00CF == 08E2 600
+press right 2
+until16 00CF == 08ED 600
+dump config_speed
+until16 00CF == 08ED 600
+press down 2
+until16 00CF == 08F6 600
+press down 2
+until 004B == 03 20
+until16 00CF == 08FF 600
+press right 2
+until16 00CF == 090A 600
+dump config_cmdset
+until16 00CF == 090A 600
+press a 2
+until 0026 == 48 120
+until16 00CF == 0933 600
+dump cmd_arrange
+until16 00CF == 0933 600
+press b 2
+until 0026 == 0E 120
+until16 00CF == 095C 600
+dump config_back
+until16 00CF == 095C 600
+press down 2
+until16 00CF == 0965 600
+press down 2
+until16 00CF == 096E 600
+press down 2
+until16 00CF == 0977 600
+press down 2
+until16 00CF == 0980 600
+press down 2
+until 004B == 08 20
+until16 00CF == 0989 600
+press right 2
+until16 00CF == 0994 600
+press a 2
+until 0026 == 4C 120
+until16 00CF == 09BD 600
+dump char_ctrl
+until16 00CF == 09BD 600
+press b 2
+until 0026 == 0E 120
+# Seite 2: Mag.Order, Window, Color
+until16 00CF == 09E6 600
+press down 2
+until 0026 == 50 10
+until 0026 == 0E 60
+until16 00CF == 0A0C 600
+dump config_p2
+until16 00CF == 0A0C 600
+press right 2
+until16 00CF == 0A17 600
+press down 2
+until16 00CF == 0A22 600
+press right 2
+until16 00CF == 0A31 600
+dump config_window
+until16 00CF == 0A31 600
+press down 2
+until16 00CF == 0A3C 600
+press right 2
+until16 00CF == 0A47 600
+press down 2
+until16 00CF == 0A52 600
+press right 2
+until16 00CF == 0A61 600
+dump config_color
+until16 00CF == 0A61 600
+press a 2
+until16 00CF == 0A70 600
+dump config_revert
+until16 00CF == 0A70 600
+press b 2
+until 0026 == 05 120
+until16 00CF == 0A99 600
+dump main_config
+
+# Order: Reihe wechseln, Plaetze tauschen
+until16 00CF == 0A99 600
+press left 2
+until 0026 == 0F 120
+until16 00CF == 0AB4 600
+dump order
+until16 00CF == 0AB4 600
+press a 2
+until 0026 == 10 30
+until16 00CF == 0ABF 600
+press a 2
+until 0026 == 0F 120
+until16 00CF == 0AE0 600
+dump order_row
+until16 00CF == 0AE0 600
+press a 2
+until 0026 == 10 30
+until16 00CF == 0AEB 600
+press down 2
+until16 00CF == 0AF6 600
+press a 2
+until 0026 == 0F 200
+until16 00CF == 0B24 600
+dump order_swap
+until16 00CF == 0B24 600
+press b 2
+until 0026 == 05 120
+until16 00CF == 0B40 600
+dump main_order
+
+# Save: leerer Slot speichert sofort, danach Abfrage beim Ueberschreiben
+until16 00CF == 0B40 600
+press down 2
+until16 00CF == 0B49 600
+press down 2
+until16 00CF == 0B52 600
+press down 2
+until16 00CF == 0B5B 600
+press down 2
+until16 00CF == 0B64 600
+press down 2
+until16 00CF == 0B6D 600
+press down 2
+until 004B == 06 20
+until16 00CF == 0B76 600
+press a 2
+until 0026 == 14 200
+until16 00CF == 0B9F 600
+dump save
+until16 00CF == 0B9F 600
+# Die Spielzeit zaehlt Frames, die Sekunden landen im SRAM: vor dem Speichern gleich setzen
+poke 021B 00000000
+press a 2
+until 0026 == 53 30
+until 0026 == 14 300
+until16 00CF == 0BC8 600
+dump save_saved
+until16 00CF == 0BC8 600
+# Die Spielzeit zaehlt Frames, die Sekunden landen im SRAM: vor dem Speichern gleich setzen
+poke 021B 00000000
+press a 2
+until 0026 == 16 300
+until16 00CF == 0BF1 600
+dump save_confirm
+until16 00CF == 0BF1 600
+press a 2
+until 0026 == 14 300
+until16 00CF == 0C1A 600
+dump save_saved2
+until16 00CF == 0C1A 600
+press b 2
+until 0026 == 05 300
+until16 00CF == 0C43 600
+dump main_save
+
+# Menue schliessen, Rueckkehr aufs Field
+until16 00CF == 0C43 600
+press b 2
+wait 60
+until 0084 == 00 600
+wait 20
+until 0047 == 60 400
+poke 10D1 0000
+poke 053B 00
+wait 9
+dump field_back
+
+# Shops: Start per Event-PC auf echte ROM-Skripte (shop_menu + return), Aufbau wie OpenMainMenu "Tent"
+# (field/menu.asm:242-274): $E5-$E7 PC, $E8/$E9 Stackzeiger, $05F4 Ruecksprung, $0594 NoEvent, $05C7 Tiefe.
+# Figaro-Items: CA:67BA
+poke 05F4 BA67CA
+poke 0594 0000CA
+poke 05C7 01
+poke 00E5 BA67CA0300
+until 0026 == 25 300
+wait 20
+poke 00CF 0000
+until16 00CF == 0002 600
+dump shop
+until16 00CF == 0002 600
+press a 2
+until 0026 == 26 30
+until16 00CF == 0017 600
+dump shop_buy
+until16 00CF == 0017 600
+press a 2
+until 0026 == 27 30
+until16 00CF == 0025 600
+dump shop_qty
+until16 00CF == 0025 600
+press up 2
+until16 00CF == 0030 600
+press a 2
+until 0026 == 26 120
+until16 00CF == 0064 600
+dump shop_bought
+until16 00CF == 0064 600
+press b 2
+until 0026 == 25 120
+until16 00CF == 0071 600
+press right 2
+until 004B == 01 20
+until16 00CF == 007A 600
+press a 2
+until 0026 == 29 30
+until16 00CF == 0090 600
+dump shop_sell
+until16 00CF == 0090 600
+press down 2
+until16 00CF == 009B 600
+press a 2
+until 0026 == 2A 30
+until16 00CF == 00A9 600
+dump shop_sell_qty
+until16 00CF == 00A9 600
+press a 2
+until 0026 == 29 120
+until16 00CF == 00DE 600
+dump shop_sold
+until16 00CF == 00DE 600
+press b 2
+until 0026 == 25 120
+until16 00CF == 00EB 600
+press b 2
+wait 60
+until 0084 == 00 600
+wait 20
+until 0047 == 60 400
+poke 10D1 0000
+poke 053B 00
+wait 9
+dump field_shop
+# South-Figaro-Waffen: CA:7866, zeigt die Ausruestbarkeit je Charakter
+poke 05F4 6678CA
+poke 0594 0000CA
+poke 05C7 01
+poke 00E5 6678CA0300
+until 0026 == 25 300
+wait 20
+poke 00CF 0000
+until16 00CF == 0002 600
+dump shop2
+until16 00CF == 0002 600
+press a 2
+until 0026 == 26 30
+until16 00CF == 0017 600
+dump shop2_buy
+until16 00CF == 0017 600
+press down 2
+until16 00CF == 0026 600
+dump shop2_cursor
+until16 00CF == 0026 600
+press b 2
+until 0026 == 25 120
+until16 00CF == 0033 600
+press b 2
+wait 60
+until 0084 == 00 600
+wait 20
+until 0047 == 60 400
+poke 10D1 0000
+poke 053B 00
+wait 9
+dump field_shop2
+
+# Final Order, Colosseum, Party: kurzes Event im WRAM, weil die ROM-Skripte davor und danach Szenen spielen.
+# $7E:1FF7 (letzte freien Bytes der Spieldaten, in allen Dumps 0). Nicht Bank $7F: Das Laden der Map loescht sie,
+# der Event-PC liefe beim Ruecksprung durch Nullen und ueberschriebe den WRAM (auf beiden Seiten).
+# order_menu, return
+poke 1FF7 9DFE
+poke 05F4 F71F7E
+poke 0594 0000CA
+poke 05C7 01
+poke 00E5 F71F7E0300
+until 0026 == 74 300
+wait 20
+poke 00CF 0000
+until16 00CF == 0002 600
+dump final_order
+until16 00CF == 0002 600
+press down 2
+until16 00CF == 000D 600
+press a 2
+until16 00CF == 001C 600
+dump final_order_sel
+until16 00CF == 001C 600
+press b 2
+until16 00CF == 002B 600
+dump final_order_undo
+until16 00CF == 002B 600
+press start 2
+wait 60
+until 0084 == 00 600
+wait 20
+until 0047 == 60 400
+poke 10D1 0000
+poke 053B 00
+wait 9
+dump field_final
+
+# colosseum_menu, return
+poke 1FF7 9AFE
+poke 05F4 F71F7E
+poke 0594 0000CA
+poke 05C7 01
+poke 00E5 F71F7E0300
+until 0026 == 72 300
+wait 20
+poke 00CF 0000
+until16 00CF == 0002 600
+dump colosseum
+until16 00CF == 0002 600
+press down 2
+until16 00CF == 000D 600
+press a 2
+until 0026 == 76 300
+until16 00CF == 0036 600
+dump colosseum_char
+until16 00CF == 0036 600
+press a 2
+wait 60
+until 0084 == 00 600
+wait 20
+until 0047 == 60 400
+poke 10D1 0000
+poke 053B 00
+wait 9
+dump field_colosseum
+
+# party_menu 1, NO_RESET, return
+poke 1FF7 99010000FE
+poke 05F4 F71F7E
+poke 0594 0000CA
+poke 05C7 01
+poke 00E5 F71F7E0300
+until 0026 == 2D 300
+wait 20
+poke 00CF 0000
+until16 00CF == 0002 600
+dump party
+until16 00CF == 0002 600
+press down 2
+until16 00CF == 000D 600
+press down 2
+until16 00CF == 001C 600
+dump party_group
+until16 00CF == 001C 600
+press a 2
+until 0026 == 2E 30
+until16 00CF == 002B 600
+dump party_sel
+until16 00CF == 002B 600
+press a 2
+until 0026 == 43 120
+until16 00CF == 0054 600
+dump party_status
+until16 00CF == 0054 600
+press b 2
+until 0026 == 2D 120
+until16 00CF == 007D 600
+dump party_back
+until16 00CF == 007D 600
+press a 2
+until 0026 == 2E 30
+until16 00CF == 0088 600
+press right 2
+until16 00CF == 0093 600
+press a 2
+until 0026 == 2D 30
+until16 00CF == 00A2 600
+dump party_swap
+until16 00CF == 00A2 600
+press start 2
+wait 60
+until 0084 == 00 600
+wait 20
+until 0047 == 60 400
+poke 10D1 0000
+poke 053B 00
+wait 9
+dump field_party
+
+# Reset und Spielstand laden: Das SRAM aus dem Save-Schritt bleibt erhalten, das Titelbild fuehrt ins Lademenue
+reset
+wait 100
+until 0019 == 09 6000
+wait 60
+press a 2
+until 0026 == 21 600
+wait 20
+poke 00CF 0000
+until16 00CF == 0002 600
+dump load
+until16 00CF == 0002 600
+press a 2
+until 0026 == 23 300
+until16 00CF == 002B 600
+dump load_confirm
+until16 00CF == 002B 600
+press a 2
+until 0082 == 13 600
+wait 60
+until 0084 == 00 600
+wait 20
+until 0047 == 60 400
+poke 10D1 0000
+poke 053B 00
+wait 9
+dump field_loaded
+quit

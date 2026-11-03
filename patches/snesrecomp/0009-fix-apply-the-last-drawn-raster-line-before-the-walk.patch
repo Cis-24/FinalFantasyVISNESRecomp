@@ -1,0 +1,69 @@
+From 23ede2b7438ca83c31a3fb55376abf9a7901ca9b Mon Sep 17 00:00:00 2001
+From: Neivin Detlefsen <neivin.detlefsen@gmx.de>
+Date: Mon, 2 Nov 2026 18:08:28 +0100
+Subject: [PATCH 09/10] fix: apply the last drawn raster line before the walk
+ ends
+
+The render loop applies journal entries up to line 223; writes on line 224
+only show from the next field on. The snapshot at V=225 used to carry them
+into that field. With the baseline taken from the walk's end they were lost:
+FF6 sets BG1SC on line 224, nothing writes it again, and the Skills overview
+kept a bright band at the bottom.
+
+ppu_rasterRenderEnd applies the rest of the field first. The journal does not
+overflow on the way (about 80 entries per field in FF6's menus, none dropped).
+---
+ runner/src/snes/ppu.c               |  3 +++
+ tests/ppu/ppu_raster_journal_test.c | 22 ++++++++++++++++++++++
+ 2 files changed, 25 insertions(+)
+
+diff --git a/runner/src/snes/ppu.c b/runner/src/snes/ppu.c
+index 5f78a78..3e8a891 100644
+--- a/runner/src/snes/ppu.c
++++ b/runner/src/snes/ppu.c
+@@ -3449,6 +3449,9 @@ void ppu_rasterRenderEnd(Ppu *ppu) {
+   PpuRasterField *f;
+   int i;
+   if (!s_raster_armed || !s_raster_rendering) return;
++  /* The loop stops at the last drawn line; what the field wrote on it has not
++   * been applied and only shows from the next field on. */
++  ppu_rasterApplyLine(ppu, 224);
+   s_raster_rendering = 0;
+   if (s_raster_have_completed) {
+     f = &s_field[s_raster_cur];
+diff --git a/tests/ppu/ppu_raster_journal_test.c b/tests/ppu/ppu_raster_journal_test.c
+index b5d2809..43106d3 100644
+--- a/tests/ppu/ppu_raster_journal_test.c
++++ b/tests/ppu/ppu_raster_journal_test.c
+@@ -98,6 +98,28 @@ int main(void) {
+   CHECK(p.window1left == 0x20);
+   ppu_rasterRenderEnd(&p);
+ 
++  /* A write on the last drawn line shows from the next field on, and has to be
++   * in that field's baseline: FF6's menu sets BG1SC there, nothing writes it
++   * again, and a baseline taken from the walk's end without it kept the old
++   * screen size for good. */
++  ppu_rasterReset();
++  write_at(225, 0x26, 0x10);
++  ppu_rasterBegin(&p);
++  write_at(224, 0x26, 0x44);
++  s_snes.vPos = 225;
++  ppu_rasterFieldBoundary();
++  ppu_rasterRenderBegin(&p);
++  ppu_rasterApplyLine(&p, 223);
++  CHECK(p.window1left == 0x10);
++  ppu_rasterRenderEnd(&p);
++  CHECK(p.window1left == 0x44);
++  s_snes.vPos = 225;
++  ppu_rasterFieldBoundary();
++  ppu_rasterRenderBegin(&p);
++  CHECK(p.window1left == 0x44);
++  ppu_rasterRenderEnd(&p);
++  CHECK(p.window1left == 0x44);
++
+   /* A machine reset disarms. */
+   ppu_rasterReset();
+   write_at(50, 0x26, 0x77);
+-- 
+2.56.0.windows.3
+

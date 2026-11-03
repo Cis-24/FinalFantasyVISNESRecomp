@@ -1,0 +1,123 @@
+From 3526b299a19ddc1670c6ec3e2849b65273edcaa5 Mon Sep 17 00:00:00 2001
+From: Neivin Detlefsen <neivin.detlefsen@gmx.de>
+Date: Sat, 31 Oct 2026 21:31:34 +0100
+Subject: [PATCH 07/10] fix: count the vertical mosaic block from the first
+ visible line
+
+mosaicModulo[y] counts from 0 and the visible lines from 1, so every block sat
+one line off: with size 4, line 4 still showed line 0's row and line 5 line 4's.
+Sample through PpuMosaicLine in the 2bpp, 4bpp, big-tile and Mode 7 paths, so
+that lines 1-4 show line 1's row and lines 5-8 line 5's, as the legacy renderer
+does.
+
+Measured on FF6 against snes9x, the block phase now agrees. A rest of about 2 %
+of the pixels (1240 of 57344 at size 4) stays in single blocks, not explained.
+---
+ runner/src/snes/ppu.c             | 14 ++++++++++----
+ tests/ppu/ppu_mosaic_table_test.c | 30 +++++++++++++++++++++++++++++-
+ 2 files changed, 39 insertions(+), 5 deletions(-)
+
+diff --git a/runner/src/snes/ppu.c b/runner/src/snes/ppu.c
+index 84d03fa..41dbb5f 100644
+--- a/runner/src/snes/ppu.c
++++ b/runner/src/snes/ppu.c
+@@ -707,6 +707,12 @@ static inline uint8 PpuMosaicAt(Ppu *ppu, int i) {
+   return ppu->mosaicModulo[(unsigned)i < (unsigned)kPpuXPixels ? i : (i < 0 ? 0 : kPpuXPixels - 1)];
+ }
+ 
++// The vertical block counts from the first visible line, not from line 0: with
++// size 4, lines 1-4 show line 1's row and lines 5-8 line 5's.
++static inline int PpuMosaicLine(const Ppu *ppu, int y) {
++  return y > 0 ? ppu->mosaicModulo[y - 1] + 1 : y;
++}
++
+ /* Frame of the last OAM ring snapshot; see the note in ppu_runLine. Debug
+  * instrumentation only -- it never affects rendering. */
+ static int s_oam_snap_frame = -1;
+@@ -1331,7 +1337,7 @@ static void PpuDrawBackgroundBig(Ppu *ppu, PpuPixelPrioBufs *dstbuf, uint y,
+   PpuWindows win;
+   IS_SCREEN_WINDOWED(ppu, sub, layer) ? PpuWindows_Calc(&win, ppu, layer, y)
+                                       : PpuWindows_Clear(&win, ppu, layer, y);
+-  const int sy = (int)(mosaic ? ppu->mosaicModulo[y] : y) + ppu->vScroll[layer];
++  const int sy = (mosaic ? PpuMosaicLine(ppu, y) : y) + ppu->vScroll[layer];
+   const int tileadr = PPU_bgTileAdr(ppu, layer);
+   const int words = (bpp == 4) ? 16 : 8;          /* vram words per 8x8 char */
+   const unsigned pal_shift = (bpp == 4) ? 6 : 8;
+@@ -1740,7 +1746,7 @@ static void PpuDrawBackground_4bpp_mosaic(Ppu *ppu,
+     return;  // layer is completely hidden
+   PpuWindows win;
+   IS_SCREEN_WINDOWED(ppu, sub, layer) ? PpuWindows_Calc(&win, ppu, layer, y) : PpuWindows_Clear(&win, ppu, layer, y);
+-  y = ppu->mosaicModulo[y] + ppu->vScroll[layer];
++  y = PpuMosaicLine(ppu, y) + ppu->vScroll[layer];
+   int sc_offs = PPU_bgTilemapAdr(ppu, layer) + (((y >> 3) & 0x1f) << 5);
+   if ((y & 0x100) && PPU_bgTilemapHigher(ppu, layer))
+     sc_offs += PPU_bgTilemapWider(ppu, layer) ? 0x800 : 0x400;
+@@ -2036,7 +2042,7 @@ static void PpuDrawBackground_2bpp_mosaic(Ppu *ppu, PpuPixelPrioBufs *dstbuf, in
+     return;  // layer is completely hidden
+   PpuWindows win;
+   IS_SCREEN_WINDOWED(ppu, sub, layer) ? PpuWindows_Calc(&win, ppu, layer, y) : PpuWindows_Clear(&win, ppu, layer, y);
+-  y = ppu->mosaicModulo[y] + ppu->vScroll[layer];
++  y = PpuMosaicLine(ppu, y) + ppu->vScroll[layer];
+   int sc_offs = PPU_bgTilemapAdr(ppu, layer) + (((y >> 3) & 0x1f) << 5);
+   if ((y & 0x100) && PPU_bgTilemapHigher(ppu, layer))
+     sc_offs += PPU_bgTilemapWider(ppu, layer) ? 0x800 : 0x400;
+@@ -2105,7 +2111,7 @@ static void PpuDrawBackground_mode7(Ppu *ppu, PpuPixelPrioBufs *dstbuf, uint y,
+   clippedV = (clippedV & 0x2000) ? (clippedV | ~1023) : (clippedV & 1023);
+   uint8 mosaic_enabled = PPU_mosaicEnabled(ppu, 0);
+   if (mosaic_enabled)
+-    y = ppu->mosaicModulo[y];
++    y = PpuMosaicLine(ppu, y);
+   uint32 ry = PPU_m7yFlip(ppu) ? 255 - y : y;
+   uint32 m7startX = (ppu->m7matrix[0] * clippedH & ~63) + (ppu->m7matrix[1] * ry & ~63) +
+     (ppu->m7matrix[1] * clippedV & ~63) + (xCenter << 8);
+diff --git a/tests/ppu/ppu_mosaic_table_test.c b/tests/ppu/ppu_mosaic_table_test.c
+index fa4c470..bdf3d3a 100644
+--- a/tests/ppu/ppu_mosaic_table_test.c
++++ b/tests/ppu/ppu_mosaic_table_test.c
+@@ -83,7 +83,7 @@ static void setup_solid_bg1(Ppu *ppu, bool layer_on) {
+ 
+ int main(void) {
+     enum { kPitch = kPpuXPixels * 4 };
+-    static uint8_t pixels[kPitch * 4];
++    static uint8_t pixels[kPitch * 8];
+     Ppu *ppu = ppu_init();
+     int failures = 0;
+     if (!ppu) return 2;
+@@ -120,6 +120,34 @@ int main(void) {
+     }
+     failures += check(span_ok, "a mosaic BG behind a window fills its span and only that");
+ 
++    /* The vertical block counts from the first visible line. Tile 1 has one
++     * colour per row, so each drawn line names the row it was sampled from:
++     * with size 4, lines 1-4 show row 1 and lines 5-8 row 5. */
++    setup_solid_bg1(ppu, true);
++    ppu_write(ppu, 0x06, 0x31);
++    for (int row = 0; row < 8; row++) {
++        const int color = row + 1;
++        uint16_t lo = 0, hi = 0;
++        if (color & 1) lo |= 0x00ff;
++        if (color & 2) lo |= 0xff00;
++        if (color & 4) hi |= 0x00ff;
++        if (color & 8) hi |= 0xff00;
++        ppu->vram[0x1000 + 16 + row] = lo;
++        ppu->vram[0x1000 + 16 + 8 + row] = hi;
++        ppu->cgram[color] = (uint16_t)(color * 3);
++    }
++    memset(pixels, 0, sizeof pixels);
++    PpuBeginDrawing(ppu, pixels, kPitch, kPpuRenderFlags_NewRenderer);
++    bool blocks_ok = true;
++    for (int line = 1; line <= 8; line++) {
++        ppu_runLine(ppu, line);
++        const int row = line <= 4 ? 1 : 5;
++        const uint8_t *p = pixels + (size_t)(line - 1) * kPitch;
++        const uint8_t want = ppu->brightnessMult[(row + 1) * 3];
++        if (p[2] != want) blocks_ok = false;
++    }
++    failures += check(blocks_ok, "vertical mosaic blocks start at line 1");
++
+     ppu_free(ppu);
+     if (failures) {
+         fprintf(stderr, "%d check(s) failed\n", failures);
+-- 
+2.56.0.windows.3
+

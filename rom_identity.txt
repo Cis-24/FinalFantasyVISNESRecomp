@@ -1,0 +1,26 @@
+# ROM identity for Final Fantasy VI: the single source of truth.
+#
+# Read by three consumers, so a revision change is made once, here:
+#   - the build   (CMake generates snesrecomp_rom_identity.h from this file)
+#   - tools/regen.sh
+#   - .github/workflows/release.yml
+#
+# Format is `key = value`, one per line; `#` starts a comment. Values may be
+# quoted. Leaving a digest empty means the build cannot verify a ROM it is
+# handed; it will say so rather than accept it.
+
+display_name    = Final Fantasy VI
+rom_file        = Final Fantasy III (USA).sfc
+# Every digest of the bare image (copier header stripped), so the Retro
+# catalog can take a submission's identity from this file rather than ask
+# the submitter to hash the ROM again. The build verifies on crc32/sha256.
+expected_crc32  = a27f1c7a
+expected_md5    = e986575b98300f721ce27c180264d890
+expected_sha1   = 4f37e4274ac3b2ea1bedb08aa149d8fc5bb676e7
+expected_sha256 = 0f51b4fca41b7fd509e4b8f9d543151f68efa5e97b08493e4b2a0c06f5d8d5e2
+rom_size        = 3145728
+mapping         = hirom
+region          = USA
+# What a mod package's [[target]] game_id must name to apply to this title
+# (snesrecomp/docs/MOD_PACKAGES.md). Stable across revisions on purpose.
+game_id         = finalfantasyvi-usa

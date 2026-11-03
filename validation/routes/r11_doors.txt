@@ -1,0 +1,99 @@
+# r11: Tueren und Map-Wechsel ueber die echten Trigger (PLAN Phase 6, Phasenziel). Einstieg wie r03.
+# In Narshe liegt keine Tuer vor den zwei Kaempfen: Map $13 hat keine Short-Trigger, ihr einziger Long-Trigger
+# liegt am Nordrand hinter dem Kampf-Dialog (STATUS). Deshalb startet jede Strecke per poke neben der Tuer
+# (Laden wie r10, Zielpositionen aus den Entrance-Tabellen), ab dem Schritt laeuft alles ueber CheckEntrances.
+# Bit $0200 kommt nur auf der Weltkarte vor, Rueckwege $1FF fuehren dorthin: beides gehoert zu Phase 9.
+until 0019 == 09 6000
+wait 60
+press a 2
+until 0082 == 12 8000
+until 00D3 == 01 4000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 0019 == 02 3000
+wait 120
+press a 2
+until 0082 == 13 20000
+until 00D3 == 01 1500
+press a 2
+until16 00E5 == 0000 3000
+until 00E7 == CA 100
+wait 60
+# $45/$46 auf beiden Seiten gleich setzen, siehe r10.
+poke 0045 0000
+# Long-Trigger: Narshe $13 bei (26,02), nach Norden auf (26,01) -> Mineneingang $27 bei (1A,34)
+poke 1FC0 2602
+poke 11FA 80
+poke 1F64 1300
+poke 0084 01
+wait 2
+until 0084 == 00 600
+wait 20
+until 0047 == 60 400
+poke 10D1 0000
+poke 053B 00
+wait 9
+dump door_n13
+press up 16
+until16 0082 == 0027 300
+until 0084 == 00 600
+wait 20
+until 0047 == 60 400
+poke 10D1 0000
+poke 053B 00
+wait 9
+dump door_m27
+# Zurueck: von (1A,34) nach Sueden auf (1A,35) -> $13 bei (26,02)
+press down 16
+until16 0082 == 0013 300
+until 0084 == 00 600
+wait 20
+until 0047 == 60 400
+poke 10D1 0000
+poke 053B 00
+wait 9
+dump door_n13b
+# Short-Trigger: $006 bei (13,06), nach Osten auf (14,06) -> $007 bei (28,0B)
+poke 1FC0 1306
+poke 11FA 80
+poke 1F64 0600
+poke 0084 01
+until16 0082 == 0006 600
+until 0084 == 00 600
+wait 20
+until 0047 == 60 400
+poke 10D1 0000
+poke 053B 00
+wait 9
+dump door_m006
+press right 16
+until16 0082 == 0007 300
+until 0084 == 00 600
+wait 20
+until 0047 == 60 400
+poke 10D1 0000
+poke 053B 00
+wait 9
+dump door_m007
+# Zurueck: von (28,0B) nach Norden auf (28,0A) -> $006 bei (13,06)
+press up 16
+until16 0082 == 0006 300
+until 0084 == 00 600
+wait 20
+until 0047 == 60 400
+poke 10D1 0000
+poke 053B 00
+wait 9
+dump door_m006b
+quit

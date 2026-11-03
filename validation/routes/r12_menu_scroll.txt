@@ -1,0 +1,563 @@
+# r12: Listen-Scrollen im Menue (PLAN Phase 7, "Fenster-HDMA und Cursor-Scrolling gegen die Referenz pruefen").
+# Item-, Magie-, Waffen- und Shop-Verkaufsliste: Cursor an den Seitenrand, je Scrollschritt ein Dump in jedem Frame,
+# danach Taste halten (Wiederholrate) ab- und aufwaerts. Beim Scrollen schreibt die CPU die BG1-VScroll-HDMA-Tabelle
+# $7E:9849 nach dem VBlank um (item.asm UpdateTextScroll, 4 Pixel je Frame, 3 Frames je Zeile); compare_ppuw prueft
+# die HDMA-Werte je Zeile, compare_dumps das Bild.
+# Einstieg wie r04 bis zum Hauptmenue (gleiche Field-Zeit, sonst laufen eingefrorene Field-Zaehler wie $10D1/$10D2
+# anders ueber). Inventar (96 Eintraege) und Terras Zauber (alle 54) per poke erst im offenen Menue.
+# Jeder Schritt beginnt auf einem $CF-Stand (beide Seiten in derselben Phase, siehe r04), danach zaehlen Frames:
+# `press <t> 1` haelt einen Frame und laesst einen los, die Dumps folgen im Abstand von einem Frame.
+# Tags s_<liste><schritt>_<n>: it Item, mg Magie, eq Waffen, sh Shop; d/u ab/auf scrollen, hd/hu halten.
+# Erzeugt von work/r12_gen.py.
+until 0019 == 09 6000
+wait 60
+press a 2
+until 0082 == 12 8000
+until 00D3 == 01 4000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 0019 == 02 3000
+wait 120
+press a 2
+until 0082 == 13 20000
+until 00D3 == 01 1500
+press a 2
+until16 00E5 == 0000 3000
+until 00E7 == CA 100
+wait 60
+until 106A == 21 60
+poke 0045 000000
+poke 021B 00000000
+poke 1869 E8E700E6F0F7
+poke 1969 050101010201
+poke 1609 1000
+poke 1616 02070A0C
+poke 181C 1013FF01
+poke 1A69 03
+poke 1CF7 0F
+poke 1D28 0F
+poke 1D29 FF
+poke 1D2C FF
+poke 1D4C 0F
+poke 1EB7 80
+press x 2
+until 0026 == 05 300
+wait 20
+poke 1869 000102030405060708090A0B0C0D0E0F
+poke 1879 101112131415161718191A1B1C1D1E1F
+poke 1889 202122232425262728292A2B2C2D2E2F
+poke 1899 303132333435363738393A3B3C3D3E3F
+poke 18A9 404142434445464748494A4B4C4D4E4F
+poke 18B9 505152535455565758595A5B5C5D5E5F
+poke 18C9 FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+poke 18D9 FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+poke 18E9 FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+poke 18F9 FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+poke 1909 FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+poke 1919 FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+poke 1929 FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+poke 1939 FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+poke 1949 FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+poke 1959 FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+poke 1969 0102030405060708090A0B0C0D0E0F10
+poke 1979 1112131415161718191A1B1C1D1E1F20
+poke 1989 2122232425262728292A2B2C2D2E2F30
+poke 1999 3132333435363738393A3B3C3D3E3F40
+poke 19A9 4142434445464748494A4B4C4D4E4F50
+poke 19B9 5152535455565758595A5B5C5D5E5F60
+poke 19C9 00000000000000000000000000000000
+poke 19D9 00000000000000000000000000000000
+poke 19E9 00000000000000000000000000000000
+poke 19F9 00000000000000000000000000000000
+poke 1A09 00000000000000000000000000000000
+poke 1A19 00000000000000000000000000000000
+poke 1A29 00000000000000000000000000000000
+poke 1A39 00000000000000000000000000000000
+poke 1A49 00000000000000000000000000000000
+poke 1A59 00000000000000000000000000000000
+poke 1A6E FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+poke 1A80 FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+poke 1A92 FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+poke 00CF 0000
+until16 00CF == 0002 600
+dump s_main
+until16 00CF == 0002 600
+press a 2
+until 0026 == 08 300
+until16 00CF == 0032 600
+dump s_item
+until16 00CF == 0032 600
+press down 1
+until16 00CF == 003A 600
+press down 1
+until16 00CF == 0042 600
+press down 1
+until16 00CF == 004A 600
+press down 1
+until16 00CF == 0052 600
+press down 1
+until16 00CF == 005A 600
+press down 1
+until16 00CF == 0062 600
+press down 1
+until16 00CF == 006A 600
+press down 1
+until16 00CF == 0072 600
+press down 1
+# s_it: Scrollen abwaerts, jedes Bild
+until16 00CF == 007A 600
+press down 1
+dump s_itd1_0
+wait 1
+dump s_itd1_1
+wait 1
+dump s_itd1_2
+wait 1
+dump s_itd1_3
+wait 1
+dump s_itd1_4
+wait 1
+dump s_itd1_5
+wait 1
+dump s_itd1_6
+until16 00CF == 0086 600
+press down 1
+dump s_itd2_0
+wait 1
+dump s_itd2_1
+wait 1
+dump s_itd2_2
+wait 1
+dump s_itd2_3
+wait 1
+dump s_itd2_4
+wait 1
+dump s_itd2_5
+wait 1
+dump s_itd2_6
+# s_it: Wiederholrate abwaerts (30 Frames halten)
+until16 00CF == 0092 600
+press down 30
+dump s_ithd_0
+wait 4
+dump s_ithd_1
+# s_it: Cursor an den Seitenanfang, dann aufwaerts scrollen
+until16 00CF == 00CE 600
+press up 1
+until16 00CF == 00D6 600
+press up 1
+until16 00CF == 00DE 600
+press up 1
+until16 00CF == 00E6 600
+press up 1
+until16 00CF == 00EE 600
+press up 1
+until16 00CF == 00F6 600
+press up 1
+until16 00CF == 00FE 600
+press up 1
+until16 00CF == 0106 600
+press up 1
+until16 00CF == 010E 600
+press up 1
+until16 00CF == 0116 600
+press up 1
+dump s_itu1_0
+wait 1
+dump s_itu1_1
+wait 1
+dump s_itu1_2
+wait 1
+dump s_itu1_3
+wait 1
+dump s_itu1_4
+wait 1
+dump s_itu1_5
+wait 1
+dump s_itu1_6
+until16 00CF == 0122 600
+press up 20
+dump s_ithu_0
+wait 4
+dump s_ithu_1
+until16 00CF == 0154 600
+press b 2
+until 0026 == 17 300
+until16 00CF == 0164 600
+press b 2
+until 0026 == 05 300
+until16 00CF == 018C 600
+dump s_main2
+# Skills: Magie-Liste
+until16 00CF == 018C 600
+press down 1
+until 004B == 01 20
+until16 00CF == 0195 600
+press a 2
+until 0026 == 06 300
+until16 00CF == 01A0 600
+press a 2
+until 0026 == 0A 300
+until16 00CF == 01C9 600
+dump s_skills
+until16 00CF == 01C9 600
+press a 2
+until 0026 == 1A 300
+until16 00CF == 01DF 600
+dump s_magic
+until16 00CF == 01DF 600
+press down 1
+until16 00CF == 01E7 600
+press down 1
+until16 00CF == 01EF 600
+press down 1
+until16 00CF == 01F7 600
+press down 1
+until16 00CF == 01FF 600
+press down 1
+until16 00CF == 0207 600
+press down 1
+until16 00CF == 020F 600
+press down 1
+# s_mg: Scrollen abwaerts, jedes Bild
+until16 00CF == 0217 600
+press down 1
+dump s_mgd1_0
+wait 1
+dump s_mgd1_1
+wait 1
+dump s_mgd1_2
+wait 1
+dump s_mgd1_3
+wait 1
+dump s_mgd1_4
+wait 1
+dump s_mgd1_5
+wait 1
+dump s_mgd1_6
+until16 00CF == 0223 600
+press down 1
+dump s_mgd2_0
+wait 1
+dump s_mgd2_1
+wait 1
+dump s_mgd2_2
+wait 1
+dump s_mgd2_3
+wait 1
+dump s_mgd2_4
+wait 1
+dump s_mgd2_5
+wait 1
+dump s_mgd2_6
+# s_mg: Wiederholrate abwaerts (30 Frames halten)
+until16 00CF == 022F 600
+press down 30
+dump s_mghd_0
+wait 4
+dump s_mghd_1
+# s_mg: Cursor an den Seitenanfang, dann aufwaerts scrollen
+until16 00CF == 026B 600
+press up 1
+until16 00CF == 0273 600
+press up 1
+until16 00CF == 027B 600
+press up 1
+until16 00CF == 0283 600
+press up 1
+until16 00CF == 028B 600
+press up 1
+until16 00CF == 0293 600
+press up 1
+until16 00CF == 029B 600
+press up 1
+until16 00CF == 02A3 600
+press up 1
+dump s_mgu1_0
+wait 1
+dump s_mgu1_1
+wait 1
+dump s_mgu1_2
+wait 1
+dump s_mgu1_3
+wait 1
+dump s_mgu1_4
+wait 1
+dump s_mgu1_5
+wait 1
+dump s_mgu1_6
+until16 00CF == 02AF 600
+press up 20
+dump s_mghu_0
+wait 4
+dump s_mghu_1
+until16 00CF == 02E1 600
+press b 2
+until 0026 == 0A 300
+until16 00CF == 02F0 600
+press b 2
+until 0026 == 05 300
+until16 00CF == 0319 600
+dump s_main3
+# Equip: Waffenliste
+until16 00CF == 0319 600
+press down 1
+until 004B == 01 20
+until16 00CF == 0322 600
+press down 1
+until 004B == 02 20
+until16 00CF == 032B 600
+press a 2
+until 0026 == 06 300
+until16 00CF == 0336 600
+press a 2
+until 0026 == 36 300
+until16 00CF == 035F 600
+dump s_equip
+until16 00CF == 035F 600
+press a 2
+until 0026 == 55 300
+until16 00CF == 036E 600
+press a 2
+until 0026 == 57 300
+until16 00CF == 0385 600
+dump s_eqlist
+until16 00CF == 0385 600
+press down 1
+until16 00CF == 038D 600
+press down 1
+until16 00CF == 0395 600
+press down 1
+until16 00CF == 039D 600
+press down 1
+until16 00CF == 03A5 600
+press down 1
+until16 00CF == 03AD 600
+press down 1
+until16 00CF == 03B5 600
+press down 1
+until16 00CF == 03BD 600
+press down 1
+# s_eq: Scrollen abwaerts, jedes Bild
+until16 00CF == 03C5 600
+press down 1
+dump s_eqd1_0
+wait 1
+dump s_eqd1_1
+wait 1
+dump s_eqd1_2
+wait 1
+dump s_eqd1_3
+wait 1
+dump s_eqd1_4
+wait 1
+dump s_eqd1_5
+wait 1
+dump s_eqd1_6
+until16 00CF == 03D1 600
+press down 1
+dump s_eqd2_0
+wait 1
+dump s_eqd2_1
+wait 1
+dump s_eqd2_2
+wait 1
+dump s_eqd2_3
+wait 1
+dump s_eqd2_4
+wait 1
+dump s_eqd2_5
+wait 1
+dump s_eqd2_6
+# s_eq: Wiederholrate abwaerts (30 Frames halten)
+until16 00CF == 03DD 600
+press down 30
+dump s_eqhd_0
+wait 4
+dump s_eqhd_1
+# s_eq: Cursor an den Seitenanfang, dann aufwaerts scrollen
+until16 00CF == 0419 600
+press up 1
+until16 00CF == 0421 600
+press up 1
+until16 00CF == 0429 600
+press up 1
+until16 00CF == 0431 600
+press up 1
+until16 00CF == 0439 600
+press up 1
+until16 00CF == 0441 600
+press up 1
+until16 00CF == 0449 600
+press up 1
+until16 00CF == 0451 600
+press up 1
+until16 00CF == 0459 600
+press up 1
+dump s_equ1_0
+wait 1
+dump s_equ1_1
+wait 1
+dump s_equ1_2
+wait 1
+dump s_equ1_3
+wait 1
+dump s_equ1_4
+wait 1
+dump s_equ1_5
+wait 1
+dump s_equ1_6
+until16 00CF == 0465 600
+press up 20
+dump s_eqhu_0
+wait 4
+dump s_eqhu_1
+until16 00CF == 0497 600
+press b 2
+until 0026 == 55 300
+until16 00CF == 04A6 600
+press b 2
+until 0026 == 36 300
+until16 00CF == 04B5 600
+press b 2
+until 0026 == 05 300
+until16 00CF == 04DE 600
+dump s_main4
+until16 00CF == 04DE 600
+press b 2
+wait 60
+until 0084 == 00 600
+wait 20
+until 0047 == 60 400
+poke 10D1 0000
+poke 053B 00
+wait 9
+# Shop: Verkaufsliste
+poke 05F4 BA67CA
+poke 0594 0000CA
+poke 05C7 01
+poke 00E5 BA67CA0300
+until 0026 == 25 300
+wait 20
+poke 00CF 0000
+until16 00CF == 0002 600
+dump s_shop
+until16 00CF == 0002 600
+press right 1
+until 004B == 01 20
+until16 00CF == 000B 600
+press a 2
+until 0026 == 29 300
+until16 00CF == 0021 600
+dump s_shsell
+until16 00CF == 0021 600
+press down 1
+until16 00CF == 0029 600
+press down 1
+until16 00CF == 0031 600
+press down 1
+until16 00CF == 0039 600
+press down 1
+until16 00CF == 0041 600
+press down 1
+until16 00CF == 0049 600
+press down 1
+until16 00CF == 0051 600
+press down 1
+until16 00CF == 0059 600
+press down 1
+until16 00CF == 0061 600
+press down 1
+# s_sh: Scrollen abwaerts, jedes Bild
+until16 00CF == 0069 600
+press down 1
+dump s_shd1_0
+wait 1
+dump s_shd1_1
+wait 1
+dump s_shd1_2
+wait 1
+dump s_shd1_3
+wait 1
+dump s_shd1_4
+wait 1
+dump s_shd1_5
+wait 1
+dump s_shd1_6
+until16 00CF == 0075 600
+press down 1
+dump s_shd2_0
+wait 1
+dump s_shd2_1
+wait 1
+dump s_shd2_2
+wait 1
+dump s_shd2_3
+wait 1
+dump s_shd2_4
+wait 1
+dump s_shd2_5
+wait 1
+dump s_shd2_6
+# s_sh: Wiederholrate abwaerts (30 Frames halten)
+until16 00CF == 0081 600
+press down 30
+dump s_shhd_0
+wait 4
+dump s_shhd_1
+# s_sh: Cursor an den Seitenanfang, dann aufwaerts scrollen
+until16 00CF == 00BD 600
+press up 1
+until16 00CF == 00C5 600
+press up 1
+until16 00CF == 00CD 600
+press up 1
+until16 00CF == 00D5 600
+press up 1
+until16 00CF == 00DD 600
+press up 1
+until16 00CF == 00E5 600
+press up 1
+until16 00CF == 00ED 600
+press up 1
+until16 00CF == 00F5 600
+press up 1
+until16 00CF == 00FD 600
+press up 1
+until16 00CF == 0105 600
+press up 1
+dump s_shu1_0
+wait 1
+dump s_shu1_1
+wait 1
+dump s_shu1_2
+wait 1
+dump s_shu1_3
+wait 1
+dump s_shu1_4
+wait 1
+dump s_shu1_5
+wait 1
+dump s_shu1_6
+until16 00CF == 0111 600
+press up 20
+dump s_shhu_0
+wait 4
+dump s_shhu_1
+until16 00CF == 0143 600
+press b 2
+until 0026 == 25 300
+until16 00CF == 0152 600
+dump s_shop2
+quit

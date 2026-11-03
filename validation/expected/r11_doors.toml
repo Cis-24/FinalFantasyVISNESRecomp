@@ -1,0 +1,98 @@
+# Erwartung fuer Route r11_doors (tools/ff6/regress.sh, regress_check.py --update).
+# Hashes: SHA-256 der Dumps, maskierte Bytes (validation/masks.toml) auf 0.
+# Aenderung nur mit begruendetem Eintrag in validation/CHANGELOG.md.
+events = [
+  "f=3442 until 00019 ok after 3442 frames",
+  "f=6541 until 00082 ok after 3036 frames",
+  "f=8553 until 000D3 ok after 2012 frames",
+  "f=8663 until 000D3 ok after 107 frames",
+  "f=8925 until 000D3 ok after 259 frames",
+  "f=9207 until 000D3 ok after 279 frames",
+  "f=9294 until 000D3 ok after 84 frames",
+  "f=9545 until 000D3 ok after 248 frames",
+  "f=9807 until 000D3 ok after 259 frames",
+  "f=10929 until 00019 ok after 1119 frames",
+  "f=11084 until 00082 ok after 32 frames",
+  "f=11480 until 000D3 ok after 396 frames",
+  "f=11621 until 000E5 ok after 138 frames",
+  "f=11621 until 000E7 ok after 0 frames",
+  "f=11693 until 00084 ok after 0 frames",
+  "f=11820 until 00047 ok after 107 frames",
+  "f=11833 dump door_n13 ok",
+  "f=11868 until 00082 ok after 18 frames",
+  "f=11868 until 00084 ok after 0 frames",
+  "f=11998 until 00047 ok after 110 frames",
+  "f=12011 dump door_m27 ok",
+  "f=12046 until 00082 ok after 18 frames",
+  "f=12046 until 00084 ok after 0 frames",
+  "f=12176 until 00047 ok after 110 frames",
+  "f=12189 dump door_n13b ok",
+  "f=12197 until 00082 ok after 0 frames",
+  "f=12197 until 00084 ok after 0 frames",
+  "f=12319 until 00047 ok after 102 frames",
+  "f=12332 dump door_m006 ok",
+  "f=12367 until 00082 ok after 18 frames",
+  "f=12367 until 00084 ok after 0 frames",
+  "f=12525 until 00047 ok after 138 frames",
+  "f=12538 dump door_m007 ok",
+  "f=12573 until 00082 ok after 18 frames",
+  "f=12573 until 00084 ok after 0 frames",
+  "f=12696 until 00047 ok after 103 frames",
+  "f=12709 dump door_m006b ok",
+  "f=12709 quit",
+]
+
+[miss]  # nur gemeldet, nicht entscheidend
+discoveries = 265
+rom = 0
+allowlist = 4
+wram = 261
+interpreted = 132614949
+
+[dump.door_m006]
+wram = "889bc1da41a982803e66be62dcc7c5b071cccc6cca1764e39da5edde02a1ca4f"
+vram = "2045d0f2707df726d596f90df9c93df76ec498e07f5bab19229e13c1fe004d3e"
+cgram = "701f1d8556229b1b1f4246d104e6a9bfa919bf784a41008ac731e19d431b691b"
+oam = "e8d61d97b323e5aad77871be23504877edabd703d3066455dcab06c94710bf5c"
+sram = "6afbcf1ee326d0e1f163feeee2c49e5deb17bcf7d29ebb7a15b8c4433752cc7a"
+fb = "a0c38a0c4968078277bdedd256045b480528fbdc4142afc82e705091f7dc55b6"
+
+[dump.door_m006b]
+wram = "9085937f1d4889843d351dd105d2b18160383cdd8e21e6d3e6cca2bbc0e7190d"
+vram = "cee2a8aa3638763a34f2a5a1889b90899507eb45ea9c5958becf5e32f0fe53fd"
+cgram = "701f1d8556229b1b1f4246d104e6a9bfa919bf784a41008ac731e19d431b691b"
+oam = "f668d16ebd3babefe96422fc463e413df92e204ecf4f06ccec8a00fff9fb6055"
+sram = "6afbcf1ee326d0e1f163feeee2c49e5deb17bcf7d29ebb7a15b8c4433752cc7a"
+fb = "07bc4dcbb2c59669517c5902fa99f868a8f0e4c6417b976ebca5229a8234189a"
+
+[dump.door_m007]
+wram = "f53d0361a2c85afd593170910c819110b352e84439f28a46177aebae4445e7ad"
+vram = "9ca76737ff63cd05fb6f61c28131417f32af6b6474ffcb2bf24152504030876c"
+cgram = "30ec5436ff022e5ff8ae3d1c4f1eccc353858a1963aeb1593899e3fcec1bc75f"
+oam = "a7fc30d402a15afe4e307f62fcd661393c49dfc08008bb9d73956a43a87b5808"
+sram = "6afbcf1ee326d0e1f163feeee2c49e5deb17bcf7d29ebb7a15b8c4433752cc7a"
+fb = "6138b1a0ce11b30f8d93ca449c19c11c32736c1e6078fdc4df32305b93f0b9e7"
+
+[dump.door_m27]
+wram = "d34ad916cf3abd2fcb1c7dc24656432261b72f19cce31bb92a62a4fe1abb35be"
+vram = "bb33ad038f918749b8cc76f1cdab58476c5170e1be136c6fb1b72c03c25d8b8b"
+cgram = "874bc319874ea903d0a40d2f3872bf8747277a408c41c648b571f6a1289bf095"
+oam = "71a99a6f383c11fec29613914e156524df5a6a7399ad9f98708698ecf09db608"
+sram = "6afbcf1ee326d0e1f163feeee2c49e5deb17bcf7d29ebb7a15b8c4433752cc7a"
+fb = "6e153d2ab4b3e96ea7706307295e2c4d7e710d9f049c668626bb89a85f090d49"
+
+[dump.door_n13]
+wram = "6cd98cfc6e70fb837aab38db8a7f810f1431dff4f65da9c252f04bb260c804d1"
+vram = "bb520fa066c14a4c63ef455b43a6e90db1ee2f6da155367b1ef14614172974dd"
+cgram = "874bc319874ea903d0a40d2f3872bf8747277a408c41c648b571f6a1289bf095"
+oam = "6faa183e5c1393414a632a9e874a96369205749e405da5ff41edaa6208bb5e5d"
+sram = "6afbcf1ee326d0e1f163feeee2c49e5deb17bcf7d29ebb7a15b8c4433752cc7a"
+fb = "47aa07a0f43e4d2e29f9a5f3078b06fbdfc2f1801b34bf4b58da8a0eec77f9ae"
+
+[dump.door_n13b]
+wram = "de062d0154c4d411f9586055b88680a469b3bf7f07d49dd9e9d401b81fc28305"
+vram = "d8c710ea66cd6deb6ff567512e12c0a7b88689328aa3a600242943abd720c7fa"
+cgram = "874bc319874ea903d0a40d2f3872bf8747277a408c41c648b571f6a1289bf095"
+oam = "41887207c78a1dd1838c6cfa8523ce9769842de34cfe18665916f16cdb313416"
+sram = "6afbcf1ee326d0e1f163feeee2c49e5deb17bcf7d29ebb7a15b8c4433752cc7a"
+fb = "8e5d26ac50e01d70e604413990ad05c7aa59eb87f712d1294128a50b0742d429"

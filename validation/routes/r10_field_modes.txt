@@ -1,0 +1,346 @@
+# r10: Map-Tour fuer Field-HDMA, Farbmathe und Parallax (PLAN Phase 6). Einstieg wie r03, dann per poke
+# in Maps mit den Modi, die r02/r03 nicht erreichen ($0536 Parallax, $0540 Farbmathe; Tabelle aus MapProp).
+# Laden wie in entrance.asm: $1F64 Map, $1FC0/1 Position, $11FA = $80, $84 = 1. Keine Eingaben, die
+# Map-Events laufen auf beiden Seiten gleich. Schluessel $47: Zaehler ab LoadMap (field/init.asm:325).
+until 0019 == 09 6000
+wait 60
+press a 2
+until 0082 == 12 8000
+until 00D3 == 01 4000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 0019 == 02 3000
+wait 120
+press a 2
+until 0082 == 13 20000
+until 00D3 == 01 1500
+press a 2
+until16 00E5 == 0000 3000
+until 00E7 == CA 100
+wait 60
+# $45/$46: Frame- und VBlank-Zaehler seit Reset (notes/field-ram.txt:26-27). Die Ladephasen vor dieser
+# Stelle sind im Recomp wenige Frames kuerzer. Beide Seiten setzen sie hier einmal gleich; alles, was
+# danach am Frame-Zaehler haengt (BG2-Welle, Tile- und Palettenanimation), ist dann vergleichbar.
+poke 0045 0000
+# par 1
+poke 1FC0 0A0A
+poke 11FA 80
+poke 1F64 8200
+poke 0084 01
+until16 0082 == 0082 600
+until 0084 == 00 600
+wait 20
+until 0047 == 60 400
+poke 10D1 0000
+poke 053B 00
+wait 9
+dump m082
+# par 3
+poke 1FC0 0A0A
+poke 11FA 80
+poke 1F64 8D00
+poke 0084 01
+until16 0082 == 008D 600
+until 0084 == 00 600
+wait 20
+until 0047 == 60 400
+poke 10D1 0000
+poke 053B 00
+wait 9
+dump m08d
+# par 5
+poke 1FC0 0A0A
+poke 11FA 80
+poke 1F64 E700
+poke 0084 01
+until16 0082 == 00E7 600
+until 0084 == 00 600
+wait 20
+until 0047 == 60 400
+poke 10D1 0000
+poke 053B 00
+wait 9
+dump m0e7
+# par 6
+poke 1FC0 0A0A
+poke 11FA 80
+poke 1F64 8A01
+poke 0084 01
+until16 0082 == 018A 600
+until 0084 == 00 600
+wait 20
+until 0047 == 60 400
+poke 10D1 0000
+poke 053B 00
+wait 9
+dump m18a
+# par 8
+poke 1FC0 0A0A
+poke 11FA 80
+poke 1F64 0600
+poke 0084 01
+until16 0082 == 0006 600
+until 0084 == 00 600
+wait 20
+until 0047 == 60 400
+poke 10D1 0000
+poke 053B 00
+wait 9
+dump m006
+# par 9
+poke 1FC0 0A0A
+poke 11FA 80
+poke 1F64 8701
+poke 0084 01
+until16 0082 == 0187 600
+until 0084 == 00 600
+wait 20
+until 0047 == 60 400
+poke 10D1 0000
+poke 053B 00
+wait 9
+dump m187
+# par a
+poke 1FC0 0A0A
+poke 11FA 80
+poke 1F64 2000
+poke 0084 01
+until16 0082 == 0020 600
+until 0084 == 00 600
+wait 20
+until 0047 == 60 400
+poke 10D1 0000
+poke 053B 00
+wait 9
+dump m020
+# par b
+poke 1FC0 0A0A
+poke 11FA 80
+poke 1F64 8501
+poke 0084 01
+until16 0082 == 0185 600
+until 0084 == 00 600
+wait 20
+until 0047 == 60 400
+poke 10D1 0000
+poke 053B 00
+wait 9
+dump m185
+# par c
+poke 1FC0 0A0A
+poke 11FA 80
+poke 1F64 0D00
+poke 0084 01
+until16 0082 == 000D 600
+until 0084 == 00 600
+wait 20
+until 0047 == 60 400
+poke 10D1 0000
+poke 053B 00
+wait 9
+dump m00d
+# par d
+poke 1FC0 0A0A
+poke 11FA 80
+poke 1F64 3901
+poke 0084 01
+until16 0082 == 0139 600
+until 0084 == 00 600
+wait 20
+until 0047 == 60 400
+poke 10D1 0000
+poke 053B 00
+wait 9
+dump m139
+# par e, col c
+poke 1FC0 0A0A
+poke 11FA 80
+poke 1F64 6701
+poke 0084 01
+until16 0082 == 0167 600
+until 0084 == 00 600
+wait 20
+until 0047 == 60 400
+poke 10D1 0000
+poke 053B 00
+wait 9
+dump m167
+# par f
+poke 1FC0 0A0A
+poke 11FA 80
+poke 1F64 5001
+poke 0084 01
+until16 0082 == 0150 600
+until 0084 == 00 600
+wait 20
+until 0047 == 60 400
+poke 10D1 0000
+poke 053B 00
+wait 9
+dump m150
+# par 11
+poke 1FC0 0A0A
+poke 11FA 80
+poke 1F64 8800
+poke 0084 01
+until16 0082 == 0088 600
+until 0084 == 00 600
+wait 20
+until 0047 == 60 400
+poke 10D1 0000
+poke 053B 00
+wait 9
+dump m088
+# par 12
+poke 1FC0 0A0A
+poke 11FA 80
+poke 1F64 0501
+poke 0084 01
+until16 0082 == 0105 600
+until 0084 == 00 600
+wait 20
+until 0047 == 60 400
+poke 10D1 0000
+poke 053B 00
+wait 9
+dump m105
+# par 14
+poke 1FC0 0A0A
+poke 11FA 80
+poke 1F64 B100
+poke 0084 01
+until16 0082 == 00B1 600
+until 0084 == 00 600
+wait 20
+until 0047 == 60 400
+poke 10D1 0000
+poke 053B 00
+wait 9
+dump m0b1
+# col 3
+poke 1FC0 0A0A
+poke 11FA 80
+poke 1F64 1601
+poke 0084 01
+until16 0082 == 0116 600
+until 0084 == 00 600
+wait 20
+until 0047 == 60 400
+poke 10D1 0000
+poke 053B 00
+wait 9
+dump m116
+# col 4
+poke 1FC0 0A0A
+poke 11FA 80
+poke 1F64 0E00
+poke 0084 01
+until16 0082 == 000E 600
+until 0084 == 00 600
+wait 20
+until 0047 == 60 400
+poke 10D1 0000
+poke 053B 00
+wait 9
+dump m00e
+# col 6, BG2 wellig
+poke 1FC0 0A0A
+poke 11FA 80
+poke 1F64 3D01
+poke 0084 01
+until16 0082 == 013D 600
+until 0084 == 00 600
+wait 20
+until 0047 == 60 400
+poke 10D1 0000
+poke 053B 00
+wait 9
+dump m13d
+# col 7
+poke 1FC0 0A0A
+poke 11FA 80
+poke 1F64 9001
+poke 0084 01
+until16 0082 == 0190 600
+until 0084 == 00 600
+wait 20
+until 0047 == 60 400
+poke 10D1 0000
+poke 053B 00
+wait 9
+dump m190
+# col 8
+poke 1FC0 0A0A
+poke 11FA 80
+poke 1F64 7200
+poke 0084 01
+until16 0082 == 0072 600
+until 0084 == 00 600
+wait 20
+until 0047 == 60 400
+poke 10D1 0000
+poke 053B 00
+wait 9
+dump m072
+# col d
+poke 1FC0 0A0A
+poke 11FA 80
+poke 1F64 8801
+poke 0084 01
+until16 0082 == 0188 600
+until 0084 == 00 600
+wait 20
+until 0047 == 60 400
+poke 10D1 0000
+poke 053B 00
+wait 9
+dump m188
+# col e
+poke 1FC0 0A0A
+poke 11FA 80
+poke 1F64 8E01
+poke 0084 01
+until16 0082 == 018E 600
+until 0084 == 00 600
+wait 20
+until 0047 == 60 400
+poke 10D1 0000
+poke 053B 00
+wait 9
+dump m18e
+# col f
+poke 1FC0 0A0A
+poke 11FA 80
+poke 1F64 2A01
+poke 0084 01
+until16 0082 == 012A 600
+until 0084 == 00 600
+wait 20
+until 0047 == 60 400
+poke 10D1 0000
+poke 053B 00
+wait 9
+dump m12a
+# col 11, BG2 wellig
+poke 1FC0 0A0A
+poke 11FA 80
+poke 1F64 5F01
+poke 0084 01
+until16 0082 == 015F 600
+until 0084 == 00 600
+wait 20
+until 0047 == 60 400
+poke 10D1 0000
+poke 053B 00
+wait 9
+dump m15f
+quit

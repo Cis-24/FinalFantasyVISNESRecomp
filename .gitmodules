@@ -1,0 +1,8 @@
+[submodule "snesrecomp"]
+	path = snesrecomp
+	url = https://github.com/Cis-24/snesrecomp.git
+	branch = ff6/patches
+[submodule "recomp-ui"]
+	path = recomp-ui
+	url = https://github.com/mstan/recomp-ui.git
+	branch = master

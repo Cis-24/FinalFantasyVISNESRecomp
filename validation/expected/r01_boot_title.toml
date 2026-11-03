@@ -1,0 +1,23 @@
+# Erwartung fuer Route r01_boot_title (tools/ff6/regress.sh, regress_check.py --update).
+# Hashes: SHA-256 der Dumps, maskierte Bytes (validation/masks.toml) auf 0.
+# Aenderung nur mit begruendetem Eintrag in validation/CHANGELOG.md.
+events = [
+  "f=3442 until 00019 ok after 3442 frames",
+  "f=3472 dump title ok",
+  "f=3472 quit",
+]
+
+[miss]  # nur gemeldet, nicht entscheidend
+discoveries = 152
+rom = 0
+allowlist = 1
+wram = 151
+interpreted = 19173642
+
+[dump.title]
+wram = "b9b354432c327cbb875f885ad5d30917ac013af143a2a4560bbb6198c1ef508f"
+vram = "05f84eb4ba282fec332897f24cf2451033203b89567af2ac8844bba520ae221d"
+cgram = "662cb95a92cb8162d96b1616b154bf6984b73d1c49da4b4472f8f8f218257941"
+oam = "5e0920da8830efe61d94b2ed672139f8f7c74914db57ef81c3641cfd69a6f8c5"
+sram = "9f1dcbc35c350d6027f98be0f5c8b43b42ca52b7604459c0c42be3aa88913d47"
+fb = "09588ddf604e23358d92d4b7c633e37f8292a4925232ce0d0825d36d3aee67f5"

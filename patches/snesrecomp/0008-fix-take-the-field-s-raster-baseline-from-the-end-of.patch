@@ -1,0 +1,92 @@
+From d35131ba8b5c1cfea05ea18768deb24818a9b52c Mon Sep 17 00:00:00 2001
+From: Neivin Detlefsen <neivin.detlefsen@gmx.de>
+Date: Mon, 2 Nov 2026 18:08:16 +0100
+Subject: [PATCH 08/10] fix: take the field's raster baseline from the end of
+ the render walk
+
+ppu_rasterFieldBoundary snapshots the register file at V=225, before the
+render walk has run that field's HDMA. A register only HDMA writes then ends
+the walk with one value and starts the next field from another, and the two
+baselines take turns for good. FF6's main menu drives TM by HDMA (channel 6,
+last table entry $00) and nobody writes TM afterwards: in the Item and Skills
+menus every other frame drew black, TM 17/00 alternating without a single
+write.
+
+ppu_rasterRenderEnd now stores the walk's end state as the baseline of the
+recording field, before it replays the guest's later writes.
+---
+ runner/src/snes/ppu.c                       | 11 +++++++++-
+ tests/frame_driver/beam_frame_driver_test.c | 23 +++++++++++++++++++++
+ 2 files changed, 33 insertions(+), 1 deletion(-)
+
+diff --git a/runner/src/snes/ppu.c b/runner/src/snes/ppu.c
+index 41dbb5f..5f78a78 100644
+--- a/runner/src/snes/ppu.c
++++ b/runner/src/snes/ppu.c
+@@ -3446,12 +3446,21 @@ void ppu_rasterApplyLine(Ppu *ppu, int line) {
+  * register file it last wrote. The OAM port is the guest's, not display
+  * state: an OAMADD replay must not move it. */
+ void ppu_rasterRenderEnd(Ppu *ppu) {
+-  const PpuRasterField *f;
++  PpuRasterField *f;
+   int i;
+   if (!s_raster_armed || !s_raster_rendering) return;
+   s_raster_rendering = 0;
+   if (s_raster_have_completed) {
+     f = &s_field[s_raster_cur];
++    /* The walk has just reached V=225 of the completed field, HDMA included.
++     * That is the recording field's true baseline: the snapshot at the boundary
++     * ran before this HDMA. Keeping it makes a register only HDMA writes
++     * alternate between two baselines for good (FF6 menu: HDMA leaves TM $00 or
++     * $17, then no one writes it again and every other frame draws black). */
++    memcpy(f->regs, &ppu->inidisp, PPU_SAVESTATE_REGS_SIZE);
++    f->scrollPrev = ppu->scrollPrev;
++    f->scrollPrev2 = ppu->scrollPrev2;
++    f->m7prev = ppu->m7prev;
+     for (i = 0; i < f->count; i++)
+       if (f->e[i].reg >= 0x2100 && f->e[i].reg <= 0x2133)
+         raster_replay(ppu, f->e[i].reg, f->e[i].val);
+diff --git a/tests/frame_driver/beam_frame_driver_test.c b/tests/frame_driver/beam_frame_driver_test.c
+index 4f35d58..f4d4908 100644
+--- a/tests/frame_driver/beam_frame_driver_test.c
++++ b/tests/frame_driver/beam_frame_driver_test.c
+@@ -344,6 +344,28 @@ static int test_hdma_sees_the_channel_of_its_line(void) {
+   return failures;
+ }
+ 
++/* FF6's main menu drives TM by HDMA and then switches the channel off; nobody
++ * writes TM again. The register holds what HDMA left, on every later field. The
++ * baseline used to be taken at V=225, before the walk ran that field's HDMA, and
++ * from then on two baselines took turns: every other frame of the menu drew
++ * black, with no write to show for it. */
++static int test_hdma_value_survives_into_later_fields(void) {
++  int failures = 0;
++
++  begin_field(kStepTable, sizeof kStepTable);
++  ppu_rasterRecord(0x420C, 230, 0x01);
++  render_field();
++  failures += check(s_line_wh0[224] == 0x22, "hdma only: the table's last value holds");
++  ppu_rasterRecord(0x420C, 230, 0x00);
++  for (int field = 0; field < 5; field++) {
++    render_field();
++    failures += check(s_line_wh0[1] == 0x22, "hdma only: the next field starts with that value");
++    failures += check(s_line_wh0[224] == 0x22, "hdma only: and keeps it");
++    failures += check(g_ppu->window1left == 0x22, "hdma only: the guest's register file has it too");
++  }
++  return failures;
++}
++
+ int main(void) {
+   int failures = 0;
+ 
+@@ -365,6 +387,7 @@ int main(void) {
+   failures += test_hdma_armed_by_a_vblank_write();
+   failures += test_hdma_mid_field_enable_keeps_its_delay();
+   failures += test_hdma_sees_the_channel_of_its_line();
++  failures += test_hdma_value_survives_into_later_fields();
+ 
+   dma_free(s_snes.dma);
+   ppu_free(g_ppu);
+-- 
+2.56.0.windows.3
+

@@ -1,0 +1,75 @@
+# r03: Feste Laufstrecke in Narshe: Kollision, Trigger-Dialoge, Kampfeinstieg.
+# Kein Tuer-Map-Wechsel: Bis zum Mineneingang liegen zwei Kaempfe (Phase 8).
+# Einstieg wie r02, aber der Magitek-Marsch wird mit einmal A abgekuerzt (6500 Frames weniger).
+# Gegen die snes9x-Referenz erkundet (work/routes/r03_probe*.txt). Adressen: notes/field-ram.txt
+# ($0082 Map, $00AF/$00B0 Party-Position in Tiles, $00D3 Dialog-Taste, $00E5-E7 Event-PC,
+# $106A BG1/2-Animationszaehler, +1 alle 2 Frames: Dumps auf ungerade Werte gekeyt, dort ist auch
+# $10D2 gleich, der BG3-Frame. Sonst weichen die
+# animierten Tiles im VRAM um eine Phase ab, weil das Laden der Map unterschiedlich lange dauert).
+until 0019 == 09 6000
+wait 60
+press a 2
+until 0082 == 12 8000
+until 00D3 == 01 4000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+# Marsch laeuft ($19 == 2): A springt ans Ende
+until 0019 == 02 3000
+wait 120
+press a 2
+until 0082 == 13 20000
+until 00D3 == 01 1500
+press a 2
+until16 00E5 == 0000 3000
+until 00E7 == CA 100
+wait 60
+until 106A == 21 60
+dump start
+
+# Kollision: Die Strasse ist bei (26,31) seitlich gesperrt, die Position darf sich nicht aendern
+press left 32
+wait 6
+until 106A == 39 60
+dump col_left
+press right 32
+wait 6
+until 106A == 51 60
+dump col_right
+
+# Sueden: Trigger bei y = $32, eine Dialogseite, die Party wird zurueckgeschickt
+press down 32
+until 00D3 == 01 300
+until 106A == A1 60
+dump dlg_south
+press a 2
+until16 00E5 == 0000 600
+until 00E7 == CA 100
+wait 30
+until 106A == F5 60
+dump back_south
+
+# Norden: Trigger bei y = $26, eine Dialogseite, danach beginnt der erste Kampf
+press up 216
+until 00D3 == 01 300
+until 106A == 89 60
+dump dlg_north
+press a 2
+
+# Kampfeinstieg: Mosaik-Uebergang (BG-Mosaik per HDMA auf $2106). Der Kampf selbst gehoert zu
+# Phase 8 (r05); Vorarbeit bis zur Rueckkehr auf die Map: work/routes/r05_vorarbeit_erster_kampf.txt
+# Schluessel: $7E8233 = Mosaik-Tabelle (field/battle.asm:49), $3F = Groesse 3 + alle BG-Ebenen.
+# Nur Absturzschutz, kein Dump: Die vertikale Mosaik-Blockphase weicht von der Referenz ab (STATUS).
+until 8233 == 3F 120
+wait 8
+quit
