@@ -29,35 +29,35 @@ file   = "wram"
 start  = 0x0045
 end    = 0x0046
 reason = """Frame- und VBlank-Zaehler, laufen seit Reset (ff6 notes/field-ram.txt:26-27). Spiegeln nur den Frame-Versatz der Ladephasen."""
-tags   = ["intro17", "intro14", "introF4", "cliff", "dlg1", "dlg7", "dlg8", "control", "march1", "march2", "start", "col_left", "col_right", "dlg_south", "back_south", "dlg_north", "b_dlg_north", "b_after", "b_dlg_next"]
+tags   = ["intro17", "intro14", "introF4", "cliff", "dlg1", "dlg7", "dlg8", "control", "march1", "march2", "start", "col_left", "col_right", "dlg_south", "back_south", "dlg_north", "b_dlg_north", "b_after", "b_dlg_next", "after"]
 
 [[mask]]
 file   = "wram"
 start  = 0x1245
 end    = 0x1246
 reason = """Kopie von $45/$46 in der gesicherten Direct Page $1200-$12FF (notes/field-ram.txt:843)."""
-tags   = ["intro17", "intro14", "introF4", "cliff", "dlg1", "dlg7", "dlg8", "control", "march1", "march2", "start", "col_left", "col_right", "dlg_south", "back_south", "dlg_north", "m006", "m00d", "m00e", "m020", "m072", "m082", "m088", "m08d", "m0b1", "m0e7", "m105", "m116", "m12a", "m139", "m13d", "m150", "m15f", "m167", "m185", "m187", "m188", "m18a", "m18e", "m190", "door_n13", "door_m27", "door_n13b", "door_m006", "door_m007", "door_m006b", "b_dlg_north", "b_after", "b_dlg_next"]
+tags   = ["intro17", "intro14", "introF4", "cliff", "dlg1", "dlg7", "dlg8", "control", "march1", "march2", "start", "col_left", "col_right", "dlg_south", "back_south", "dlg_north", "m006", "m00d", "m00e", "m020", "m072", "m082", "m088", "m08d", "m0b1", "m0e7", "m105", "m116", "m12a", "m139", "m13d", "m150", "m15f", "m167", "m185", "m187", "m188", "m18a", "m18e", "m190", "door_n13", "door_m27", "door_n13b", "door_m006", "door_m007", "door_m006b", "b_dlg_north", "b_after", "b_dlg_next", "after"]
 
 [[mask]]
 file   = "wram"
 start  = 0x021b
 end    = 0x021e
 reason = """Spielzeit (field/init.asm:264-265, menu/field_menu.asm), zaehlt Frames seit Spielstart."""
-tags   = ["intro17", "intro14", "introF4", "cliff", "dlg1", "dlg7", "dlg8", "control", "march1", "march2", "start", "col_left", "col_right", "dlg_south", "back_south", "dlg_north", "m006", "m00d", "m00e", "m020", "m072", "m082", "m088", "m08d", "m0b1", "m0e7", "m105", "m116", "m12a", "m139", "m13d", "m150", "m15f", "m167", "m185", "m187", "m188", "m18a", "m18e", "m190", "door_n13", "door_m27", "door_n13b", "door_m006", "door_m007", "door_m006b", "b_dlg_north", "b_after", "b_dlg_next"]
+tags   = ["intro17", "intro14", "introF4", "cliff", "dlg1", "dlg7", "dlg8", "control", "march1", "march2", "start", "col_left", "col_right", "dlg_south", "back_south", "dlg_north", "m006", "m00d", "m00e", "m020", "m072", "m082", "m088", "m08d", "m0b1", "m0e7", "m105", "m116", "m12a", "m139", "m13d", "m150", "m15f", "m167", "m185", "m187", "m188", "m18a", "m18e", "m190", "door_n13", "door_m27", "door_n13b", "door_m006", "door_m007", "door_m006b", "b_dlg_north", "b_after", "b_dlg_next", "after"]
 
 [[mask]]
 file   = "wram"
 start  = 0x0630
 end    = 0x0632
 reason = """Per SLHV gelatchte Beam-Position im Hauptloop, Messwert fuer die CPU-Last (field/reset.asm:155-168, notes/field-ram.txt:435-437). Haengt am Zeitmodell, kein Spielzustand; nur die Debug-Anzeige liest ihn."""
-tags   = ["intro17", "intro14", "introF4", "cliff", "dlg1", "dlg7", "dlg8", "control", "march1", "march2", "start", "col_left", "col_right", "dlg_south", "back_south", "dlg_north", "m006", "m00d", "m00e", "m020", "m072", "m082", "m088", "m08d", "m0b1", "m0e7", "m105", "m116", "m12a", "m139", "m13d", "m150", "m15f", "m167", "m185", "m187", "m188", "m18a", "m18e", "m190", "door_n13", "door_m27", "door_n13b", "door_m006", "door_m007", "door_m006b", "b_dlg_north", "b_after", "b_dlg_next"]
+tags   = ["intro17", "intro14", "introF4", "cliff", "dlg1", "dlg7", "dlg8", "control", "march1", "march2", "start", "col_left", "col_right", "dlg_south", "back_south", "dlg_north", "m006", "m00d", "m00e", "m020", "m072", "m082", "m088", "m08d", "m0b1", "m0e7", "m105", "m116", "m12a", "m139", "m13d", "m150", "m15f", "m167", "m185", "m187", "m188", "m18a", "m18e", "m190", "door_n13", "door_m27", "door_n13b", "door_m006", "door_m007", "door_m006b", "b_dlg_north", "b_after", "b_dlg_next", "after"]
 
 [[mask]]
 file   = "wram"
 start  = 0xf230
 end    = 0xf232
 reason = """Schnappschuss von $0630-$0632 (Werte passen zu $0632 in der Klippenszene, Kopierstelle nicht lokalisiert), taucht nur nach dem Marsch auf."""
-tags   = ["intro17", "intro14", "introF4", "cliff", "dlg1", "dlg7", "dlg8", "control", "march1", "march2", "start", "col_left", "col_right", "dlg_south", "back_south", "dlg_north", "m006", "m00d", "m00e", "m020", "m072", "m082", "m088", "m08d", "m0b1", "m0e7", "m105", "m116", "m12a", "m139", "m13d", "m150", "m15f", "m167", "m185", "m187", "m188", "m18a", "m18e", "m190", "door_n13", "door_m27", "door_n13b", "door_m006", "door_m007", "door_m006b", "b_dlg_north", "b_after", "b_dlg_next"]
+tags   = ["intro17", "intro14", "introF4", "cliff", "dlg1", "dlg7", "dlg8", "control", "march1", "march2", "start", "col_left", "col_right", "dlg_south", "back_south", "dlg_north", "m006", "m00d", "m00e", "m020", "m072", "m082", "m088", "m08d", "m0b1", "m0e7", "m105", "m116", "m12a", "m139", "m13d", "m150", "m15f", "m167", "m185", "m187", "m188", "m18a", "m18e", "m190", "door_n13", "door_m27", "door_n13b", "door_m006", "door_m007", "door_m006b", "b_dlg_north", "b_after", "b_dlg_next", "after"]
 
 [[mask]]
 file   = "wram"
@@ -71,7 +71,7 @@ file   = "wram"
 start  = 0x1508
 end    = 0x15fd
 reason = """Toter CPU-Stack unter dem Field-Hauptloop: S=$15FF ab field/reset.asm:17, beim Warten auf VBlank liegt nur die Ruecksprungadresse ($15FE-$15FF, geprueft) oben. Darunter steht, was NMI und Hauptloop zuletzt abgelegt haben; das haengt an der Dump-Phase."""
-tags   = ["intro17", "intro14", "introF4", "cliff", "dlg1", "dlg7", "dlg8", "control", "start", "col_left", "col_right", "dlg_south", "back_south", "dlg_north", "m006", "m00d", "m00e", "m020", "m072", "m082", "m088", "m08d", "m0b1", "m0e7", "m105", "m116", "m12a", "m139", "m13d", "m150", "m15f", "m167", "m185", "m187", "m188", "m18a", "m18e", "m190", "door_n13", "door_m27", "door_n13b", "door_m006", "door_m007", "door_m006b", "b_dlg_north", "b_after", "b_dlg_next"]
+tags   = ["intro17", "intro14", "introF4", "cliff", "dlg1", "dlg7", "dlg8", "control", "start", "col_left", "col_right", "dlg_south", "back_south", "dlg_north", "m006", "m00d", "m00e", "m020", "m072", "m082", "m088", "m08d", "m0b1", "m0e7", "m105", "m116", "m12a", "m139", "m13d", "m150", "m15f", "m167", "m185", "m187", "m188", "m18a", "m18e", "m190", "door_n13", "door_m27", "door_n13b", "door_m006", "door_m007", "door_m006b", "b_dlg_north", "b_after", "b_dlg_next", "after"]
 
 [[mask]]
 file   = "wram"
@@ -212,7 +212,7 @@ reg    = [0x210D, 0x210E, 0x210F, 0x2110, 0x2111, 0x2112]
 first  = 1
 last   = 7
 reason = """Wie der BG3-Streifen oben: Die Kanaele lesen in den Zeilen 1-7 aus DP-Scratch, den die CPU mitten im Feld aendert. Nach dem Neuladen der Map trifft das auch BG1/BG2. Die Zeilen liegen im schwarzen Rand, der Framebuffer ist gleich."""
-tags   = ["field_back", "field_shop", "field_shop2", "field_final", "field_colosseum", "field_party", "field_loaded", "b_after", "b_dlg_next"]
+tags   = ["field_back", "field_shop", "field_shop2", "field_final", "field_colosseum", "field_party", "field_loaded", "b_after", "b_dlg_next", "after"]
 # r04 (2026-11-01): Menue-Tour. Die Route wartet im Menue auf $CF (Durchlaeufe der Hauptschleife), nicht auf Frames.
 # Was in Frames zaehlt, weicht also um die Lag-Frames ab; $45-$47 setzt die Route vor dem Oeffnen gleich.
 
@@ -419,21 +419,21 @@ file   = "wram"
 start  = 0x000e
 end    = 0x0045
 reason = """Grafik-DP des Kampfes: $0E Bildzaehler, $10-$45 Scratch (notes/battle-ram.txt:24-27)."""
-tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3"]
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08", "m09", "m10", "m11", "m12", "m13", "m14", "slot", "victory", "msg1", "msg2", "msg3"]
 
 [[mask]]
 file   = "wram"
 start  = 0x0047
 end    = 0x004c
 reason = """$47 Warten auf VBlank, $48-$4C Zeiger von DrawMenuText (btlgfx/menu.asm:6839): welche Menuezeile zuletzt gezeichnet wurde, haengt an der Frame-Phase."""
-tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3"]
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08", "m09", "m10", "m11", "m12", "m13", "m14", "slot", "victory", "msg1", "msg2", "msg3"]
 
 [[mask]]
 file   = "wram"
 start  = 0x0069
 end    = 0x0070
 reason = """Ergebnis der letzten Hex->Dec-Umwandlung (notes/battle-ram.txt:50), wie oben eine Frage der Zeichenreihenfolge."""
-tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3"]
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08", "m09", "m10", "m11", "m12", "m13", "m14", "slot", "victory", "msg1", "msg2", "msg3"]
 
 [[mask]]
 file   = "wram"
@@ -447,7 +447,7 @@ file   = "wram"
 start  = 0x0098
 end    = 0x0098
 reason = """Bildzaehler des Grafikmoduls, +1 je Frame (notes/battle-ram.txt:90)."""
-tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3"]
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08", "m09", "m10", "m11", "m12", "m13", "m14", "slot", "victory", "msg1", "msg2", "msg3"]
 
 [[mask]]
 file   = "wram"
@@ -461,35 +461,35 @@ file   = "wram"
 start  = 0x021b
 end    = 0x021e
 reason = """Spielzeit (siehe oben). Die Route setzt sie am Mosaik gleich, danach zaehlen die Lag-Frames der Referenz mit."""
-tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3"]
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08", "m09", "m10", "m11", "m12", "m13", "m14", "slot", "victory", "msg1", "msg2", "msg3"]
 
 [[mask]]
 file   = "wram"
 start  = 0x0228
 end    = 0x0228
 reason = """Tasten-Wiederholzaehler (siehe r04); haengt daran, in welchem Frame eine gehaltene Taste losgelassen wird."""
-tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "b_after", "b_dlg_next"]
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "b_after", "b_dlg_next", "m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08", "m09", "m10", "m11", "m12", "m13", "m14", "slot", "victory", "msg1", "msg2", "msg3", "after"]
 
 [[mask]]
 file   = "wram"
 start  = 0x0630
 end    = 0x0632
 reason = """Gelatchte Beam-Position im Field-Hauptloop (siehe oben), beim Kampfbeginn eingefroren."""
-tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3"]
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08", "m09", "m10", "m11", "m12", "m13", "m14", "slot", "victory", "msg1", "msg2", "msg3"]
 
 [[mask]]
 file   = "wram"
 start  = 0xf230
 end    = 0xf232
 reason = """Schnappschuss von $0630-$0632 (siehe oben)."""
-tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3"]
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08", "m09", "m10", "m11", "m12", "m13", "m14", "slot", "victory", "msg1", "msg2", "msg3"]
 
 [[mask]]
 file   = "wram"
 start  = 0x106a
 end    = 0x10e9
 reason = """Field-Animationszaehler (notes/field-ram.txt:649-663), beim Kampfbeginn eingefroren. Der Kampf beginnt in der Referenz rund 3 Lag-Frames spaeter (docs/STATUS.md, Route r05)."""
-tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3"]
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08", "m09", "m10", "m11", "m12", "m13", "m14", "slot", "victory", "msg1", "msg2", "msg3"]
 
 [[mask]]
 file   = "wram"
@@ -503,77 +503,77 @@ file   = "wram"
 start  = 0x1245
 end    = 0x1247
 reason = """Kopie der Field-DP: Zaehler $45-$47 beim Kampfbeginn (siehe oben)."""
-tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "b_after", "b_dlg_next"]
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "b_after", "b_dlg_next", "m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08", "m09", "m10", "m11", "m12", "m13", "m14", "slot", "victory", "msg1", "msg2", "msg3", "after"]
 
 [[mask]]
 file   = "wram"
 start  = 0x1508
 end    = 0x15e4
 reason = """Toter CPU-Stack unter dem Kampf-Hauptloop; $15E5-$15FF ist gleich und bleibt geprueft."""
-tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3"]
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08", "m09", "m10", "m11", "m12", "m13", "m14", "slot", "victory", "msg1", "msg2", "msg3"]
 
 [[mask]]
 file   = "wram"
 start  = 0x2022
 end    = 0x2025
 reason = """ATB-Anzeige je Figur (notes/battle-ram.txt:433), fuellt sich je Frame."""
-tags   = ["b_victory", "b_msg1", "b_msg2", "b_msg3"]
+tags   = ["b_victory", "b_msg1", "b_msg2", "b_msg3", "victory", "msg1", "msg2", "msg3"]
 
 [[mask]]
 file   = "wram"
 start  = 0x3218
 end    = 0x322b
 reason = """ATB-Zaehler je Ziel (notes/battle-ram.txt:698)."""
-tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3"]
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08", "m09", "m10", "m11", "m12", "m13", "m14", "slot", "victory", "msg1", "msg2", "msg3"]
 
 [[mask]]
 file   = "wram"
 start  = 0x3a3e
 end    = 0x3a3f
 reason = """Rundenzaehler (notes/battle-ram.txt:823)."""
-tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3"]
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08", "m09", "m10", "m11", "m12", "m13", "m14", "slot", "victory", "msg1", "msg2", "msg3"]
 
 [[mask]]
 file   = "wram"
 start  = 0x3a44
 end    = 0x3a44
 reason = """Kampfzaehler, +1 alle 16 Frames (notes/battle-ram.txt:826). Beim Sieg in der Referenz eins hoeher bei gleichem zbe ($14): gleich viele BattleLoop-Durchlaeufe, mehr Frames."""
-tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3"]
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08", "m09", "m10", "m11", "m12", "m13", "m14", "slot", "victory", "msg1", "msg2", "msg3"]
 
 [[mask]]
 file   = "wram"
 start  = 0x3a6c
 end    = 0x3a6c
 reason = """Bildzaehler des Vor-Frames (notes/battle-ram.txt:853)."""
-tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3"]
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08", "m09", "m10", "m11", "m12", "m13", "m14", "slot", "victory", "msg1", "msg2", "msg3"]
 
 [[mask]]
 file   = "wram"
 start  = 0x3a91
 end    = 0x3a91
 reason = """Umlaufzaehler der Statuspruefung (notes/battle-ram.txt:896)."""
-tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3"]
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08", "m09", "m10", "m11", "m12", "m13", "m14", "slot", "victory", "msg1", "msg2", "msg3"]
 
 [[mask]]
 file   = "wram"
 start  = 0x3ab4
 end    = 0x3abb
 reason = """Advance-Wait-Zaehler (notes/battle-ram.txt:930)."""
-tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3"]
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08", "m09", "m10", "m11", "m12", "m13", "m14", "slot", "victory", "msg1", "msg2", "msg3"]
 
 [[mask]]
 file   = "wram"
 start  = 0x3adc
 end    = 0x3aef
 reason = """Slow/Normal/Haste-Zaehler je Ziel (notes/battle-ram.txt:932)."""
-tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3"]
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08", "m09", "m10", "m11", "m12", "m13", "m14", "slot", "victory", "msg1", "msg2", "msg3"]
 
 [[mask]]
 file   = "wram"
 start  = 0x3dc0
 end    = 0x3dd3
 reason = """Lebenszeit je Ziel in Frames (notes/battle-ram.txt:1048)."""
-tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3"]
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08", "m09", "m10", "m11", "m12", "m13", "m14", "slot", "victory", "msg1", "msg2", "msg3"]
 
 [[mask]]
 file   = "wram"
@@ -615,7 +615,7 @@ file   = "wram"
 start  = 0x56d5
 end    = 0x5714
 reason = """Textpuffer w7e56d5 (btlgfx/btlgfx_ram.inc, 64 Byte), Vorlage der zuletzt gezeichneten Menuezeile (LoadMenuText, btlgfx/menu.asm:1180)."""
-tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3"]
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08", "m09", "m10", "m11", "m12", "m13", "m14", "slot", "victory", "msg1", "msg2", "msg3"]
 
 [[mask]]
 file   = "wram"
@@ -629,7 +629,7 @@ file   = "wram"
 start  = 0x5c45
 end    = 0x5ca4
 reason = """Gauge-Textpuffer (btlgfx/btlgfx_ram.inc), Kacheln der ATB-Leisten."""
-tags   = ["b_victory", "b_msg1", "b_msg2", "b_msg3"]
+tags   = ["b_victory", "b_msg1", "b_msg2", "b_msg3", "victory", "msg1", "msg2", "msg3"]
 
 [[mask]]
 file   = "wram"
@@ -650,28 +650,28 @@ file   = "wram"
 start  = 0x619f
 end    = 0x61a0
 reason = """Zaehler im Grafikmodul, laeuft je Frame weiter (Wertverlauf in r05: +18/+19 je Meldung auf beiden Seiten, nur verschoben); bleibt nach dem Kampf stehen."""
-tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "b_after", "b_dlg_next"]
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "b_after", "b_dlg_next", "m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08", "m09", "m10", "m11", "m12", "m13", "m14", "slot", "victory", "msg1", "msg2", "msg3"]
 
 [[mask]]
 file   = "wram"
 start  = 0x61c2
 end    = 0x61c2
 reason = """Aktionszaehler der Figurengrafik, +1 je Frame (notes/battle-ram.txt:1468), Figur 0."""
-tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "b_after", "b_dlg_next"]
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "b_after", "b_dlg_next", "m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08", "m09", "m10", "m11", "m12", "m13", "m14", "slot", "victory", "msg1", "msg2", "msg3", "after"]
 
 [[mask]]
 file   = "wram"
 start  = 0x61e2
 end    = 0x61e2
 reason = """Wie $61C2, Figur 1."""
-tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "b_after", "b_dlg_next"]
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "b_after", "b_dlg_next", "m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08", "m09", "m10", "m11", "m12", "m13", "m14", "slot", "victory", "msg1", "msg2", "msg3", "after"]
 
 [[mask]]
 file   = "wram"
 start  = 0x6202
 end    = 0x6202
 reason = """Wie $61C2, Figur 2."""
-tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "b_after", "b_dlg_next"]
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "b_after", "b_dlg_next", "m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08", "m09", "m10", "m11", "m12", "m13", "m14", "slot", "victory", "msg1", "msg2", "msg3", "after"]
 
 [[mask]]
 file   = "wram"
@@ -692,21 +692,21 @@ file   = "wram"
 start  = 0x7b68
 end    = 0x7b68
 reason = """Grafikmodul-Zustand (btlgfx_ram.inc w7e7b68), wechselt zwischen den Dumps auf beiden Seiten."""
-tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3"]
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08", "m09", "m10", "m11", "m12", "m13", "m14", "slot", "victory", "msg1", "msg2", "msg3"]
 
 [[mask]]
 file   = "wram"
 start  = 0x7b78
 end    = 0x7b78
 reason = """Figur fuer Statuswechsel-Animationen (notes/battle-ram.txt:1843), laeuft als Zaehler (beide Seiten +1 versetzt)."""
-tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3"]
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08", "m09", "m10", "m11", "m12", "m13", "m14", "slot", "victory", "msg1", "msg2", "msg3"]
 
 [[mask]]
 file   = "wram"
 start  = 0x7b99
 end    = 0x7b9d
 reason = """Figur, deren HP/MP-Text als naechstes aktualisiert wird (notes/battle-ram.txt:1868), reihum je Frame."""
-tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "b_after", "b_dlg_next"]
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "b_after", "b_dlg_next", "m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08", "m09", "m10", "m11", "m12", "m13", "m14", "slot", "victory", "msg1", "msg2", "msg3", "after"]
 
 [[mask]]
 file   = "wram"
@@ -720,14 +720,14 @@ file   = "wram"
 start  = 0x88d9
 end    = 0x88d9
 reason = """Grafikmodul-Zustand (btlgfx_ram.inc w7e88d9), rotiert durch $45/$5D/$75/$8D."""
-tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "b_after", "b_dlg_next"]
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "b_after", "b_dlg_next", "m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08", "m09", "m10", "m11", "m12", "m13", "m14", "slot", "victory", "msg1", "msg2", "msg3", "after"]
 
 [[mask]]
 file   = "wram"
 start  = 0xe9db
 end    = 0xe9db
 reason = """Zaehler der Condemned-Ziffern (notes/battle-ram.txt:2197); liegt nach dem Kampf in Zeile 0 der Field-BG3-Map, die das Field nicht beschreibt (VRAM gleich)."""
-tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "b_after", "b_dlg_next"]
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "b_after", "b_dlg_next", "m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08", "m09", "m10", "m11", "m12", "m13", "m14", "slot", "victory", "msg1", "msg2", "msg3", "after"]
 
 [[mask]]
 file   = "wram"
@@ -748,7 +748,7 @@ file   = "vram"
 start  = 0x4000
 end    = 0x47ff
 reason = """Figuren- und Statuskacheln. Der Kampf-NMI laedt je Frame einen Ausschnitt nach z98: Figur z98 & 3, Status zwei Kacheln nach z98 & 31 (btlgfx/interrupt.asm:960-990, Ziele in btlgfx/interrupt_2.asm:239-262). Die Quellen in Bank 7F sind gleich, nur die Upload-Phase weicht ab."""
-tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3"]
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08", "m09", "m10", "m11", "m12", "m13", "m14", "slot", "victory", "msg1", "msg2", "msg3"]
 
 [[mask]]
 file   = "vram"
@@ -768,10 +768,753 @@ tags   = ["b_victory", "b_msg1", "b_msg2", "b_msg3"]
 file   = "fb"
 rect   = [186, 40, 233, 131]
 reason = """Die drei Figuren (OAM der Referenz, OBSEL $61): Animationsbild nach der Upload-Phase der Figurenkacheln (siehe VRAM $4000-$47FF)."""
-tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3"]
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08", "m09", "m10", "m11", "m12", "m13", "m14", "slot", "victory", "msg1", "msg2", "msg3"]
 
 [[mask]]
 file   = "fb"
 rect   = [208, 178, 240, 180]
 reason = """Innenraum der ATB-Leiste von WEDGE, fuellt sich je Frame (siehe $2022)."""
-tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3"]
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08", "m09", "m10", "m11", "m12", "m13", "m14", "slot"]
+
+# r06 (2026-11-05): Kampfbefehle. Gegen snes9x nur szenengekeyt (PLAN Phase 8, Entscheidung 11-05). Die
+# r05-Kampfmasken gelten klassenweise auch fuer r06 (Tags oben ergaenzt). Hier die r06-eigenen Bereiche: Schadens-
+# streuung ab m10 (Rand zur Ausfuehrungszeit, einige BattleLoop-Durchlaeufe nach dem gleichgesetzten zbe),
+# Animationsphase der vorigen Aktion bei Menue-Dumps, Siegerpose, Statuspruefung beim Tod der Wachen.
+# Erzeugt mit work/r06_masks_add.py aus work/ref/r06 und dem Recomp-Lauf r06L4.
+
+[[mask]]
+file   = "wram"
+start  = 0x1214
+end    = 0x1214
+reason = """Kopie der Field-DP beim Kampfbeginn ($1200-$12FF, notes/field-ram.txt:843): $48 Zeiger in die Objekt-Animationsqueue (notes/field-ram.txt:29), $14 seine Kopie, $1B Scratch. Der Kampf startet ueber ein per poke gesetztes Event aus dem freien Field; die Referenz kommt mit einigen Lag-Frames Versatz an. Das Field liest die Kopie nach dem Kampf nicht mehr ($0014/$0048 selbst sind in `after` gleich)."""
+tags   = ["m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08", "m09", "m10", "m11", "m12", "m13", "m14", "slot", "victory", "msg1", "msg2", "msg3", "after"]
+
+[[mask]]
+file   = "wram"
+start  = 0x121b
+end    = 0x121b
+reason = """Kopie der Field-DP beim Kampfbeginn ($1200-$12FF, notes/field-ram.txt:843): $48 Zeiger in die Objekt-Animationsqueue (notes/field-ram.txt:29), $14 seine Kopie, $1B Scratch. Der Kampf startet ueber ein per poke gesetztes Event aus dem freien Field; die Referenz kommt mit einigen Lag-Frames Versatz an. Das Field liest die Kopie nach dem Kampf nicht mehr ($0014/$0048 selbst sind in `after` gleich)."""
+tags   = ["m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08", "m09", "m10", "m11", "m12", "m13", "m14", "slot", "victory", "msg1", "msg2", "msg3", "after"]
+
+[[mask]]
+file   = "wram"
+start  = 0x1248
+end    = 0x1248
+reason = """Kopie der Field-DP beim Kampfbeginn ($1200-$12FF, notes/field-ram.txt:843): $48 Zeiger in die Objekt-Animationsqueue (notes/field-ram.txt:29), $14 seine Kopie, $1B Scratch. Der Kampf startet ueber ein per poke gesetztes Event aus dem freien Field; die Referenz kommt mit einigen Lag-Frames Versatz an. Das Field liest die Kopie nach dem Kampf nicht mehr ($0014/$0048 selbst sind in `after` gleich)."""
+tags   = ["m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08", "m09", "m10", "m11", "m12", "m13", "m14", "slot", "victory", "msg1", "msg2", "msg3", "after"]
+
+[[mask]]
+file   = "wram"
+start  = 0x15e5
+end    = 0x15e7
+reason = """Toter Stack direkt unter dem Warte-Frame des Kampf-Hauptloops, wie $1508-$15E4 in r05: die Werte sind Reste von Aufrufen und NMI-Rahmen und auf beiden Seiten unzusammenhaengend; $15E8-$15FF ist gleich und bleibt geprueft."""
+tags   = ["m04", "m06", "m09", "m13", "m14"]
+
+[[mask]]
+file   = "wram"
+start  = 0x2022
+end    = 0x2024
+reason = """ATB-Anzeige je Figur (notes/battle-ram.txt:433), fuellt sich je Frame. Die Referenz hat bei Animationen Lag-Frames (docs/STATUS.md, Route r06), die Leisten stehen beim Dump verschieden weit."""
+tags   = ["m04", "m05", "m06", "m07", "m09", "m11", "m12", "slot"]
+
+[[mask]]
+file   = "wram"
+start  = 0x3c00
+end    = 0x3c02
+reason = """Aktuelle HP der Wachen (+$3BF4 je Ziel, notes/battle-ram.txt:959). Schadensstreuung: calc_dmg.asm ruft Rand zur Ausfuehrungszeit (Faktor 224-255, calc_dmg.asm:165-169). Die Route setzt zbe vor jedem bestaetigenden A gleich, die Aktion laeuft aber je nach Lag einige BattleLoop-Durchlaeufe spaeter (battle/main.asm:18 inc zbe). Ab m10 je Treffer wenige Punkte verschieden; m14 setzt beide Wachen per poke auf 1 HP."""
+tags   = ["m10", "m11", "m12", "m13"]
+
+[[mask]]
+file   = "wram"
+start  = 0x2d78
+end    = 0x2d80
+reason = """Schadenswert der letzten Aktion: Grafikskript-Queue $2D6E-$2E6D (notes/battle-ram.txt:498), Battle Script Command Byte 3 $3A2A (notes/battle-ram.txt:806), Produkt der Schadensformel in $E8/$E9 (calc_dmg.asm:167-192, battle/math.asm Mult24) und gleichlautend in $0216/$0217. Folge der Schadensstreuung, siehe $3C00."""
+tags   = ["m10", "m11", "m13", "m14"]
+
+[[mask]]
+file   = "wram"
+start  = 0x3a2a
+end    = 0x3a2a
+reason = """Schadenswert der letzten Aktion: Grafikskript-Queue $2D6E-$2E6D (notes/battle-ram.txt:498), Battle Script Command Byte 3 $3A2A (notes/battle-ram.txt:806), Produkt der Schadensformel in $E8/$E9 (calc_dmg.asm:167-192, battle/math.asm Mult24) und gleichlautend in $0216/$0217. Folge der Schadensstreuung, siehe $3C00."""
+tags   = ["m10", "m13", "m14"]
+
+[[mask]]
+file   = "wram"
+start  = 0x00e8
+end    = 0x00e9
+reason = """Schadenswert der letzten Aktion: Grafikskript-Queue $2D6E-$2E6D (notes/battle-ram.txt:498), Battle Script Command Byte 3 $3A2A (notes/battle-ram.txt:806), Produkt der Schadensformel in $E8/$E9 (calc_dmg.asm:167-192, battle/math.asm Mult24) und gleichlautend in $0216/$0217. Folge der Schadensstreuung, siehe $3C00."""
+tags   = ["m10", "m13", "m14"]
+
+[[mask]]
+file   = "wram"
+start  = 0x0216
+end    = 0x0217
+reason = """Schadenswert der letzten Aktion: Grafikskript-Queue $2D6E-$2E6D (notes/battle-ram.txt:498), Battle Script Command Byte 3 $3A2A (notes/battle-ram.txt:806), Produkt der Schadensformel in $E8/$E9 (calc_dmg.asm:167-192, battle/math.asm Mult24) und gleichlautend in $0216/$0217. Folge der Schadensstreuung, siehe $3C00."""
+tags   = ["m10", "m13", "m14"]
+
+[[mask]]
+file   = "wram"
+start  = 0x60b5
+end    = 0x6112
+reason = """Schadensziffern: Grafikpuffer $60B3-$6132 (notes/battle-ram.txt:1309) und Ziffern-Threads $6316-$632D (Bildzaehler $6322-$6325, notes/battle-ram.txt:1632-1640). Ab m10 andere Ziffern (Schadensstreuung), davor nur die Phase der Ziffern-Animation, die beim Dump noch laeuft."""
+tags   = ["m04", "m13", "m14"]
+
+[[mask]]
+file   = "wram"
+start  = 0x6316
+end    = 0x6327
+reason = """Schadensziffern: Grafikpuffer $60B3-$6132 (notes/battle-ram.txt:1309) und Ziffern-Threads $6316-$632D (Bildzaehler $6322-$6325, notes/battle-ram.txt:1632-1640). Ab m10 andere Ziffern (Schadensstreuung), davor nur die Phase der Ziffern-Animation, die beim Dump noch laeuft."""
+tags   = ["m04", "m07", "m09"]
+
+[[mask]]
+file   = "wram"
+start  = 0x3a57
+end    = 0x3a57
+reason = """Stand der periodischen Statuspruefung beim Tod der Wachen. Die Route setzt beide Wachen per poke auf 1 HP; ob die Umlaufpruefung ($3A91, notes/battle-ram.txt:896) sie vor dem toedlichen Treffer erreicht (Near Fatal = Status 2 Bit 1 in $3EF1/$3EF3, common/const.inc STATUS2; $3AA1.7 in $3AAD/$3AAF, notes/battle-ram.txt:921; $3A57), haengt an der Zahl der BattleLoop-Durchlaeufe, also am Lag."""
+tags   = ["victory", "msg1", "msg2", "msg3"]
+
+[[mask]]
+file   = "wram"
+start  = 0x3aad
+end    = 0x3aaf
+reason = """Stand der periodischen Statuspruefung beim Tod der Wachen. Die Route setzt beide Wachen per poke auf 1 HP; ob die Umlaufpruefung ($3A91, notes/battle-ram.txt:896) sie vor dem toedlichen Treffer erreicht (Near Fatal = Status 2 Bit 1 in $3EF1/$3EF3, common/const.inc STATUS2; $3AA1.7 in $3AAD/$3AAF, notes/battle-ram.txt:921; $3A57), haengt an der Zahl der BattleLoop-Durchlaeufe, also am Lag."""
+tags   = ["victory", "msg1", "msg2", "msg3"]
+
+[[mask]]
+file   = "wram"
+start  = 0x3ef1
+end    = 0x3ef3
+reason = """Stand der periodischen Statuspruefung beim Tod der Wachen. Die Route setzt beide Wachen per poke auf 1 HP; ob die Umlaufpruefung ($3A91, notes/battle-ram.txt:896) sie vor dem toedlichen Treffer erreicht (Near Fatal = Status 2 Bit 1 in $3EF1/$3EF3, common/const.inc STATUS2; $3AA1.7 in $3AAD/$3AAF, notes/battle-ram.txt:921; $3A57), haengt an der Zahl der BattleLoop-Durchlaeufe, also am Lag."""
+tags   = ["victory", "msg1", "msg2", "msg3"]
+
+[[mask]]
+file   = "wram"
+start  = 0x3afe
+end    = 0x3afe
+reason = """Zaehler fuer Schaden ueber Zeit je Ziel (notes/battle-ram.txt:934) und Vergeltungsflags $3E4C,x (notes/battle-ram.txt:1061): laufen frameweise."""
+tags   = ["m06"]
+
+[[mask]]
+file   = "wram"
+start  = 0x3e5a
+end    = 0x3e5a
+reason = """Zaehler fuer Schaden ueber Zeit je Ziel (notes/battle-ram.txt:934) und Vergeltungsflags $3E4C,x (notes/battle-ram.txt:1061): laufen frameweise."""
+tags   = ["m06"]
+
+[[mask]]
+file   = "wram"
+start  = 0x58c9
+end    = 0x58c9
+reason = """Kacheln der ATB-Leisten im Menue-Kachelpuffer w7e5855, im Gauge-Textpuffer w7e5c45 und im Tilemap-Puffer w7e8d13 (btlgfx/btlgfx_ram.inc): Kachelnummer = Fuellstand ($F0-$F8), siehe $2022."""
+tags   = ["m06"]
+
+[[mask]]
+file   = "wram"
+start  = 0x5949
+end    = 0x5949
+reason = """Kacheln der ATB-Leisten im Menue-Kachelpuffer w7e5855, im Gauge-Textpuffer w7e5c45 und im Tilemap-Puffer w7e8d13 (btlgfx/btlgfx_ram.inc): Kachelnummer = Fuellstand ($F0-$F8), siehe $2022."""
+tags   = ["m07"]
+
+[[mask]]
+file   = "wram"
+start  = 0x59c9
+end    = 0x59c9
+reason = """Kacheln der ATB-Leisten im Menue-Kachelpuffer w7e5855, im Gauge-Textpuffer w7e5c45 und im Tilemap-Puffer w7e8d13 (btlgfx/btlgfx_ram.inc): Kachelnummer = Fuellstand ($F0-$F8), siehe $2022."""
+tags   = ["m11"]
+
+[[mask]]
+file   = "wram"
+start  = 0x5c55
+end    = 0x5c55
+reason = """Kacheln der ATB-Leisten im Menue-Kachelpuffer w7e5855, im Gauge-Textpuffer w7e5c45 und im Tilemap-Puffer w7e8d13 (btlgfx/btlgfx_ram.inc): Kachelnummer = Fuellstand ($F0-$F8), siehe $2022."""
+tags   = ["m06"]
+
+[[mask]]
+file   = "wram"
+start  = 0x5c5e
+end    = 0x5c74
+reason = """Kacheln der ATB-Leisten im Menue-Kachelpuffer w7e5855, im Gauge-Textpuffer w7e5c45 und im Tilemap-Puffer w7e8d13 (btlgfx/btlgfx_ram.inc): Kachelnummer = Fuellstand ($F0-$F8), siehe $2022."""
+tags   = ["m13"]
+
+[[mask]]
+file   = "wram"
+start  = 0x5c85
+end    = 0x5c85
+reason = """Kacheln der ATB-Leisten im Menue-Kachelpuffer w7e5855, im Gauge-Textpuffer w7e5c45 und im Tilemap-Puffer w7e8d13 (btlgfx/btlgfx_ram.inc): Kachelnummer = Fuellstand ($F0-$F8), siehe $2022."""
+tags   = ["m08", "m11"]
+
+[[mask]]
+file   = "wram"
+start  = 0x8dc7
+end    = 0x8dc7
+reason = """Kacheln der ATB-Leisten im Menue-Kachelpuffer w7e5855, im Gauge-Textpuffer w7e5c45 und im Tilemap-Puffer w7e8d13 (btlgfx/btlgfx_ram.inc): Kachelnummer = Fuellstand ($F0-$F8), siehe $2022."""
+tags   = ["m06"]
+
+[[mask]]
+file   = "wram"
+start  = 0x8e47
+end    = 0x8e47
+reason = """Kacheln der ATB-Leisten im Menue-Kachelpuffer w7e5855, im Gauge-Textpuffer w7e5c45 und im Tilemap-Puffer w7e8d13 (btlgfx/btlgfx_ram.inc): Kachelnummer = Fuellstand ($F0-$F8), siehe $2022."""
+tags   = ["m07"]
+
+[[mask]]
+file   = "wram"
+start  = 0x8ec7
+end    = 0x8ec7
+reason = """Kacheln der ATB-Leisten im Menue-Kachelpuffer w7e5855, im Gauge-Textpuffer w7e5c45 und im Tilemap-Puffer w7e8d13 (btlgfx/btlgfx_ram.inc): Kachelnummer = Fuellstand ($F0-$F8), siehe $2022."""
+tags   = ["m11"]
+
+[[mask]]
+file   = "wram"
+start  = 0x5d17
+end    = 0x5d19
+reason = """MP-Textpuffer w7e5d15 (btlgfx/btlgfx_ram.inc): zuletzt gezeichneter MP-Wert, reihum je Frame wie $7B99."""
+tags   = ["m10"]
+
+[[mask]]
+file   = "wram"
+start  = 0x619e
+end    = 0x619e
+reason = """ATB-Anzeige je Figur (notes/battle-ram.txt:433), fuellt sich je Frame. Die Referenz hat bei Animationen Lag-Frames (docs/STATUS.md, Route r06), die Leisten stehen beim Dump verschieden weit."""
+tags   = ["m06", "m12", "msg1", "msg3"]
+
+[[mask]]
+file   = "wram"
+start  = 0x61c3
+end    = 0x61c4
+reason = """Aktuelles und vorheriges Animationsbild je Figur ($61C3/$61C4 + $20 je Figur, notes/battle-ram.txt:1468-1470). Die Siegerpose wechselt im Takt des Bildzaehlers $61C2, der Sieg kommt in der Referenz einige Lag-Frames spaeter. Bleibt nach dem Kampf stehen."""
+tags   = ["m03", "m05", "m08", "msg1", "msg2", "msg3", "after"]
+
+[[mask]]
+file   = "wram"
+start  = 0x61e3
+end    = 0x61e4
+reason = """Aktuelles und vorheriges Animationsbild je Figur ($61C3/$61C4 + $20 je Figur, notes/battle-ram.txt:1468-1470). Die Siegerpose wechselt im Takt des Bildzaehlers $61C2, der Sieg kommt in der Referenz einige Lag-Frames spaeter. Bleibt nach dem Kampf stehen."""
+tags   = ["msg1", "msg2", "msg3", "after"]
+
+[[mask]]
+file   = "wram"
+start  = 0x6203
+end    = 0x6204
+reason = """Aktuelles und vorheriges Animationsbild je Figur ($61C3/$61C4 + $20 je Figur, notes/battle-ram.txt:1468-1470). Die Siegerpose wechselt im Takt des Bildzaehlers $61C2, der Sieg kommt in der Referenz einige Lag-Frames spaeter. Bleibt nach dem Kampf stehen."""
+tags   = ["msg2", "msg3", "after"]
+
+[[mask]]
+file   = "wram"
+start  = 0x1a040
+end    = 0x1a07f
+reason = """Grafik des aktuellen Animationsbilds je Figur, $7F:A000-$7F:A3FF (notes/battle-ram.txt:2275), siehe $61C3. Bank $7F bleibt nach dem Kampf unberuehrt, deshalb auch in `after`."""
+tags   = ["m03", "m05", "m08", "msg1", "msg2", "msg3", "after"]
+
+[[mask]]
+file   = "wram"
+start  = 0x1a0c8
+end    = 0x1a0ff
+reason = """Grafik des aktuellen Animationsbilds je Figur, $7F:A000-$7F:A3FF (notes/battle-ram.txt:2275), siehe $61C3. Bank $7F bleibt nach dem Kampf unberuehrt, deshalb auch in `after`."""
+tags   = ["msg1", "msg2", "msg3", "after"]
+
+[[mask]]
+file   = "wram"
+start  = 0x1a148
+end    = 0x1a17f
+reason = """Grafik des aktuellen Animationsbilds je Figur, $7F:A000-$7F:A3FF (notes/battle-ram.txt:2275), siehe $61C3. Bank $7F bleibt nach dem Kampf unberuehrt, deshalb auch in `after`."""
+tags   = ["msg2", "msg3", "after"]
+
+[[mask]]
+file   = "wram"
+start  = 0x1a200
+end    = 0x1a27d
+reason = """Grafik des aktuellen Animationsbilds je Figur, $7F:A000-$7F:A3FF (notes/battle-ram.txt:2275), siehe $61C3. Bank $7F bleibt nach dem Kampf unberuehrt, deshalb auch in `after`."""
+tags   = ["m03", "msg1", "msg2", "msg3", "after"]
+
+[[mask]]
+file   = "wram"
+start  = 0x1a2a0
+end    = 0x1a2fd
+reason = """Grafik des aktuellen Animationsbilds je Figur, $7F:A000-$7F:A3FF (notes/battle-ram.txt:2275), siehe $61C3. Bank $7F bleibt nach dem Kampf unberuehrt, deshalb auch in `after`."""
+tags   = ["msg1", "msg2", "msg3", "after"]
+
+[[mask]]
+file   = "wram"
+start  = 0x1a320
+end    = 0x1a37d
+reason = """Grafik des aktuellen Animationsbilds je Figur, $7F:A000-$7F:A3FF (notes/battle-ram.txt:2275), siehe $61C3. Bank $7F bleibt nach dem Kampf unberuehrt, deshalb auch in `after`."""
+tags   = ["msg2", "msg3", "after"]
+
+[[mask]]
+file   = "wram"
+start  = 0x0320
+end    = 0x0361
+reason = """Sprite-Puffer $0300-$051F (notes/battle-ram.txt:175) bzw. OAM: Sprites der laufenden Animation (siehe Animationsphase) und der Siegerpose (Figuren wippen, siehe $61C3)."""
+tags   = ["m03", "m12", "msg1", "msg2", "msg3"]
+
+[[mask]]
+file   = "wram"
+start  = 0x04fe
+end    = 0x0505
+reason = """Sprite-Puffer $0300-$051F (notes/battle-ram.txt:175) bzw. OAM: Sprites der laufenden Animation (siehe Animationsphase) und der Siegerpose (Figuren wippen, siehe $61C3)."""
+tags   = ["m05", "m06", "m07", "m08", "m12"]
+
+[[mask]]
+file   = "wram"
+start  = 0x005b
+end    = 0x0060
+reason = """Animation der vorigen Aktion laeuft beim Menue-Dump noch und steht auf beiden Seiten in verschiedener Phase (Lag-Frames der Referenz waehrend Animationen, docs/STATUS.md Route r06). Bereiche (notes/battle-ram.txt): Animations-DP $5B-$78, BG1-Scroll-HDMA $43F5-$4650 (1223), Figuren-Ebenen $61B0-$61D5, Scrollwerte $64B4-$64ED (1648-1673), Animations-Threads $67DE-$7B1F (btlgfx_ram.inc ThreadIsActive, AttackerPos, LoopCounter, w7e7b14 Zahl aktiver Threads), Paletten $7C00-$7FFF (1925-1945), grosse VRAM-DMA $8000-$800A (1947-1952), Positionen $800F-$81A6 (1955-1995), Bildschirmregister je Bereich $896F-$8BED (2089-2112), BG-Kachelpuffer $A97F-$AE3E (2169), Sprite-Animationsbilder $CE3F-$E33E (2172-2173), Animations-Sound $E9E7 (2208), BG-Paletten $EC11-$ECB3 (2242-2246), BG1-Animationskacheln $7F:C400-$7F:E3FF (2283)."""
+tags   = ["m03", "m12"]
+
+[[mask]]
+file   = "wram"
+start  = 0x0068
+end    = 0x0068
+reason = """Animation der vorigen Aktion laeuft beim Menue-Dump noch und steht auf beiden Seiten in verschiedener Phase (Lag-Frames der Referenz waehrend Animationen, docs/STATUS.md Route r06). Bereiche (notes/battle-ram.txt): Animations-DP $5B-$78, BG1-Scroll-HDMA $43F5-$4650 (1223), Figuren-Ebenen $61B0-$61D5, Scrollwerte $64B4-$64ED (1648-1673), Animations-Threads $67DE-$7B1F (btlgfx_ram.inc ThreadIsActive, AttackerPos, LoopCounter, w7e7b14 Zahl aktiver Threads), Paletten $7C00-$7FFF (1925-1945), grosse VRAM-DMA $8000-$800A (1947-1952), Positionen $800F-$81A6 (1955-1995), Bildschirmregister je Bereich $896F-$8BED (2089-2112), BG-Kachelpuffer $A97F-$AE3E (2169), Sprite-Animationsbilder $CE3F-$E33E (2172-2173), Animations-Sound $E9E7 (2208), BG-Paletten $EC11-$ECB3 (2242-2246), BG1-Animationskacheln $7F:C400-$7F:E3FF (2283)."""
+tags   = ["m04"]
+
+[[mask]]
+file   = "wram"
+start  = 0x0071
+end    = 0x0071
+reason = """Animation der vorigen Aktion laeuft beim Menue-Dump noch und steht auf beiden Seiten in verschiedener Phase (Lag-Frames der Referenz waehrend Animationen, docs/STATUS.md Route r06). Bereiche (notes/battle-ram.txt): Animations-DP $5B-$78, BG1-Scroll-HDMA $43F5-$4650 (1223), Figuren-Ebenen $61B0-$61D5, Scrollwerte $64B4-$64ED (1648-1673), Animations-Threads $67DE-$7B1F (btlgfx_ram.inc ThreadIsActive, AttackerPos, LoopCounter, w7e7b14 Zahl aktiver Threads), Paletten $7C00-$7FFF (1925-1945), grosse VRAM-DMA $8000-$800A (1947-1952), Positionen $800F-$81A6 (1955-1995), Bildschirmregister je Bereich $896F-$8BED (2089-2112), BG-Kachelpuffer $A97F-$AE3E (2169), Sprite-Animationsbilder $CE3F-$E33E (2172-2173), Animations-Sound $E9E7 (2208), BG-Paletten $EC11-$ECB3 (2242-2246), BG1-Animationskacheln $7F:C400-$7F:E3FF (2283)."""
+tags   = ["m03", "m12"]
+
+[[mask]]
+file   = "wram"
+start  = 0x0076
+end    = 0x0078
+reason = """Animation der vorigen Aktion laeuft beim Menue-Dump noch und steht auf beiden Seiten in verschiedener Phase (Lag-Frames der Referenz waehrend Animationen, docs/STATUS.md Route r06). Bereiche (notes/battle-ram.txt): Animations-DP $5B-$78, BG1-Scroll-HDMA $43F5-$4650 (1223), Figuren-Ebenen $61B0-$61D5, Scrollwerte $64B4-$64ED (1648-1673), Animations-Threads $67DE-$7B1F (btlgfx_ram.inc ThreadIsActive, AttackerPos, LoopCounter, w7e7b14 Zahl aktiver Threads), Paletten $7C00-$7FFF (1925-1945), grosse VRAM-DMA $8000-$800A (1947-1952), Positionen $800F-$81A6 (1955-1995), Bildschirmregister je Bereich $896F-$8BED (2089-2112), BG-Kachelpuffer $A97F-$AE3E (2169), Sprite-Animationsbilder $CE3F-$E33E (2172-2173), Animations-Sound $E9E7 (2208), BG-Paletten $EC11-$ECB3 (2242-2246), BG1-Animationskacheln $7F:C400-$7F:E3FF (2283)."""
+tags   = ["m04"]
+
+[[mask]]
+file   = "wram"
+start  = 0x43f5
+end    = 0x43f7
+reason = """Animation der vorigen Aktion laeuft beim Menue-Dump noch und steht auf beiden Seiten in verschiedener Phase (Lag-Frames der Referenz waehrend Animationen, docs/STATUS.md Route r06). Bereiche (notes/battle-ram.txt): Animations-DP $5B-$78, BG1-Scroll-HDMA $43F5-$4650 (1223), Figuren-Ebenen $61B0-$61D5, Scrollwerte $64B4-$64ED (1648-1673), Animations-Threads $67DE-$7B1F (btlgfx_ram.inc ThreadIsActive, AttackerPos, LoopCounter, w7e7b14 Zahl aktiver Threads), Paletten $7C00-$7FFF (1925-1945), grosse VRAM-DMA $8000-$800A (1947-1952), Positionen $800F-$81A6 (1955-1995), Bildschirmregister je Bereich $896F-$8BED (2089-2112), BG-Kachelpuffer $A97F-$AE3E (2169), Sprite-Animationsbilder $CE3F-$E33E (2172-2173), Animations-Sound $E9E7 (2208), BG-Paletten $EC11-$ECB3 (2242-2246), BG1-Animationskacheln $7F:C400-$7F:E3FF (2283)."""
+tags   = ["m03", "m04"]
+
+[[mask]]
+file   = "wram"
+start  = 0x4af6
+end    = 0x4af6
+reason = """Animation der vorigen Aktion laeuft beim Menue-Dump noch und steht auf beiden Seiten in verschiedener Phase (Lag-Frames der Referenz waehrend Animationen, docs/STATUS.md Route r06). Bereiche (notes/battle-ram.txt): Animations-DP $5B-$78, BG1-Scroll-HDMA $43F5-$4650 (1223), Figuren-Ebenen $61B0-$61D5, Scrollwerte $64B4-$64ED (1648-1673), Animations-Threads $67DE-$7B1F (btlgfx_ram.inc ThreadIsActive, AttackerPos, LoopCounter, w7e7b14 Zahl aktiver Threads), Paletten $7C00-$7FFF (1925-1945), grosse VRAM-DMA $8000-$800A (1947-1952), Positionen $800F-$81A6 (1955-1995), Bildschirmregister je Bereich $896F-$8BED (2089-2112), BG-Kachelpuffer $A97F-$AE3E (2169), Sprite-Animationsbilder $CE3F-$E33E (2172-2173), Animations-Sound $E9E7 (2208), BG-Paletten $EC11-$ECB3 (2242-2246), BG1-Animationskacheln $7F:C400-$7F:E3FF (2283)."""
+tags   = ["m04"]
+
+[[mask]]
+file   = "wram"
+start  = 0x61b0
+end    = 0x61d5
+reason = """Animation der vorigen Aktion laeuft beim Menue-Dump noch und steht auf beiden Seiten in verschiedener Phase (Lag-Frames der Referenz waehrend Animationen, docs/STATUS.md Route r06). Bereiche (notes/battle-ram.txt): Animations-DP $5B-$78, BG1-Scroll-HDMA $43F5-$4650 (1223), Figuren-Ebenen $61B0-$61D5, Scrollwerte $64B4-$64ED (1648-1673), Animations-Threads $67DE-$7B1F (btlgfx_ram.inc ThreadIsActive, AttackerPos, LoopCounter, w7e7b14 Zahl aktiver Threads), Paletten $7C00-$7FFF (1925-1945), grosse VRAM-DMA $8000-$800A (1947-1952), Positionen $800F-$81A6 (1955-1995), Bildschirmregister je Bereich $896F-$8BED (2089-2112), BG-Kachelpuffer $A97F-$AE3E (2169), Sprite-Animationsbilder $CE3F-$E33E (2172-2173), Animations-Sound $E9E7 (2208), BG-Paletten $EC11-$ECB3 (2242-2246), BG1-Animationskacheln $7F:C400-$7F:E3FF (2283)."""
+tags   = ["m03", "m04"]
+
+[[mask]]
+file   = "wram"
+start  = 0x64b4
+end    = 0x64b7
+reason = """Animation der vorigen Aktion laeuft beim Menue-Dump noch und steht auf beiden Seiten in verschiedener Phase (Lag-Frames der Referenz waehrend Animationen, docs/STATUS.md Route r06). Bereiche (notes/battle-ram.txt): Animations-DP $5B-$78, BG1-Scroll-HDMA $43F5-$4650 (1223), Figuren-Ebenen $61B0-$61D5, Scrollwerte $64B4-$64ED (1648-1673), Animations-Threads $67DE-$7B1F (btlgfx_ram.inc ThreadIsActive, AttackerPos, LoopCounter, w7e7b14 Zahl aktiver Threads), Paletten $7C00-$7FFF (1925-1945), grosse VRAM-DMA $8000-$800A (1947-1952), Positionen $800F-$81A6 (1955-1995), Bildschirmregister je Bereich $896F-$8BED (2089-2112), BG-Kachelpuffer $A97F-$AE3E (2169), Sprite-Animationsbilder $CE3F-$E33E (2172-2173), Animations-Sound $E9E7 (2208), BG-Paletten $EC11-$ECB3 (2242-2246), BG1-Animationskacheln $7F:C400-$7F:E3FF (2283)."""
+tags   = ["m03"]
+
+[[mask]]
+file   = "wram"
+start  = 0x64dc
+end    = 0x64ed
+reason = """Animation der vorigen Aktion laeuft beim Menue-Dump noch und steht auf beiden Seiten in verschiedener Phase (Lag-Frames der Referenz waehrend Animationen, docs/STATUS.md Route r06). Bereiche (notes/battle-ram.txt): Animations-DP $5B-$78, BG1-Scroll-HDMA $43F5-$4650 (1223), Figuren-Ebenen $61B0-$61D5, Scrollwerte $64B4-$64ED (1648-1673), Animations-Threads $67DE-$7B1F (btlgfx_ram.inc ThreadIsActive, AttackerPos, LoopCounter, w7e7b14 Zahl aktiver Threads), Paletten $7C00-$7FFF (1925-1945), grosse VRAM-DMA $8000-$800A (1947-1952), Positionen $800F-$81A6 (1955-1995), Bildschirmregister je Bereich $896F-$8BED (2089-2112), BG-Kachelpuffer $A97F-$AE3E (2169), Sprite-Animationsbilder $CE3F-$E33E (2172-2173), Animations-Sound $E9E7 (2208), BG-Paletten $EC11-$ECB3 (2242-2246), BG1-Animationskacheln $7F:C400-$7F:E3FF (2283)."""
+tags   = ["m03"]
+
+[[mask]]
+file   = "wram"
+start  = 0x67de
+end    = 0x67ef
+reason = """Animation der vorigen Aktion laeuft beim Menue-Dump noch und steht auf beiden Seiten in verschiedener Phase (Lag-Frames der Referenz waehrend Animationen, docs/STATUS.md Route r06). Bereiche (notes/battle-ram.txt): Animations-DP $5B-$78, BG1-Scroll-HDMA $43F5-$4650 (1223), Figuren-Ebenen $61B0-$61D5, Scrollwerte $64B4-$64ED (1648-1673), Animations-Threads $67DE-$7B1F (btlgfx_ram.inc ThreadIsActive, AttackerPos, LoopCounter, w7e7b14 Zahl aktiver Threads), Paletten $7C00-$7FFF (1925-1945), grosse VRAM-DMA $8000-$800A (1947-1952), Positionen $800F-$81A6 (1955-1995), Bildschirmregister je Bereich $896F-$8BED (2089-2112), BG-Kachelpuffer $A97F-$AE3E (2169), Sprite-Animationsbilder $CE3F-$E33E (2172-2173), Animations-Sound $E9E7 (2208), BG-Paletten $EC11-$ECB3 (2242-2246), BG1-Animationskacheln $7F:C400-$7F:E3FF (2283)."""
+tags   = ["m12"]
+
+[[mask]]
+file   = "wram"
+start  = 0x6a2e
+end    = 0x6a3c
+reason = """Animation der vorigen Aktion laeuft beim Menue-Dump noch und steht auf beiden Seiten in verschiedener Phase (Lag-Frames der Referenz waehrend Animationen, docs/STATUS.md Route r06). Bereiche (notes/battle-ram.txt): Animations-DP $5B-$78, BG1-Scroll-HDMA $43F5-$4650 (1223), Figuren-Ebenen $61B0-$61D5, Scrollwerte $64B4-$64ED (1648-1673), Animations-Threads $67DE-$7B1F (btlgfx_ram.inc ThreadIsActive, AttackerPos, LoopCounter, w7e7b14 Zahl aktiver Threads), Paletten $7C00-$7FFF (1925-1945), grosse VRAM-DMA $8000-$800A (1947-1952), Positionen $800F-$81A6 (1955-1995), Bildschirmregister je Bereich $896F-$8BED (2089-2112), BG-Kachelpuffer $A97F-$AE3E (2169), Sprite-Animationsbilder $CE3F-$E33E (2172-2173), Animations-Sound $E9E7 (2208), BG-Paletten $EC11-$ECB3 (2242-2246), BG1-Animationskacheln $7F:C400-$7F:E3FF (2283)."""
+tags   = ["m03"]
+
+[[mask]]
+file   = "wram"
+start  = 0x6d2e
+end    = 0x6d4a
+reason = """Animation der vorigen Aktion laeuft beim Menue-Dump noch und steht auf beiden Seiten in verschiedener Phase (Lag-Frames der Referenz waehrend Animationen, docs/STATUS.md Route r06). Bereiche (notes/battle-ram.txt): Animations-DP $5B-$78, BG1-Scroll-HDMA $43F5-$4650 (1223), Figuren-Ebenen $61B0-$61D5, Scrollwerte $64B4-$64ED (1648-1673), Animations-Threads $67DE-$7B1F (btlgfx_ram.inc ThreadIsActive, AttackerPos, LoopCounter, w7e7b14 Zahl aktiver Threads), Paletten $7C00-$7FFF (1925-1945), grosse VRAM-DMA $8000-$800A (1947-1952), Positionen $800F-$81A6 (1955-1995), Bildschirmregister je Bereich $896F-$8BED (2089-2112), BG-Kachelpuffer $A97F-$AE3E (2169), Sprite-Animationsbilder $CE3F-$E33E (2172-2173), Animations-Sound $E9E7 (2208), BG-Paletten $EC11-$ECB3 (2242-2246), BG1-Animationskacheln $7F:C400-$7F:E3FF (2283)."""
+tags   = ["m12"]
+
+[[mask]]
+file   = "wram"
+start  = 0x6f2e
+end    = 0x6f3c
+reason = """Animation der vorigen Aktion laeuft beim Menue-Dump noch und steht auf beiden Seiten in verschiedener Phase (Lag-Frames der Referenz waehrend Animationen, docs/STATUS.md Route r06). Bereiche (notes/battle-ram.txt): Animations-DP $5B-$78, BG1-Scroll-HDMA $43F5-$4650 (1223), Figuren-Ebenen $61B0-$61D5, Scrollwerte $64B4-$64ED (1648-1673), Animations-Threads $67DE-$7B1F (btlgfx_ram.inc ThreadIsActive, AttackerPos, LoopCounter, w7e7b14 Zahl aktiver Threads), Paletten $7C00-$7FFF (1925-1945), grosse VRAM-DMA $8000-$800A (1947-1952), Positionen $800F-$81A6 (1955-1995), Bildschirmregister je Bereich $896F-$8BED (2089-2112), BG-Kachelpuffer $A97F-$AE3E (2169), Sprite-Animationsbilder $CE3F-$E33E (2172-2173), Animations-Sound $E9E7 (2208), BG-Paletten $EC11-$ECB3 (2242-2246), BG1-Animationskacheln $7F:C400-$7F:E3FF (2283)."""
+tags   = ["m03"]
+
+[[mask]]
+file   = "wram"
+start  = 0x6f7e
+end    = 0x6f8d
+reason = """Animation der vorigen Aktion laeuft beim Menue-Dump noch und steht auf beiden Seiten in verschiedener Phase (Lag-Frames der Referenz waehrend Animationen, docs/STATUS.md Route r06). Bereiche (notes/battle-ram.txt): Animations-DP $5B-$78, BG1-Scroll-HDMA $43F5-$4650 (1223), Figuren-Ebenen $61B0-$61D5, Scrollwerte $64B4-$64ED (1648-1673), Animations-Threads $67DE-$7B1F (btlgfx_ram.inc ThreadIsActive, AttackerPos, LoopCounter, w7e7b14 Zahl aktiver Threads), Paletten $7C00-$7FFF (1925-1945), grosse VRAM-DMA $8000-$800A (1947-1952), Positionen $800F-$81A6 (1955-1995), Bildschirmregister je Bereich $896F-$8BED (2089-2112), BG-Kachelpuffer $A97F-$AE3E (2169), Sprite-Animationsbilder $CE3F-$E33E (2172-2173), Animations-Sound $E9E7 (2208), BG-Paletten $EC11-$ECB3 (2242-2246), BG1-Animationskacheln $7F:C400-$7F:E3FF (2283)."""
+tags   = ["m03"]
+
+[[mask]]
+file   = "wram"
+start  = 0x7292
+end    = 0x729b
+reason = """Animation der vorigen Aktion laeuft beim Menue-Dump noch und steht auf beiden Seiten in verschiedener Phase (Lag-Frames der Referenz waehrend Animationen, docs/STATUS.md Route r06). Bereiche (notes/battle-ram.txt): Animations-DP $5B-$78, BG1-Scroll-HDMA $43F5-$4650 (1223), Figuren-Ebenen $61B0-$61D5, Scrollwerte $64B4-$64ED (1648-1673), Animations-Threads $67DE-$7B1F (btlgfx_ram.inc ThreadIsActive, AttackerPos, LoopCounter, w7e7b14 Zahl aktiver Threads), Paletten $7C00-$7FFF (1925-1945), grosse VRAM-DMA $8000-$800A (1947-1952), Positionen $800F-$81A6 (1955-1995), Bildschirmregister je Bereich $896F-$8BED (2089-2112), BG-Kachelpuffer $A97F-$AE3E (2169), Sprite-Animationsbilder $CE3F-$E33E (2172-2173), Animations-Sound $E9E7 (2208), BG-Paletten $EC11-$ECB3 (2242-2246), BG1-Animationskacheln $7F:C400-$7F:E3FF (2283)."""
+tags   = ["m12"]
+
+[[mask]]
+file   = "wram"
+start  = 0x730b
+end    = 0x731b
+reason = """Animation der vorigen Aktion laeuft beim Menue-Dump noch und steht auf beiden Seiten in verschiedener Phase (Lag-Frames der Referenz waehrend Animationen, docs/STATUS.md Route r06). Bereiche (notes/battle-ram.txt): Animations-DP $5B-$78, BG1-Scroll-HDMA $43F5-$4650 (1223), Figuren-Ebenen $61B0-$61D5, Scrollwerte $64B4-$64ED (1648-1673), Animations-Threads $67DE-$7B1F (btlgfx_ram.inc ThreadIsActive, AttackerPos, LoopCounter, w7e7b14 Zahl aktiver Threads), Paletten $7C00-$7FFF (1925-1945), grosse VRAM-DMA $8000-$800A (1947-1952), Positionen $800F-$81A6 (1955-1995), Bildschirmregister je Bereich $896F-$8BED (2089-2112), BG-Kachelpuffer $A97F-$AE3E (2169), Sprite-Animationsbilder $CE3F-$E33E (2172-2173), Animations-Sound $E9E7 (2208), BG-Paletten $EC11-$ECB3 (2242-2246), BG1-Animationskacheln $7F:C400-$7F:E3FF (2283)."""
+tags   = ["m12"]
+
+[[mask]]
+file   = "wram"
+start  = 0x747e
+end    = 0x748d
+reason = """Animation der vorigen Aktion laeuft beim Menue-Dump noch und steht auf beiden Seiten in verschiedener Phase (Lag-Frames der Referenz waehrend Animationen, docs/STATUS.md Route r06). Bereiche (notes/battle-ram.txt): Animations-DP $5B-$78, BG1-Scroll-HDMA $43F5-$4650 (1223), Figuren-Ebenen $61B0-$61D5, Scrollwerte $64B4-$64ED (1648-1673), Animations-Threads $67DE-$7B1F (btlgfx_ram.inc ThreadIsActive, AttackerPos, LoopCounter, w7e7b14 Zahl aktiver Threads), Paletten $7C00-$7FFF (1925-1945), grosse VRAM-DMA $8000-$800A (1947-1952), Positionen $800F-$81A6 (1955-1995), Bildschirmregister je Bereich $896F-$8BED (2089-2112), BG-Kachelpuffer $A97F-$AE3E (2169), Sprite-Animationsbilder $CE3F-$E33E (2172-2173), Animations-Sound $E9E7 (2208), BG-Paletten $EC11-$ECB3 (2242-2246), BG1-Animationskacheln $7F:C400-$7F:E3FF (2283)."""
+tags   = ["m03", "m12"]
+
+[[mask]]
+file   = "wram"
+start  = 0x74d5
+end    = 0x74d5
+reason = """Animation der vorigen Aktion laeuft beim Menue-Dump noch und steht auf beiden Seiten in verschiedener Phase (Lag-Frames der Referenz waehrend Animationen, docs/STATUS.md Route r06). Bereiche (notes/battle-ram.txt): Animations-DP $5B-$78, BG1-Scroll-HDMA $43F5-$4650 (1223), Figuren-Ebenen $61B0-$61D5, Scrollwerte $64B4-$64ED (1648-1673), Animations-Threads $67DE-$7B1F (btlgfx_ram.inc ThreadIsActive, AttackerPos, LoopCounter, w7e7b14 Zahl aktiver Threads), Paletten $7C00-$7FFF (1925-1945), grosse VRAM-DMA $8000-$800A (1947-1952), Positionen $800F-$81A6 (1955-1995), Bildschirmregister je Bereich $896F-$8BED (2089-2112), BG-Kachelpuffer $A97F-$AE3E (2169), Sprite-Animationsbilder $CE3F-$E33E (2172-2173), Animations-Sound $E9E7 (2208), BG-Paletten $EC11-$ECB3 (2242-2246), BG1-Animationskacheln $7F:C400-$7F:E3FF (2283)."""
+tags   = ["m03"]
+
+[[mask]]
+file   = "wram"
+start  = 0x79d2
+end    = 0x79d5
+reason = """Animation der vorigen Aktion laeuft beim Menue-Dump noch und steht auf beiden Seiten in verschiedener Phase (Lag-Frames der Referenz waehrend Animationen, docs/STATUS.md Route r06). Bereiche (notes/battle-ram.txt): Animations-DP $5B-$78, BG1-Scroll-HDMA $43F5-$4650 (1223), Figuren-Ebenen $61B0-$61D5, Scrollwerte $64B4-$64ED (1648-1673), Animations-Threads $67DE-$7B1F (btlgfx_ram.inc ThreadIsActive, AttackerPos, LoopCounter, w7e7b14 Zahl aktiver Threads), Paletten $7C00-$7FFF (1925-1945), grosse VRAM-DMA $8000-$800A (1947-1952), Positionen $800F-$81A6 (1955-1995), Bildschirmregister je Bereich $896F-$8BED (2089-2112), BG-Kachelpuffer $A97F-$AE3E (2169), Sprite-Animationsbilder $CE3F-$E33E (2172-2173), Animations-Sound $E9E7 (2208), BG-Paletten $EC11-$ECB3 (2242-2246), BG1-Animationskacheln $7F:C400-$7F:E3FF (2283)."""
+tags   = ["m03"]
+
+[[mask]]
+file   = "wram"
+start  = 0x7a43
+end    = 0x7a43
+reason = """Animation der vorigen Aktion laeuft beim Menue-Dump noch und steht auf beiden Seiten in verschiedener Phase (Lag-Frames der Referenz waehrend Animationen, docs/STATUS.md Route r06). Bereiche (notes/battle-ram.txt): Animations-DP $5B-$78, BG1-Scroll-HDMA $43F5-$4650 (1223), Figuren-Ebenen $61B0-$61D5, Scrollwerte $64B4-$64ED (1648-1673), Animations-Threads $67DE-$7B1F (btlgfx_ram.inc ThreadIsActive, AttackerPos, LoopCounter, w7e7b14 Zahl aktiver Threads), Paletten $7C00-$7FFF (1925-1945), grosse VRAM-DMA $8000-$800A (1947-1952), Positionen $800F-$81A6 (1955-1995), Bildschirmregister je Bereich $896F-$8BED (2089-2112), BG-Kachelpuffer $A97F-$AE3E (2169), Sprite-Animationsbilder $CE3F-$E33E (2172-2173), Animations-Sound $E9E7 (2208), BG-Paletten $EC11-$ECB3 (2242-2246), BG1-Animationskacheln $7F:C400-$7F:E3FF (2283)."""
+tags   = ["m03"]
+
+[[mask]]
+file   = "wram"
+start  = 0x7aea
+end    = 0x7afb
+reason = """Animation der vorigen Aktion laeuft beim Menue-Dump noch und steht auf beiden Seiten in verschiedener Phase (Lag-Frames der Referenz waehrend Animationen, docs/STATUS.md Route r06). Bereiche (notes/battle-ram.txt): Animations-DP $5B-$78, BG1-Scroll-HDMA $43F5-$4650 (1223), Figuren-Ebenen $61B0-$61D5, Scrollwerte $64B4-$64ED (1648-1673), Animations-Threads $67DE-$7B1F (btlgfx_ram.inc ThreadIsActive, AttackerPos, LoopCounter, w7e7b14 Zahl aktiver Threads), Paletten $7C00-$7FFF (1925-1945), grosse VRAM-DMA $8000-$800A (1947-1952), Positionen $800F-$81A6 (1955-1995), Bildschirmregister je Bereich $896F-$8BED (2089-2112), BG-Kachelpuffer $A97F-$AE3E (2169), Sprite-Animationsbilder $CE3F-$E33E (2172-2173), Animations-Sound $E9E7 (2208), BG-Paletten $EC11-$ECB3 (2242-2246), BG1-Animationskacheln $7F:C400-$7F:E3FF (2283)."""
+tags   = ["m03"]
+
+[[mask]]
+file   = "wram"
+start  = 0x7b0c
+end    = 0x7b1f
+reason = """Animation der vorigen Aktion laeuft beim Menue-Dump noch und steht auf beiden Seiten in verschiedener Phase (Lag-Frames der Referenz waehrend Animationen, docs/STATUS.md Route r06). Bereiche (notes/battle-ram.txt): Animations-DP $5B-$78, BG1-Scroll-HDMA $43F5-$4650 (1223), Figuren-Ebenen $61B0-$61D5, Scrollwerte $64B4-$64ED (1648-1673), Animations-Threads $67DE-$7B1F (btlgfx_ram.inc ThreadIsActive, AttackerPos, LoopCounter, w7e7b14 Zahl aktiver Threads), Paletten $7C00-$7FFF (1925-1945), grosse VRAM-DMA $8000-$800A (1947-1952), Positionen $800F-$81A6 (1955-1995), Bildschirmregister je Bereich $896F-$8BED (2089-2112), BG-Kachelpuffer $A97F-$AE3E (2169), Sprite-Animationsbilder $CE3F-$E33E (2172-2173), Animations-Sound $E9E7 (2208), BG-Paletten $EC11-$ECB3 (2242-2246), BG1-Animationskacheln $7F:C400-$7F:E3FF (2283)."""
+tags   = ["m03", "m12"]
+
+[[mask]]
+file   = "wram"
+start  = 0x7c60
+end    = 0x7c9f
+reason = """Animation der vorigen Aktion laeuft beim Menue-Dump noch und steht auf beiden Seiten in verschiedener Phase (Lag-Frames der Referenz waehrend Animationen, docs/STATUS.md Route r06). Bereiche (notes/battle-ram.txt): Animations-DP $5B-$78, BG1-Scroll-HDMA $43F5-$4650 (1223), Figuren-Ebenen $61B0-$61D5, Scrollwerte $64B4-$64ED (1648-1673), Animations-Threads $67DE-$7B1F (btlgfx_ram.inc ThreadIsActive, AttackerPos, LoopCounter, w7e7b14 Zahl aktiver Threads), Paletten $7C00-$7FFF (1925-1945), grosse VRAM-DMA $8000-$800A (1947-1952), Positionen $800F-$81A6 (1955-1995), Bildschirmregister je Bereich $896F-$8BED (2089-2112), BG-Kachelpuffer $A97F-$AE3E (2169), Sprite-Animationsbilder $CE3F-$E33E (2172-2173), Animations-Sound $E9E7 (2208), BG-Paletten $EC11-$ECB3 (2242-2246), BG1-Animationskacheln $7F:C400-$7F:E3FF (2283)."""
+tags   = ["m03"]
+
+[[mask]]
+file   = "wram"
+start  = 0x7e22
+end    = 0x7e27
+reason = """Animation der vorigen Aktion laeuft beim Menue-Dump noch und steht auf beiden Seiten in verschiedener Phase (Lag-Frames der Referenz waehrend Animationen, docs/STATUS.md Route r06). Bereiche (notes/battle-ram.txt): Animations-DP $5B-$78, BG1-Scroll-HDMA $43F5-$4650 (1223), Figuren-Ebenen $61B0-$61D5, Scrollwerte $64B4-$64ED (1648-1673), Animations-Threads $67DE-$7B1F (btlgfx_ram.inc ThreadIsActive, AttackerPos, LoopCounter, w7e7b14 Zahl aktiver Threads), Paletten $7C00-$7FFF (1925-1945), grosse VRAM-DMA $8000-$800A (1947-1952), Positionen $800F-$81A6 (1955-1995), Bildschirmregister je Bereich $896F-$8BED (2089-2112), BG-Kachelpuffer $A97F-$AE3E (2169), Sprite-Animationsbilder $CE3F-$E33E (2172-2173), Animations-Sound $E9E7 (2208), BG-Paletten $EC11-$ECB3 (2242-2246), BG1-Animationskacheln $7F:C400-$7F:E3FF (2283)."""
+tags   = ["m10"]
+
+[[mask]]
+file   = "wram"
+start  = 0x7e60
+end    = 0x7e9f
+reason = """Animation der vorigen Aktion laeuft beim Menue-Dump noch und steht auf beiden Seiten in verschiedener Phase (Lag-Frames der Referenz waehrend Animationen, docs/STATUS.md Route r06). Bereiche (notes/battle-ram.txt): Animations-DP $5B-$78, BG1-Scroll-HDMA $43F5-$4650 (1223), Figuren-Ebenen $61B0-$61D5, Scrollwerte $64B4-$64ED (1648-1673), Animations-Threads $67DE-$7B1F (btlgfx_ram.inc ThreadIsActive, AttackerPos, LoopCounter, w7e7b14 Zahl aktiver Threads), Paletten $7C00-$7FFF (1925-1945), grosse VRAM-DMA $8000-$800A (1947-1952), Positionen $800F-$81A6 (1955-1995), Bildschirmregister je Bereich $896F-$8BED (2089-2112), BG-Kachelpuffer $A97F-$AE3E (2169), Sprite-Animationsbilder $CE3F-$E33E (2172-2173), Animations-Sound $E9E7 (2208), BG-Paletten $EC11-$ECB3 (2242-2246), BG1-Animationskacheln $7F:C400-$7F:E3FF (2283)."""
+tags   = ["m03"]
+
+[[mask]]
+file   = "wram"
+start  = 0x8001
+end    = 0x8013
+reason = """Animation der vorigen Aktion laeuft beim Menue-Dump noch und steht auf beiden Seiten in verschiedener Phase (Lag-Frames der Referenz waehrend Animationen, docs/STATUS.md Route r06). Bereiche (notes/battle-ram.txt): Animations-DP $5B-$78, BG1-Scroll-HDMA $43F5-$4650 (1223), Figuren-Ebenen $61B0-$61D5, Scrollwerte $64B4-$64ED (1648-1673), Animations-Threads $67DE-$7B1F (btlgfx_ram.inc ThreadIsActive, AttackerPos, LoopCounter, w7e7b14 Zahl aktiver Threads), Paletten $7C00-$7FFF (1925-1945), grosse VRAM-DMA $8000-$800A (1947-1952), Positionen $800F-$81A6 (1955-1995), Bildschirmregister je Bereich $896F-$8BED (2089-2112), BG-Kachelpuffer $A97F-$AE3E (2169), Sprite-Animationsbilder $CE3F-$E33E (2172-2173), Animations-Sound $E9E7 (2208), BG-Paletten $EC11-$ECB3 (2242-2246), BG1-Animationskacheln $7F:C400-$7F:E3FF (2283)."""
+tags   = ["m03", "m10", "m12"]
+
+[[mask]]
+file   = "wram"
+start  = 0x8033
+end    = 0x8043
+reason = """Animation der vorigen Aktion laeuft beim Menue-Dump noch und steht auf beiden Seiten in verschiedener Phase (Lag-Frames der Referenz waehrend Animationen, docs/STATUS.md Route r06). Bereiche (notes/battle-ram.txt): Animations-DP $5B-$78, BG1-Scroll-HDMA $43F5-$4650 (1223), Figuren-Ebenen $61B0-$61D5, Scrollwerte $64B4-$64ED (1648-1673), Animations-Threads $67DE-$7B1F (btlgfx_ram.inc ThreadIsActive, AttackerPos, LoopCounter, w7e7b14 Zahl aktiver Threads), Paletten $7C00-$7FFF (1925-1945), grosse VRAM-DMA $8000-$800A (1947-1952), Positionen $800F-$81A6 (1955-1995), Bildschirmregister je Bereich $896F-$8BED (2089-2112), BG-Kachelpuffer $A97F-$AE3E (2169), Sprite-Animationsbilder $CE3F-$E33E (2172-2173), Animations-Sound $E9E7 (2208), BG-Paletten $EC11-$ECB3 (2242-2246), BG1-Animationskacheln $7F:C400-$7F:E3FF (2283)."""
+tags   = ["m03"]
+
+[[mask]]
+file   = "wram"
+start  = 0x8067
+end    = 0x8067
+reason = """Animation der vorigen Aktion laeuft beim Menue-Dump noch und steht auf beiden Seiten in verschiedener Phase (Lag-Frames der Referenz waehrend Animationen, docs/STATUS.md Route r06). Bereiche (notes/battle-ram.txt): Animations-DP $5B-$78, BG1-Scroll-HDMA $43F5-$4650 (1223), Figuren-Ebenen $61B0-$61D5, Scrollwerte $64B4-$64ED (1648-1673), Animations-Threads $67DE-$7B1F (btlgfx_ram.inc ThreadIsActive, AttackerPos, LoopCounter, w7e7b14 Zahl aktiver Threads), Paletten $7C00-$7FFF (1925-1945), grosse VRAM-DMA $8000-$800A (1947-1952), Positionen $800F-$81A6 (1955-1995), Bildschirmregister je Bereich $896F-$8BED (2089-2112), BG-Kachelpuffer $A97F-$AE3E (2169), Sprite-Animationsbilder $CE3F-$E33E (2172-2173), Animations-Sound $E9E7 (2208), BG-Paletten $EC11-$ECB3 (2242-2246), BG1-Animationskacheln $7F:C400-$7F:E3FF (2283)."""
+tags   = ["m12"]
+
+[[mask]]
+file   = "wram"
+start  = 0x8087
+end    = 0x8093
+reason = """Animation der vorigen Aktion laeuft beim Menue-Dump noch und steht auf beiden Seiten in verschiedener Phase (Lag-Frames der Referenz waehrend Animationen, docs/STATUS.md Route r06). Bereiche (notes/battle-ram.txt): Animations-DP $5B-$78, BG1-Scroll-HDMA $43F5-$4650 (1223), Figuren-Ebenen $61B0-$61D5, Scrollwerte $64B4-$64ED (1648-1673), Animations-Threads $67DE-$7B1F (btlgfx_ram.inc ThreadIsActive, AttackerPos, LoopCounter, w7e7b14 Zahl aktiver Threads), Paletten $7C00-$7FFF (1925-1945), grosse VRAM-DMA $8000-$800A (1947-1952), Positionen $800F-$81A6 (1955-1995), Bildschirmregister je Bereich $896F-$8BED (2089-2112), BG-Kachelpuffer $A97F-$AE3E (2169), Sprite-Animationsbilder $CE3F-$E33E (2172-2173), Animations-Sound $E9E7 (2208), BG-Paletten $EC11-$ECB3 (2242-2246), BG1-Animationskacheln $7F:C400-$7F:E3FF (2283)."""
+tags   = ["m03"]
+
+[[mask]]
+file   = "wram"
+start  = 0x80c7
+end    = 0x80c7
+reason = """Animation der vorigen Aktion laeuft beim Menue-Dump noch und steht auf beiden Seiten in verschiedener Phase (Lag-Frames der Referenz waehrend Animationen, docs/STATUS.md Route r06). Bereiche (notes/battle-ram.txt): Animations-DP $5B-$78, BG1-Scroll-HDMA $43F5-$4650 (1223), Figuren-Ebenen $61B0-$61D5, Scrollwerte $64B4-$64ED (1648-1673), Animations-Threads $67DE-$7B1F (btlgfx_ram.inc ThreadIsActive, AttackerPos, LoopCounter, w7e7b14 Zahl aktiver Threads), Paletten $7C00-$7FFF (1925-1945), grosse VRAM-DMA $8000-$800A (1947-1952), Positionen $800F-$81A6 (1955-1995), Bildschirmregister je Bereich $896F-$8BED (2089-2112), BG-Kachelpuffer $A97F-$AE3E (2169), Sprite-Animationsbilder $CE3F-$E33E (2172-2173), Animations-Sound $E9E7 (2208), BG-Paletten $EC11-$ECB3 (2242-2246), BG1-Animationskacheln $7F:C400-$7F:E3FF (2283)."""
+tags   = ["m12"]
+
+[[mask]]
+file   = "wram"
+start  = 0x80dc
+end    = 0x80e6
+reason = """Animation der vorigen Aktion laeuft beim Menue-Dump noch und steht auf beiden Seiten in verschiedener Phase (Lag-Frames der Referenz waehrend Animationen, docs/STATUS.md Route r06). Bereiche (notes/battle-ram.txt): Animations-DP $5B-$78, BG1-Scroll-HDMA $43F5-$4650 (1223), Figuren-Ebenen $61B0-$61D5, Scrollwerte $64B4-$64ED (1648-1673), Animations-Threads $67DE-$7B1F (btlgfx_ram.inc ThreadIsActive, AttackerPos, LoopCounter, w7e7b14 Zahl aktiver Threads), Paletten $7C00-$7FFF (1925-1945), grosse VRAM-DMA $8000-$800A (1947-1952), Positionen $800F-$81A6 (1955-1995), Bildschirmregister je Bereich $896F-$8BED (2089-2112), BG-Kachelpuffer $A97F-$AE3E (2169), Sprite-Animationsbilder $CE3F-$E33E (2172-2173), Animations-Sound $E9E7 (2208), BG-Paletten $EC11-$ECB3 (2242-2246), BG1-Animationskacheln $7F:C400-$7F:E3FF (2283)."""
+tags   = ["m03"]
+
+[[mask]]
+file   = "wram"
+start  = 0x813b
+end    = 0x8159
+reason = """Animation der vorigen Aktion laeuft beim Menue-Dump noch und steht auf beiden Seiten in verschiedener Phase (Lag-Frames der Referenz waehrend Animationen, docs/STATUS.md Route r06). Bereiche (notes/battle-ram.txt): Animations-DP $5B-$78, BG1-Scroll-HDMA $43F5-$4650 (1223), Figuren-Ebenen $61B0-$61D5, Scrollwerte $64B4-$64ED (1648-1673), Animations-Threads $67DE-$7B1F (btlgfx_ram.inc ThreadIsActive, AttackerPos, LoopCounter, w7e7b14 Zahl aktiver Threads), Paletten $7C00-$7FFF (1925-1945), grosse VRAM-DMA $8000-$800A (1947-1952), Positionen $800F-$81A6 (1955-1995), Bildschirmregister je Bereich $896F-$8BED (2089-2112), BG-Kachelpuffer $A97F-$AE3E (2169), Sprite-Animationsbilder $CE3F-$E33E (2172-2173), Animations-Sound $E9E7 (2208), BG-Paletten $EC11-$ECB3 (2242-2246), BG1-Animationskacheln $7F:C400-$7F:E3FF (2283)."""
+tags   = ["m03"]
+
+[[mask]]
+file   = "wram"
+start  = 0x816f
+end    = 0x81a5
+reason = """Animation der vorigen Aktion laeuft beim Menue-Dump noch und steht auf beiden Seiten in verschiedener Phase (Lag-Frames der Referenz waehrend Animationen, docs/STATUS.md Route r06). Bereiche (notes/battle-ram.txt): Animations-DP $5B-$78, BG1-Scroll-HDMA $43F5-$4650 (1223), Figuren-Ebenen $61B0-$61D5, Scrollwerte $64B4-$64ED (1648-1673), Animations-Threads $67DE-$7B1F (btlgfx_ram.inc ThreadIsActive, AttackerPos, LoopCounter, w7e7b14 Zahl aktiver Threads), Paletten $7C00-$7FFF (1925-1945), grosse VRAM-DMA $8000-$800A (1947-1952), Positionen $800F-$81A6 (1955-1995), Bildschirmregister je Bereich $896F-$8BED (2089-2112), BG-Kachelpuffer $A97F-$AE3E (2169), Sprite-Animationsbilder $CE3F-$E33E (2172-2173), Animations-Sound $E9E7 (2208), BG-Paletten $EC11-$ECB3 (2242-2246), BG1-Animationskacheln $7F:C400-$7F:E3FF (2283)."""
+tags   = ["m03"]
+
+[[mask]]
+file   = "wram"
+start  = 0x896f
+end    = 0x8bed
+reason = """Animation der vorigen Aktion laeuft beim Menue-Dump noch und steht auf beiden Seiten in verschiedener Phase (Lag-Frames der Referenz waehrend Animationen, docs/STATUS.md Route r06). Bereiche (notes/battle-ram.txt): Animations-DP $5B-$78, BG1-Scroll-HDMA $43F5-$4650 (1223), Figuren-Ebenen $61B0-$61D5, Scrollwerte $64B4-$64ED (1648-1673), Animations-Threads $67DE-$7B1F (btlgfx_ram.inc ThreadIsActive, AttackerPos, LoopCounter, w7e7b14 Zahl aktiver Threads), Paletten $7C00-$7FFF (1925-1945), grosse VRAM-DMA $8000-$800A (1947-1952), Positionen $800F-$81A6 (1955-1995), Bildschirmregister je Bereich $896F-$8BED (2089-2112), BG-Kachelpuffer $A97F-$AE3E (2169), Sprite-Animationsbilder $CE3F-$E33E (2172-2173), Animations-Sound $E9E7 (2208), BG-Paletten $EC11-$ECB3 (2242-2246), BG1-Animationskacheln $7F:C400-$7F:E3FF (2283)."""
+tags   = ["m03"]
+
+[[mask]]
+file   = "wram"
+start  = 0xa980
+end    = 0xae3e
+reason = """Animation der vorigen Aktion laeuft beim Menue-Dump noch und steht auf beiden Seiten in verschiedener Phase (Lag-Frames der Referenz waehrend Animationen, docs/STATUS.md Route r06). Bereiche (notes/battle-ram.txt): Animations-DP $5B-$78, BG1-Scroll-HDMA $43F5-$4650 (1223), Figuren-Ebenen $61B0-$61D5, Scrollwerte $64B4-$64ED (1648-1673), Animations-Threads $67DE-$7B1F (btlgfx_ram.inc ThreadIsActive, AttackerPos, LoopCounter, w7e7b14 Zahl aktiver Threads), Paletten $7C00-$7FFF (1925-1945), grosse VRAM-DMA $8000-$800A (1947-1952), Positionen $800F-$81A6 (1955-1995), Bildschirmregister je Bereich $896F-$8BED (2089-2112), BG-Kachelpuffer $A97F-$AE3E (2169), Sprite-Animationsbilder $CE3F-$E33E (2172-2173), Animations-Sound $E9E7 (2208), BG-Paletten $EC11-$ECB3 (2242-2246), BG1-Animationskacheln $7F:C400-$7F:E3FF (2283)."""
+tags   = ["m03"]
+
+[[mask]]
+file   = "wram"
+start  = 0xd76f
+end    = 0xd772
+reason = """Animation der vorigen Aktion laeuft beim Menue-Dump noch und steht auf beiden Seiten in verschiedener Phase (Lag-Frames der Referenz waehrend Animationen, docs/STATUS.md Route r06). Bereiche (notes/battle-ram.txt): Animations-DP $5B-$78, BG1-Scroll-HDMA $43F5-$4650 (1223), Figuren-Ebenen $61B0-$61D5, Scrollwerte $64B4-$64ED (1648-1673), Animations-Threads $67DE-$7B1F (btlgfx_ram.inc ThreadIsActive, AttackerPos, LoopCounter, w7e7b14 Zahl aktiver Threads), Paletten $7C00-$7FFF (1925-1945), grosse VRAM-DMA $8000-$800A (1947-1952), Positionen $800F-$81A6 (1955-1995), Bildschirmregister je Bereich $896F-$8BED (2089-2112), BG-Kachelpuffer $A97F-$AE3E (2169), Sprite-Animationsbilder $CE3F-$E33E (2172-2173), Animations-Sound $E9E7 (2208), BG-Paletten $EC11-$ECB3 (2242-2246), BG1-Animationskacheln $7F:C400-$7F:E3FF (2283)."""
+tags   = ["m03"]
+
+[[mask]]
+file   = "wram"
+start  = 0xd7c3
+end    = 0xd7c6
+reason = """Animation der vorigen Aktion laeuft beim Menue-Dump noch und steht auf beiden Seiten in verschiedener Phase (Lag-Frames der Referenz waehrend Animationen, docs/STATUS.md Route r06). Bereiche (notes/battle-ram.txt): Animations-DP $5B-$78, BG1-Scroll-HDMA $43F5-$4650 (1223), Figuren-Ebenen $61B0-$61D5, Scrollwerte $64B4-$64ED (1648-1673), Animations-Threads $67DE-$7B1F (btlgfx_ram.inc ThreadIsActive, AttackerPos, LoopCounter, w7e7b14 Zahl aktiver Threads), Paletten $7C00-$7FFF (1925-1945), grosse VRAM-DMA $8000-$800A (1947-1952), Positionen $800F-$81A6 (1955-1995), Bildschirmregister je Bereich $896F-$8BED (2089-2112), BG-Kachelpuffer $A97F-$AE3E (2169), Sprite-Animationsbilder $CE3F-$E33E (2172-2173), Animations-Sound $E9E7 (2208), BG-Paletten $EC11-$ECB3 (2242-2246), BG1-Animationskacheln $7F:C400-$7F:E3FF (2283)."""
+tags   = ["m03"]
+
+[[mask]]
+file   = "wram"
+start  = 0xd817
+end    = 0xd81a
+reason = """Animation der vorigen Aktion laeuft beim Menue-Dump noch und steht auf beiden Seiten in verschiedener Phase (Lag-Frames der Referenz waehrend Animationen, docs/STATUS.md Route r06). Bereiche (notes/battle-ram.txt): Animations-DP $5B-$78, BG1-Scroll-HDMA $43F5-$4650 (1223), Figuren-Ebenen $61B0-$61D5, Scrollwerte $64B4-$64ED (1648-1673), Animations-Threads $67DE-$7B1F (btlgfx_ram.inc ThreadIsActive, AttackerPos, LoopCounter, w7e7b14 Zahl aktiver Threads), Paletten $7C00-$7FFF (1925-1945), grosse VRAM-DMA $8000-$800A (1947-1952), Positionen $800F-$81A6 (1955-1995), Bildschirmregister je Bereich $896F-$8BED (2089-2112), BG-Kachelpuffer $A97F-$AE3E (2169), Sprite-Animationsbilder $CE3F-$E33E (2172-2173), Animations-Sound $E9E7 (2208), BG-Paletten $EC11-$ECB3 (2242-2246), BG1-Animationskacheln $7F:C400-$7F:E3FF (2283)."""
+tags   = ["m03"]
+
+[[mask]]
+file   = "wram"
+start  = 0xe1ef
+end    = 0xe1f2
+reason = """Animation der vorigen Aktion laeuft beim Menue-Dump noch und steht auf beiden Seiten in verschiedener Phase (Lag-Frames der Referenz waehrend Animationen, docs/STATUS.md Route r06). Bereiche (notes/battle-ram.txt): Animations-DP $5B-$78, BG1-Scroll-HDMA $43F5-$4650 (1223), Figuren-Ebenen $61B0-$61D5, Scrollwerte $64B4-$64ED (1648-1673), Animations-Threads $67DE-$7B1F (btlgfx_ram.inc ThreadIsActive, AttackerPos, LoopCounter, w7e7b14 Zahl aktiver Threads), Paletten $7C00-$7FFF (1925-1945), grosse VRAM-DMA $8000-$800A (1947-1952), Positionen $800F-$81A6 (1955-1995), Bildschirmregister je Bereich $896F-$8BED (2089-2112), BG-Kachelpuffer $A97F-$AE3E (2169), Sprite-Animationsbilder $CE3F-$E33E (2172-2173), Animations-Sound $E9E7 (2208), BG-Paletten $EC11-$ECB3 (2242-2246), BG1-Animationskacheln $7F:C400-$7F:E3FF (2283)."""
+tags   = ["m03"]
+
+[[mask]]
+file   = "wram"
+start  = 0xe243
+end    = 0xe246
+reason = """Animation der vorigen Aktion laeuft beim Menue-Dump noch und steht auf beiden Seiten in verschiedener Phase (Lag-Frames der Referenz waehrend Animationen, docs/STATUS.md Route r06). Bereiche (notes/battle-ram.txt): Animations-DP $5B-$78, BG1-Scroll-HDMA $43F5-$4650 (1223), Figuren-Ebenen $61B0-$61D5, Scrollwerte $64B4-$64ED (1648-1673), Animations-Threads $67DE-$7B1F (btlgfx_ram.inc ThreadIsActive, AttackerPos, LoopCounter, w7e7b14 Zahl aktiver Threads), Paletten $7C00-$7FFF (1925-1945), grosse VRAM-DMA $8000-$800A (1947-1952), Positionen $800F-$81A6 (1955-1995), Bildschirmregister je Bereich $896F-$8BED (2089-2112), BG-Kachelpuffer $A97F-$AE3E (2169), Sprite-Animationsbilder $CE3F-$E33E (2172-2173), Animations-Sound $E9E7 (2208), BG-Paletten $EC11-$ECB3 (2242-2246), BG1-Animationskacheln $7F:C400-$7F:E3FF (2283)."""
+tags   = ["m03"]
+
+[[mask]]
+file   = "wram"
+start  = 0xe297
+end    = 0xe29a
+reason = """Animation der vorigen Aktion laeuft beim Menue-Dump noch und steht auf beiden Seiten in verschiedener Phase (Lag-Frames der Referenz waehrend Animationen, docs/STATUS.md Route r06). Bereiche (notes/battle-ram.txt): Animations-DP $5B-$78, BG1-Scroll-HDMA $43F5-$4650 (1223), Figuren-Ebenen $61B0-$61D5, Scrollwerte $64B4-$64ED (1648-1673), Animations-Threads $67DE-$7B1F (btlgfx_ram.inc ThreadIsActive, AttackerPos, LoopCounter, w7e7b14 Zahl aktiver Threads), Paletten $7C00-$7FFF (1925-1945), grosse VRAM-DMA $8000-$800A (1947-1952), Positionen $800F-$81A6 (1955-1995), Bildschirmregister je Bereich $896F-$8BED (2089-2112), BG-Kachelpuffer $A97F-$AE3E (2169), Sprite-Animationsbilder $CE3F-$E33E (2172-2173), Animations-Sound $E9E7 (2208), BG-Paletten $EC11-$ECB3 (2242-2246), BG1-Animationskacheln $7F:C400-$7F:E3FF (2283)."""
+tags   = ["m03"]
+
+[[mask]]
+file   = "wram"
+start  = 0xe9e7
+end    = 0xe9e7
+reason = """Animation der vorigen Aktion laeuft beim Menue-Dump noch und steht auf beiden Seiten in verschiedener Phase (Lag-Frames der Referenz waehrend Animationen, docs/STATUS.md Route r06). Bereiche (notes/battle-ram.txt): Animations-DP $5B-$78, BG1-Scroll-HDMA $43F5-$4650 (1223), Figuren-Ebenen $61B0-$61D5, Scrollwerte $64B4-$64ED (1648-1673), Animations-Threads $67DE-$7B1F (btlgfx_ram.inc ThreadIsActive, AttackerPos, LoopCounter, w7e7b14 Zahl aktiver Threads), Paletten $7C00-$7FFF (1925-1945), grosse VRAM-DMA $8000-$800A (1947-1952), Positionen $800F-$81A6 (1955-1995), Bildschirmregister je Bereich $896F-$8BED (2089-2112), BG-Kachelpuffer $A97F-$AE3E (2169), Sprite-Animationsbilder $CE3F-$E33E (2172-2173), Animations-Sound $E9E7 (2208), BG-Paletten $EC11-$ECB3 (2242-2246), BG1-Animationskacheln $7F:C400-$7F:E3FF (2283)."""
+tags   = ["m03"]
+
+[[mask]]
+file   = "wram"
+start  = 0xecb1
+end    = 0xecb1
+reason = """Animation der vorigen Aktion laeuft beim Menue-Dump noch und steht auf beiden Seiten in verschiedener Phase (Lag-Frames der Referenz waehrend Animationen, docs/STATUS.md Route r06). Bereiche (notes/battle-ram.txt): Animations-DP $5B-$78, BG1-Scroll-HDMA $43F5-$4650 (1223), Figuren-Ebenen $61B0-$61D5, Scrollwerte $64B4-$64ED (1648-1673), Animations-Threads $67DE-$7B1F (btlgfx_ram.inc ThreadIsActive, AttackerPos, LoopCounter, w7e7b14 Zahl aktiver Threads), Paletten $7C00-$7FFF (1925-1945), grosse VRAM-DMA $8000-$800A (1947-1952), Positionen $800F-$81A6 (1955-1995), Bildschirmregister je Bereich $896F-$8BED (2089-2112), BG-Kachelpuffer $A97F-$AE3E (2169), Sprite-Animationsbilder $CE3F-$E33E (2172-2173), Animations-Sound $E9E7 (2208), BG-Paletten $EC11-$ECB3 (2242-2246), BG1-Animationskacheln $7F:C400-$7F:E3FF (2283)."""
+tags   = ["m03"]
+
+[[mask]]
+file   = "wram"
+start  = 0x1ca20
+end    = 0x1ca27
+reason = """Animation der vorigen Aktion laeuft beim Menue-Dump noch und steht auf beiden Seiten in verschiedener Phase (Lag-Frames der Referenz waehrend Animationen, docs/STATUS.md Route r06). Bereiche (notes/battle-ram.txt): Animations-DP $5B-$78, BG1-Scroll-HDMA $43F5-$4650 (1223), Figuren-Ebenen $61B0-$61D5, Scrollwerte $64B4-$64ED (1648-1673), Animations-Threads $67DE-$7B1F (btlgfx_ram.inc ThreadIsActive, AttackerPos, LoopCounter, w7e7b14 Zahl aktiver Threads), Paletten $7C00-$7FFF (1925-1945), grosse VRAM-DMA $8000-$800A (1947-1952), Positionen $800F-$81A6 (1955-1995), Bildschirmregister je Bereich $896F-$8BED (2089-2112), BG-Kachelpuffer $A97F-$AE3E (2169), Sprite-Animationsbilder $CE3F-$E33E (2172-2173), Animations-Sound $E9E7 (2208), BG-Paletten $EC11-$ECB3 (2242-2246), BG1-Animationskacheln $7F:C400-$7F:E3FF (2283)."""
+tags   = ["m08"]
+
+[[mask]]
+file   = "oam"
+start  = 0x0020
+end    = 0x0061
+reason = """Sprite-Puffer $0300-$051F (notes/battle-ram.txt:175) bzw. OAM: Sprites der laufenden Animation (siehe Animationsphase) und der Siegerpose (Figuren wippen, siehe $61C3)."""
+tags   = ["m12", "msg1", "msg2", "msg3"]
+
+[[mask]]
+file   = "oam"
+start  = 0x01fe
+end    = 0x0205
+reason = """Sprite-Puffer $0300-$051F (notes/battle-ram.txt:175) bzw. OAM: Sprites der laufenden Animation (siehe Animationsphase) und der Siegerpose (Figuren wippen, siehe $61C3)."""
+tags   = ["m05", "m06", "m07", "m08", "m12"]
+
+[[mask]]
+file   = "cgram"
+start  = 0x0060
+end    = 0x009f
+reason = """CGRAM-Paletten der laufenden Animation (Kopie von $7E00-$7FFF, siehe Animationsphase)."""
+tags   = ["m03"]
+
+[[mask]]
+file   = "cgram"
+start  = 0x0162
+end    = 0x017f
+reason = """CGRAM-Paletten der laufenden Animation (Kopie von $7E00-$7FFF, siehe Animationsphase)."""
+tags   = ["m03"]
+
+[[mask]]
+file   = "vram"
+start  = 0x5806
+end    = 0x583f
+reason = """VRAM-Kacheln der Schadensziffern, aus $60B3-$6132 hochgeladen ($6316/$6317, notes/battle-ram.txt:1632-1633), siehe dort."""
+tags   = ["m11", "m12"]
+
+[[mask]]
+file   = "vram"
+start  = 0x58a2
+end    = 0x58bf
+reason = """VRAM-Kacheln der Schadensziffern, aus $60B3-$6132 hochgeladen ($6316/$6317, notes/battle-ram.txt:1632-1633), siehe dort."""
+tags   = ["m11", "m12"]
+
+[[mask]]
+file   = "vram"
+start  = 0x59c6
+end    = 0x59df
+reason = """VRAM-Kacheln der Schadensziffern, aus $60B3-$6132 hochgeladen ($6316/$6317, notes/battle-ram.txt:1632-1633), siehe dort."""
+tags   = ["m13", "m14", "victory", "msg1", "msg2", "msg3"]
+
+[[mask]]
+file   = "vram"
+start  = 0xa880
+end    = 0xa8fe
+reason = """VRAM-Ziel der grossen Animations-DMA ($8000-$800A, notes/battle-ram.txt:1947-1952), Phase der Animation der vorigen Aktion (Slot-Angriff)."""
+tags   = ["m10"]
+
+[[mask]]
+file   = "vram"
+start  = 0xd570
+end    = 0xd572
+reason = """BG1-/BG3-Map der ATB-Leisten (Kachel $F0-$F8 je Fuellstand, Attribut $29/$35 je nachdem, ob die Figur am Zug ist), siehe $2022. Bild an diesen Stellen in eigenen Rechtecken maskiert."""
+tags   = ["m10"]
+
+[[mask]]
+file   = "vram"
+start  = 0xf076
+end    = 0xf07a
+reason = """BG1-/BG3-Map der ATB-Leisten (Kachel $F0-$F8 je Fuellstand, Attribut $29/$35 je nachdem, ob die Figur am Zug ist), siehe $2022. Bild an diesen Stellen in eigenen Rechtecken maskiert."""
+tags   = ["m06", "m12", "msg3"]
+
+[[mask]]
+file   = "vram"
+start  = 0xf0f3
+end    = 0xf0fd
+reason = """BG1-/BG3-Map der ATB-Leisten (Kachel $F0-$F8 je Fuellstand, Attribut $29/$35 je nachdem, ob die Figur am Zug ist), siehe $2022. Bild an diesen Stellen in eigenen Rechtecken maskiert."""
+tags   = ["m13"]
+
+[[mask]]
+file   = "vram"
+start  = 0xf276
+end    = 0xf27a
+reason = """BG1-/BG3-Map der ATB-Leisten (Kachel $F0-$F8 je Fuellstand, Attribut $29/$35 je nachdem, ob die Figur am Zug ist), siehe $2022. Bild an diesen Stellen in eigenen Rechtecken maskiert."""
+tags   = ["m06", "m12", "msg3"]
+
+[[mask]]
+file   = "vram"
+start  = 0xf2f3
+end    = 0xf2fd
+reason = """BG1-/BG3-Map der ATB-Leisten (Kachel $F0-$F8 je Fuellstand, Attribut $29/$35 je nachdem, ob die Figur am Zug ist), siehe $2022. Bild an diesen Stellen in eigenen Rechtecken maskiert."""
+tags   = ["m13"]
+
+[[mask]]
+file   = "vram"
+start  = 0xf476
+end    = 0xf47a
+reason = """BG1-/BG3-Map der ATB-Leisten (Kachel $F0-$F8 je Fuellstand, Attribut $29/$35 je nachdem, ob die Figur am Zug ist), siehe $2022. Bild an diesen Stellen in eigenen Rechtecken maskiert."""
+tags   = ["m06", "m12", "msg3"]
+
+[[mask]]
+file   = "vram"
+start  = 0xf4f3
+end    = 0xf4fd
+reason = """BG1-/BG3-Map der ATB-Leisten (Kachel $F0-$F8 je Fuellstand, Attribut $29/$35 je nachdem, ob die Figur am Zug ist), siehe $2022. Bild an diesen Stellen in eigenen Rechtecken maskiert."""
+tags   = ["m13"]
+
+[[mask]]
+file   = "fb"
+rect   = [74, 163, 181, 210]
+reason = """Slot-Walzen (Zeilen 164-211, Mode 2 mit Offset-per-Tile aus der BG3-Map bei $8000, $2109 = $40). OPT-Tabelle im VRAM, alle HDMA-Writes und BG3VOFS = 0 sind auf beiden Seiten gleich, das Bild nicht: Framework-Fehler im optimierten Mode-2-Renderer (snesrecomp runner/src/snes/ppu.c PpuDrawBackground_4bpp_opt). Er rechnet opt_vscroll = BG3VOFS - 1 wie snes9x (gfx.cpp:1325), snes9x speichert aber BG3VOFS + 1 (gfx.cpp:309). Bei BG3VOFS = 0 liest der Recomp die V-Offsets aus der H-Zeile, die Walzen stehen auf Offset 0. Maske entfaellt mit dem Fix in der naechsten Pin-Session (docs/STATUS.md)."""
+tags   = ["slot"]
+
+[[mask]]
+file   = "fb"
+rect   = [205, 166, 242, 168]
+reason = """ATB-Leisten von TERRA (Zeilen 166-168) und WEDGE (178-180) samt Endkappen: Fuellstand je Frame und Palette der vollen Leiste, siehe $2022 und die BG3-Map-Maske."""
+tags   = ["m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08", "m09", "m10", "m11", "m12", "m13", "m14", "slot", "victory", "msg1", "msg2", "msg3"]
+
+[[mask]]
+file   = "fb"
+rect   = [205, 178, 242, 180]
+reason = """ATB-Leisten von TERRA (Zeilen 166-168) und WEDGE (178-180) samt Endkappen: Fuellstand je Frame und Palette der vollen Leiste, siehe $2022 und die BG3-Map-Maske."""
+tags   = ["m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08", "m09", "m10", "m11", "m12", "m13", "m14", "slot", "victory", "msg1", "msg2", "msg3"]
+
+[[mask]]
+file   = "fb"
+rect   = [36, 108, 46, 112]
+reason = """Bolzen der AutoCrossbow-Animation, die beim Dump noch laeuft (siehe Animationsphase)."""
+tags   = ["m12"]
+
+[[mask]]
+file   = "fb"
+rect   = [84, 86, 91, 90]
+reason = """Letzte Ziffer der Schadenszahl ueber der Wache (152 gegen 158), Schadensstreuung (siehe $3C00)."""
+tags   = ["m13"]
+
+[[ppuw]]
+reg    = [0x2105, 0x210D, 0x210E, 0x212D, 0x2130, 0x2131]
+first  = 1
+last   = 151
+reason = """HDMA-Tabellen der Animation, die beim Menue-Dump noch laeuft (siehe Animationsphase): BG1-Scroll-HDMA $43F5-$4650 (notes/battle-ram.txt:1223), BG-Modus, Haupt-/Subscreen und Farbmathe je Zeile. Die Werte stehen im WRAM in derselben Phase verschieden; die Zeilenzahl und die Register sind gleich."""
+tags   = ["m03"]
+
+[[ppuw]]
+reg    = [0x2105, 0x210D, 0x2111]
+first  = 1
+last   = 129
+reason = """HDMA-Tabellen der Animation, die beim Menue-Dump noch laeuft (siehe Animationsphase): BG1-Scroll-HDMA $43F5-$4650 (notes/battle-ram.txt:1223), BG-Modus, Haupt-/Subscreen und Farbmathe je Zeile. Die Werte stehen im WRAM in derselben Phase verschieden; die Zeilenzahl und die Register sind gleich."""
+tags   = ["m04"]
+
+[[ppuw]]
+reg    = [0x212C]
+first  = 5
+last   = 101
+reason = """HDMA-Tabellen der Animation, die beim Menue-Dump noch laeuft (siehe Animationsphase): BG1-Scroll-HDMA $43F5-$4650 (notes/battle-ram.txt:1223), BG-Modus, Haupt-/Subscreen und Farbmathe je Zeile. Die Werte stehen im WRAM in derselben Phase verschieden; die Zeilenzahl und die Register sind gleich."""
+tags   = ["m07", "m10"]

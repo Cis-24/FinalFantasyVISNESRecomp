@@ -1,6 +1,6 @@
 # r06: Kampfbefehle (PLAN Phase 8), erster Teil: zwoelf Befehle in einem Event-Kampf gegen die zwei Narshe-Wachen.
 # Terra: Fight, Magic (Fire), Summon (Ramuh), Item (Tonic). Wedge: Steal, SwdTech (Slash), Throw (Shuriken),
-# Tools (AutoCrossbow). Vicks: Blitz (Pummel), Sketch, Slot, Dance (Wind Song). Danach Wachen auf 1 HP, Terra
+# Tools (AutoCrossbow). Vicks: Blitz (Pummel), Sketch, Slot, Dance (Love Sonata). Danach Wachen auf 1 HP, Terra
 # Summon, Wedge Tools, Sieg, vier Meldungen, Rueckkehr aufs Field.
 # Einstieg wie r03 bis zum freien Field ($106A == 21). Statt bsnes-SRAM (PLAN 5.1; der bsnes-Core liefert kein WRAM)
 # setzt die Route Party, Inventar und Skills per poke und startet den Kampf ueber ein Event bei $7E:1FF7 wie r04:
@@ -8,8 +8,8 @@
 # Kampfmenue: $7BC2 Zustand (btlgfx/menu.asm MENU_INPUT), $890F+Figur Befehlscursor, $62CA aktive Figur.
 # Lag: Das Kampfmenue laeuft im NMI (btlgfx/menu.asm:3955), BattleLoop mit ATB und zbe in der Hauptschleife.
 # snes9x hat waehrend Animationen Lag-Frames, der Recomp nicht. Deshalb: Wachen-ATB per forcepoke auf 0 (sie
-# handeln nie), zbe bei jedem Menue und vor jedem bestaetigenden A gleichsetzen. Stand 11-05: m01-m09 und slot in
-# den Kennwerten gleich der Referenz, ab m10 weichen Schadenswerte ab (docs/STATUS.md "Route r06").
+# handeln nie), zbe bei jedem Menue und vor jedem bestaetigenden A gleichgesetzt. Ab m10 weichen trotzdem
+# Schadenswerte ab (Streuung per Rand zur Ausfuehrungszeit); die Masken dafuer stehen in validation/masks.toml.
 # Erzeugt mit work/routes/r06_gen.py (nicht versioniert).
 until 0019 == 09 6000
 wait 60
@@ -50,11 +50,13 @@ poke 183F 00000A130D0F
 # Items: Tonic, Shuriken, AutoCrossbow, NoiseBlaster
 poke 1869 E841AAA3
 poke 1969 05050202
-# Skills: SwdTech 1-4, Blitz 1-4, Dance Wind Song. Lore braucht eine Spruchliste, die haben nur Figuren
-# mit Actor < Gogo (battle/party.asm, InitSpellList), also nicht die Soldaten.
+# Skills: SwdTech 1-4, Blitz 1-4, Dance Love Sonata (Bit 3). Lore braucht eine Spruchliste, die haben nur Figuren
+# mit Actor < Gogo (battle/party.asm, InitSpellList), also nicht die Soldaten. Love Sonata ist der Tanz zum
+# Kampfhintergrund NARSHE_EXT (data/battle_bg_dance.asm): Dann wuerfelt der Tanzbefehl nicht, ob der Hintergrund
+# wechselt oder die Figur stolpert (battle/battle_cmd.asm:632-635, RandCarry zur Ausfuehrungszeit).
 poke 1CF7 0F
 poke 1D28 0F
-poke 1D4C 01
+poke 1D4C 08
 # Event: 4D 01 3F (Kampfgruppe 1 = zweimal Kampf 2), 96 (einblenden: $4D schaltet das automatische Einblenden
 # nach dem Kampf ab, field/event.asm EventCmd_4d), FE
 poke 1FF7 4D013F96FE
@@ -236,21 +238,37 @@ until 7BCB == 00 3000
 until 7BC2 == 05 3000
 poke 00BE C1
 dump m12
-# Vicks: Dance, Wind Song. Danach tanzt Vicks selbstaendig, kein Menue mehr
+# Vicks: Dance, Love Sonata. Die Liste hat feste Plaetze in zwei Spalten (Index = Zeile * 2 + Spalte,
+# battle/init_skills.asm:15-24, btlgfx/cursor.asm _c1849e), Cursor Spalte $8937+Figur, Zeile $893B+Figur.
+# Love Sonata ist Index 3. Ziel ist der Taenzer selbst ($7A84 = 2).
 press down 2
 until 8911 == 01 60
 press a 2
 until 7BC2 == 21 300
+press down 2
+until 893D == 01 60
+press right 2
+until 8939 == 01 60
 press a 2
 until 7BC2 == 38 300
 poke 00BE D9
 press a 2
+# Ein tanzender Vicks handelt danach selbstaendig, sobald seine ATB voll ist (battle/action_1.asm
+# RandDanceAction), auf beiden Seiten zu verschiedenen Zeiten. Seine ATB ($321C) bleibt deshalb wie die der
+# Wachen auf 0.
+forcepoke 321C 0000
 until 7BCB == 00 3000
 until 7BC2 == 05 3000
+# Warten, bis die Aktion samt Animation fertig ist: BattleLoop erhoeht zbe erst danach wieder.
+poke 00BE D0
+until 00BE != D0 600
 poke 00BE D1
 dump m13
 # Schluss: Wachen auf 1 HP, Terra Summon, Wedge Tools, Sieg ($628D == 01)
+# Wache 0 hat seit m09 Sap (Status 2 Bit 6, $3EE5 + 2 * 6, common/const.inc STATUS2). Der Sap-Schaden tickt
+# zeitgesteuert (Zaehler $3AF0,x); bei 1 HP entschiede der Lag, ob Sap oder ein Angriff die Wache toetet.
 poke 3C00 01000100
+poke 3EF1 00
 # Terra: Summon (Ramuh), Ziel automatisch (alle Gegner), keine Zielauswahl
 press down 2
 until 890F == 01 60
@@ -290,11 +308,6 @@ until E9F5 == 00 600
 until E9F5 != 00 600
 wait 8
 dump msg3
-press a 2
-until E9F5 == 00 600
-until E9F5 != 00 600
-wait 8
-dump msg4
 press a 2
 until E9F5 == 00 600
 until16 1501 == 0182 1200

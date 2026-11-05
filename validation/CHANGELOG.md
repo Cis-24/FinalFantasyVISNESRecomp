@@ -4,6 +4,13 @@ Jede Änderung an `validation/expected/*.toml` (Ereignisse, Dump-Hashes) braucht
 begründeten Eintrag (PLAN 5.3). Erzeugt werden die Erwartungen mit
 `bash tools/ff6/regress.sh --quick --update`; geprüft ohne `--update`.
 
+## 2026-11-05: r06_battle_commands erstmals gesetzt (szenengekeyt)
+- `r06_battle_commands.toml` neu: 20 Dumps, 128 Ereignisse, 16554 Frames, Lauf 40 s. Nur in `--full`. 0 ROM-Misses, 9 geduldet, WRAM-Allowlist 261, interpretiert 164 578 053.
+- Die Route lag in `validation/routes_pending/`. Geändert, damit die Szene auf beiden Seiten gleich bleibt (docs/STATUS.md, „r06 szenengekeyt gegen die Referenz“): Tanz Love Sonata statt Wind Song (kein Hintergrund-/Stolper-Wurf zur Ausführungszeit), Vicks' ATB danach auf 0, vor m13 auf die laufende Hauptschleife warten, im Schluss Sap von Wache 0 entfernen, drei Meldungen statt vier.
+- Referenzvergleich gegen `work/ref/r06` (neu, snes9x-Lauf `r06L4`): alle 20 Dumps WRAM, VRAM, CGRAM, OAM, FB gleich, PPU-Write-Strom 20/20 gleich. Gegen snes9x nur szenengekeyt (PLAN Phase 8, Entscheidung 2026-11-05).
+- `masks.toml`: 41 r05-Kampfmasken klassenweise um die r06-Tags ergänzt, neuer Abschnitt r06 mit 98 Bereichen, 5 Bildrechtecken und 3 HDMA-Duldungen. Darunter das Rechteck der Slot-Walzen wegen eines Framework-Fehlers im Mode-2-Offset-per-Tile (Maske entfällt mit dem Fix in der nächsten Pin-Session; dann ändert sich der fb-Hash von `slot`). Für die anderen Routen ändert sich nichts.
+- Die 8 anderen Erwartungen bytegleich, auch `interpreted`. `regress.sh --full --update` und ohne `--update` grün, `src/gen` unverändert `a34a08df34089aac`.
+
 ## 2026-11-05: r05_first_battle erstmals gesetzt, r05 in der Schnell-Suite
 - `r05_first_battle.toml` neu: 9 Dumps, 52 Ereignisse, 14006 Frames, Lauf 34 s. Die Route lag in `validation/routes_pending/`, bis ihre 14 ROM-Misses aufgelöst waren. Jetzt 0 ROM-Misses, 11 geduldet (4 Field wie r03, 7 Folgen der `ValidateSpellList`-Sperre), WRAM-Allowlist 261, interpretiert 144 346 121.
 - Auflösung: Exit-Breiten aus dem Quelltext für die 7 Aufrufer von `CheckStatus` (pea-Parameter), `ExecAttack` (pea/rts-Schleife), `ExecSelfAttack` und `AIRand3` (pla/pla) in `recomp/bankc2.cfg`; `ExecSelfAttack` als Funktionsgrenze, die Goto-Landungen `InitMagitekSelect`, `MoveAnimDownLeft`, `MoveAnimLeft` als Funktionsgrenzen (`symbols_overrides.toml`, 18 Einträge von Hand, 2791 generiert). `CheckBattleEnd` neu in `miss_allowlist.toml` (Kette über CheckFinalBattle und RestartBattle zur gesperrten `ValidateSpellList`).
