@@ -1,0 +1,306 @@
+# r06: Kampfbefehle (PLAN Phase 8), erster Teil: zwoelf Befehle in einem Event-Kampf gegen die zwei Narshe-Wachen.
+# Terra: Fight, Magic (Fire), Summon (Ramuh), Item (Tonic). Wedge: Steal, SwdTech (Slash), Throw (Shuriken),
+# Tools (AutoCrossbow). Vicks: Blitz (Pummel), Sketch, Slot, Dance (Wind Song). Danach Wachen auf 1 HP, Terra
+# Summon, Wedge Tools, Sieg, vier Meldungen, Rueckkehr aufs Field.
+# Einstieg wie r03 bis zum freien Field ($106A == 21). Statt bsnes-SRAM (PLAN 5.1; der bsnes-Core liefert kein WRAM)
+# setzt die Route Party, Inventar und Skills per poke und startet den Kampf ueber ein Event bei $7E:1FF7 wie r04:
+# 4D 01 3F (Kampfgruppe 1 = zweimal Kampf 2), 96 (einblenden, $4D schaltet das automatische Einblenden ab), FE.
+# Kampfmenue: $7BC2 Zustand (btlgfx/menu.asm MENU_INPUT), $890F+Figur Befehlscursor, $62CA aktive Figur.
+# Lag: Das Kampfmenue laeuft im NMI (btlgfx/menu.asm:3955), BattleLoop mit ATB und zbe in der Hauptschleife.
+# snes9x hat waehrend Animationen Lag-Frames, der Recomp nicht. Deshalb: Wachen-ATB per forcepoke auf 0 (sie
+# handeln nie), zbe bei jedem Menue und vor jedem bestaetigenden A gleichsetzen. Stand 11-05: m01-m09 und slot in
+# den Kennwerten gleich der Referenz, ab m10 weichen Schadenswerte ab (docs/STATUS.md "Route r06").
+# Erzeugt mit work/routes/r06_gen.py (nicht versioniert).
+until 0019 == 09 6000
+wait 60
+press a 2
+until 0082 == 12 8000
+until 00D3 == 01 4000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 0019 == 02 3000
+wait 120
+press a 2
+until 0082 == 13 20000
+until 00D3 == 01 1500
+press a 2
+until16 00E5 == 0000 3000
+until 00E7 == CA 100
+wait 60
+until 106A == 21 60
+# Party: HP/MP 999, Status frei (kein Magitek), Befehle. Slot 0 Terra $1600, Slot 14 $1806, Slot 15 $182B.
+poke 1609 E703E703E703E703
+poke 1614 000000021901
+poke 161E 00
+poke 180F E703E703E703E703
+poke 181A 000005070809
+poke 1834 E703E703E703E703
+poke 183F 00000A130D0F
+# Items: Tonic, Shuriken, AutoCrossbow, NoiseBlaster
+poke 1869 E841AAA3
+poke 1969 05050202
+# Skills: SwdTech 1-4, Blitz 1-4, Dance Wind Song. Lore braucht eine Spruchliste, die haben nur Figuren
+# mit Actor < Gogo (battle/party.asm, InitSpellList), also nicht die Soldaten.
+poke 1CF7 0F
+poke 1D28 0F
+poke 1D4C 01
+# Event: 4D 01 3F (Kampfgruppe 1 = zweimal Kampf 2), 96 (einblenden: $4D schaltet das automatische Einblenden
+# nach dem Kampf ab, field/event.asm EventCmd_4d), FE
+poke 1FF7 4D013F96FE
+poke 05F4 F71F7E
+poke 0594 0000CA
+poke 05C7 01
+poke 00E5 F71F7E0300
+until 8233 == 3F 300
+poke 021B 00030A00
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE EE
+# Wachen (Monster 6, 7) auf 5000 HP. Ihre ATB ($3218 + 2 * Eintrag, battle/atb.asm:113) bleibt 0: Die Wachen
+# handeln nie. Das Kampfmenue laeuft im NMI (btlgfx/menu.asm:3955), BattleLoop mit ATB und zbe in der
+# Hauptschleife; snes9x hat dort Lag-Frames, der Recomp nicht. Monsterzuege landeten sonst auf beiden Seiten
+# zwischen verschiedenen Menueschritten. zbe wird bei jedem Menue und vor jedem bestaetigenden A gleichgesetzt.
+poke 3C00 88138813
+poke 3C28 88138813
+forcepoke 3224 00000000
+dump m01
+# Terra: Fight
+press a 2
+until 7BC2 == 38 300
+poke 00BE 29
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 21
+dump m02
+# Wedge: Steal
+press a 2
+until 7BC2 == 38 300
+poke 00BE 39
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 31
+dump m03
+# Vicks: Blitz, Pummel (links, rechts, links)
+press a 2
+until 7BC2 == 3D 300
+wait 4
+press left 2
+wait 4
+press right 2
+wait 4
+press left 2
+wait 4
+poke 00BE 49
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 41
+dump m04
+# Terra: Magic, Fire
+press down 2
+until 890F == 01 60
+press a 2
+until 7BC2 == 0E 300
+press a 2
+until 7BC2 == 38 300
+poke 00BE 59
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 51
+dump m05
+# Wedge: SwdTech, Stufe 3 (Zaehler $7B82 / 32 = 2)
+press down 2
+until 8910 == 01 60
+press a 2
+until 7BC2 == 37 300
+until 7B82 == 50 600
+poke 00BE 69
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 61
+dump m06
+# Vicks: Sketch
+press down 2
+until 8911 == 01 60
+press down 2
+until 8911 == 02 60
+press a 2
+until 7BC2 == 38 300
+poke 00BE 79
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 71
+dump m07
+# Terra: Summon (Ramuh), Ziel automatisch (alle Gegner), keine Zielauswahl
+press down 2
+until 890F == 01 60
+press down 2
+until 890F == 02 60
+poke 00BE 89
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 81
+dump m08
+# Wedge: Throw, Shuriken
+press down 2
+until 8910 == 01 60
+press down 2
+until 8910 == 02 60
+press a 2
+until 7BC2 == 2D 300
+press a 2
+until 7BC2 == 38 300
+poke 00BE 99
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 91
+dump m09
+# Vicks: Slot. Walzen $7B8C-$7B8E laufen je Bild -4 ab 0 und halten nach A am naechsten
+# Vielfachen von 16 ($7B8F-$7B91 gesetzt, btlgfx/cursor.asm:2672). Gekeyt auf xC, 2 Bilder Spiel.
+# Vierter Druck nach dem Halt von Walze 3 bestaetigt (GetSlotAttack).
+press down 2
+until 8911 == 01 60
+press down 2
+until 8911 == 02 60
+press down 2
+until 8911 == 03 60
+press a 2
+until 7BC2 == 08 300
+until 7B8C == AC 300
+press a 2
+until 7B8F == 01 120
+until 7B8D == 6C 300
+press a 2
+until 7B90 == 01 300
+until 7B8E == 2C 300
+press a 2
+until 7B91 == 01 300
+dump slot
+poke 00BE A9
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE A1
+dump m10
+# Terra: Item, Tonic. Erstes A waehlt das Item zum Tauschen ($7B02), zweites A benutzt es
+press down 2
+until 890F == 01 60
+press down 2
+until 890F == 02 60
+press down 2
+until 890F == 03 60
+press a 2
+until 7BC2 == 0A 300
+press a 2
+until 7B02 == 01 60
+press a 2
+until 7BC2 == 38 300
+poke 00BE B9
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE B1
+dump m11
+# Wedge: Tools, AutoCrossbow
+press down 2
+until 8910 == 01 60
+press down 2
+until 8910 == 02 60
+press down 2
+until 8910 == 03 60
+press a 2
+until 7BC2 == 30 300
+press a 2
+until 7BC2 == 38 300
+poke 00BE C9
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE C1
+dump m12
+# Vicks: Dance, Wind Song. Danach tanzt Vicks selbstaendig, kein Menue mehr
+press down 2
+until 8911 == 01 60
+press a 2
+until 7BC2 == 21 300
+press a 2
+until 7BC2 == 38 300
+poke 00BE D9
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE D1
+dump m13
+# Schluss: Wachen auf 1 HP, Terra Summon, Wedge Tools, Sieg ($628D == 01)
+poke 3C00 01000100
+# Terra: Summon (Ramuh), Ziel automatisch (alle Gegner), keine Zielauswahl
+press down 2
+until 890F == 01 60
+press down 2
+until 890F == 02 60
+poke 00BE E9
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE E1
+dump m14
+# Wedge: Tools, AutoCrossbow
+press down 2
+until 8910 == 01 60
+press down 2
+until 8910 == 02 60
+press down 2
+until 8910 == 03 60
+press a 2
+until 7BC2 == 30 300
+press a 2
+until 7BC2 == 38 300
+poke 00BE F9
+press a 2
+until 628D == 01 3000
+dump victory
+until E9F5 != 00 600
+wait 8
+dump msg1
+press a 2
+until E9F5 == 00 600
+until E9F5 != 00 600
+wait 8
+dump msg2
+press a 2
+until E9F5 == 00 600
+until E9F5 != 00 600
+wait 8
+dump msg3
+press a 2
+until E9F5 == 00 600
+until E9F5 != 00 600
+wait 8
+dump msg4
+press a 2
+until E9F5 == 00 600
+until16 1501 == 0182 1200
+until 0082 == 13 3000
+until16 00E5 == 0000 600
+until 00E7 == CA 100
+wait 60
+dump after
+quit

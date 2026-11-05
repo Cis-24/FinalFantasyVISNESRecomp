@@ -916,7 +916,7 @@ bank = 0xc0
 emit = true
 entry_m = 1
 entry_x = 0
-note = "Miss-Promotion, 8049 Treffer"
+note = "Miss-Promotion, 7379 Treffer"
 
 [[func]]
 name = "Done_C018E3"
@@ -931,7 +931,7 @@ bank = 0xc0
 emit = true
 entry_m = 1
 entry_x = 0
-note = "Miss-Promotion, 90 Treffer"
+note = "Miss-Promotion, 0 Treffer"
 
 [[func]]
 name = "Loop_C018FF"
@@ -1000,7 +1000,7 @@ bank = 0xc0
 emit = true
 entry_m = 1
 entry_x = 0
-note = "Miss-Promotion, 90 Treffer"
+note = "Miss-Promotion, 0 Treffer"
 
 [[func]]
 name = "Loop_C01A8F"
@@ -7764,7 +7764,10 @@ note = "Miss-Promotion, 0 Treffer"
 name = "ClearSlotGradientPal"
 addr = "411e"
 bank = 0xc1
-emit = false
+emit = true
+entry_m = 1
+entry_x = 0
+note = "Miss-Promotion, 0 Treffer"
 
 [[func]]
 name = "one_upcolor_set"
@@ -7797,7 +7800,10 @@ note = "Miss-Promotion, 0 Treffer"
 name = "UpdateSlotMenuPal"
 addr = "4286"
 bank = 0xc1
-emit = false
+emit = true
+entry_m = 1
+entry_x = 0
+note = "Miss-Promotion, 0 Treffer"
 
 [[func]]
 name = "InitDlgTextGfx"
@@ -7920,19 +7926,28 @@ note = "Miss-Promotion, 0 Treffer"
 name = "GetFirstStatus"
 addr = "4587"
 bank = 0xc1
-emit = false
+emit = true
+entry_m = 1
+entry_x = 0
+note = "Miss-Promotion, 0 Treffer"
 
 [[func]]
 name = "CheckStatusMenuCharValid"
 addr = "45b3"
 bank = 0xc1
-emit = false
+emit = true
+entry_m = 1
+entry_x = 0
+note = "Miss-Promotion, 0 Treffer"
 
 [[func]]
 name = "DrawStatusMenuText"
 addr = "45c3"
 bank = 0xc1
-emit = false
+emit = true
+entry_m = 1
+entry_x = 0
+note = "Miss-Promotion, 0 Treffer"
 
 [[func]]
 name = "window_tfr_buf_clr"
@@ -7989,7 +8004,10 @@ emit = false
 name = "tfr_poi_set2"
 addr = "4721"
 bank = 0xc1
-emit = false
+emit = true
+entry_m = 1
+entry_x = 0
+note = "Miss-Promotion, 0 Treffer"
 
 [[func]]
 name = "TfrTopMenuTiles"
@@ -8031,7 +8049,10 @@ note = "Miss-Promotion, 0 Treffer"
 name = "ken_window_data_set"
 addr = "4872"
 bank = 0xc1
-emit = false
+emit = true
+entry_m = 1
+entry_x = 0
+note = "Miss-Promotion, 0 Treffer"
 
 [[func]]
 name = "def_window_data_set"
@@ -8265,7 +8286,10 @@ note = "Miss-Promotion, 0 Treffer"
 name = "DrawDanceListText"
 addr = "4d08"
 bank = 0xc1
-emit = false
+emit = true
+entry_m = 1
+entry_x = 0
+note = "Miss-Promotion, 0 Treffer"
 
 [[func]]
 name = "DrawMagitekListText"
@@ -8538,7 +8562,10 @@ note = "Miss-Promotion, 0 Treffer"
 name = "InitBushidoInput"
 addr = "561b"
 bank = 0xc1
-emit = false
+emit = true
+entry_m = 1
+entry_x = 0
+note = "Landung per JMP aus der InitCmdSelectTbl-Dispatch (C17CDE, cursor.asm:2226); Funktionsgrenze statt Miss-Einstieg (r06)"
 
 [[func]]
 name = "CloseBushidoWindow"
@@ -8676,31 +8703,109 @@ note = "Miss-Promotion, 0 Treffer"
 name = "InitItemSelect"
 addr = "5769"
 bank = 0xc1
-emit = false
+emit = true
+entry_m = 1
+entry_x = 0
+note = "Landung per JMP aus der InitCmdSelectTbl-Dispatch (C17CDE, cursor.asm:2226); Funktionsgrenze statt Miss-Einstieg (r06)"
 
 [[func]]
 name = "InitMagicSelect"
 addr = "57a0"
 bank = 0xc1
-emit = false
+emit = true
+entry_m = 1
+entry_x = 0
+note = "Landung per JMP aus der InitCmdSelectTbl-Dispatch (C17CDE, cursor.asm:2226); Funktionsgrenze statt Miss-Einstieg (r06)"
 
 [[func]]
 name = "set_buf_item"
 addr = "57ee"
 bank = 0xc1
-emit = false
+emit = true
+entry_m = 1
+entry_x = 0
+note = "Miss-Promotion, 0 Treffer"
+
+[[func]]
+name = "MakeToolsList_0"
+addr = "5836"
+bank = 0xc1
+emit = true
+entry_m = 1
+entry_x = 0
+note = "Landung per JMP aus MakeToolsListTbl[0] (C1587F/C158BB, menu.asm:4505/4542); Funktionsgrenze statt Miss-Einstieg (r06)"
+
+[[func]]
+name = "MakeThrowList_0"
+addr = "583a"
+bank = 0xc1
+emit = true
+entry_m = 1
+entry_x = 0
+note = "Landung per JMP aus MakeThrowListTbl[0] (C1587F/C158BB, menu.asm:4505/4542); Funktionsgrenze statt Miss-Einstieg (r06)"
+
+[[func]]
+name = "MakeToolsThrowList_1"
+addr = "5850"
+bank = 0xc1
+emit = true
+entry_m = 1
+entry_x = 0
+note = "Landung per JMP aus MakeThrowListTbl[1] und MakeToolsListTbl[1] (C1587F/C158BB, menu.asm:4505/4542); Funktionsgrenze statt Miss-Einstieg (r06)"
+
+[[func]]
+name = "MakeToolsThrowList_2"
+addr = "5856"
+bank = 0xc1
+emit = true
+entry_m = 1
+entry_x = 0
+note = "Landung per JMP aus MakeThrowListTbl[2] und MakeToolsListTbl[2] (C1587F/C158BB, menu.asm:4505/4542); Funktionsgrenze statt Miss-Einstieg (r06)"
+
+[[func]]
+name = "MakeToolsThrowList_3"
+addr = "585c"
+bank = 0xc1
+emit = true
+entry_m = 1
+entry_x = 0
+note = "Landung per JMP aus MakeThrowListTbl[3] und MakeToolsListTbl[3] (C1587F/C158BB, menu.asm:4505/4542); Funktionsgrenze statt Miss-Einstieg (r06)"
 
 [[func]]
 name = "InitThrowSelect"
 addr = "5875"
 bank = 0xc1
-emit = false
+emit = true
+entry_m = 1
+entry_x = 0
+note = "Landung per JMP aus der InitCmdSelectTbl-Dispatch (C17CDE, cursor.asm:2226); Funktionsgrenze statt Miss-Einstieg (r06)"
+
+[[func]]
+name = "MakeThrowList_4"
+addr = "5882"
+bank = 0xc1
+emit = true
+entry_m = 1
+entry_x = 0
+note = "Landung per JMP aus MakeThrowListTbl[4] (C1587F/C158BB, menu.asm:4505/4542); Funktionsgrenze statt Miss-Einstieg (r06)"
 
 [[func]]
 name = "InitToolsSelect"
 addr = "58b1"
 bank = 0xc1
-emit = false
+emit = true
+entry_m = 1
+entry_x = 0
+note = "Landung per JMP aus der InitCmdSelectTbl-Dispatch (C17CDE, cursor.asm:2226); Funktionsgrenze statt Miss-Einstieg (r06)"
+
+[[func]]
+name = "MakeToolsList_4"
+addr = "58be"
+bank = 0xc1
+emit = true
+entry_m = 1
+entry_x = 0
+note = "Landung per JMP aus MakeToolsListTbl[4] (C1587F/C158BB, menu.asm:4505/4542); Funktionsgrenze statt Miss-Einstieg (r06)"
 
 [[func]]
 name = "InitLoreSelect"
@@ -8718,7 +8823,10 @@ emit = false
 name = "InitDanceSelect"
 addr = "5958"
 bank = 0xc1
-emit = false
+emit = true
+entry_m = 1
+entry_x = 0
+note = "Landung per JMP aus der InitCmdSelectTbl-Dispatch (C17CDE, cursor.asm:2226); Funktionsgrenze statt Miss-Einstieg (r06)"
 
 [[func]]
 name = "InitMagitekSelect"
@@ -8733,7 +8841,10 @@ note = "Landung per JMP aus der InitCmdSelectTbl-Dispatch (C17CDE, cursor.asm:22
 name = "InitSlotInput"
 addr = "59ae"
 bank = 0xc1
-emit = false
+emit = true
+entry_m = 1
+entry_x = 0
+note = "Landung per JMP aus der InitCmdSelectTbl-Dispatch (C17CDE, cursor.asm:2226); Funktionsgrenze statt Miss-Einstieg (r06)"
 
 [[func]]
 name = "OpenSummonWindow"
@@ -9591,7 +9702,10 @@ emit = false
 name = "CheckBlitzCode"
 addr = "6f90"
 bank = 0xc1
-emit = false
+emit = true
+entry_m = 1
+entry_x = 0
+note = "Miss-Promotion, 0 Treffer"
 
 [[func]]
 name = "set_target_data"
@@ -9702,19 +9816,28 @@ emit = false
 name = "InitBlitzInput"
 addr = "776b"
 bank = 0xc1
-emit = false
+emit = true
+entry_m = 1
+entry_x = 0
+note = "Landung per JMP aus der InitCmdSelectTbl-Dispatch (C17CDE, cursor.asm:2226); Funktionsgrenze statt Miss-Einstieg (r06)"
 
 [[func]]
 name = "InitAttackTargetSelect"
 addr = "7792"
 bank = 0xc1
-emit = false
+emit = true
+entry_m = 1
+entry_x = 0
+note = "Landung per JMP aus der InitCmdSelectTbl-Dispatch (C17CDE, cursor.asm:2226); Funktionsgrenze statt Miss-Einstieg (r06)"
 
 [[func]]
 name = "InitTargetSelect"
 addr = "7795"
 bank = 0xc1
-emit = false
+emit = true
+entry_m = 1
+entry_x = 0
+note = "Landung per JMP aus der InitCmdSelectTbl-Dispatch (C17CDE, cursor.asm:2226); Funktionsgrenze statt Miss-Einstieg (r06)"
 
 [[func]]
 name = "key_target_2"
@@ -9888,31 +10011,46 @@ emit = false
 name = "DrawBushidoGauge"
 addr = "7dce"
 bank = 0xc1
-emit = false
+emit = true
+entry_m = 1
+entry_x = 0
+note = "Miss-Promotion, 0 Treffer"
 
 [[func]]
 name = "DrawBushidoGaugeRepeat"
 addr = "7ded"
 bank = 0xc1
-emit = false
+emit = true
+entry_m = 1
+entry_x = 0
+note = "Miss-Promotion, 0 Treffer"
 
 [[func]]
 name = "GetSlotReel1"
 addr = "7ee7"
 bank = 0xc1
-emit = false
+emit = true
+entry_m = 1
+entry_x = 0
+note = "Miss-Promotion, 0 Treffer"
 
 [[func]]
 name = "GetSlotReel2"
 addr = "7ef2"
 bank = 0xc1
-emit = false
+emit = true
+entry_m = 1
+entry_x = 0
+note = "Miss-Promotion, 0 Treffer"
 
 [[func]]
 name = "GetSlotReel3"
 addr = "7efd"
 bank = 0xc1
-emit = false
+emit = true
+entry_m = 1
+entry_x = 0
+note = "Miss-Promotion, 0 Treffer"
 
 [[func]]
 name = "GetCursorInput"
@@ -13653,7 +13791,10 @@ note = "Landung per JMP aus der MoveAnimTbl-Dispatch (C1F39F, anim_cmd.asm:9738)
 name = "MoveAnimDown"
 addr = "f3dd"
 bank = 0xc1
-emit = false
+emit = true
+entry_m = 1
+entry_x = 0
+note = "Landung per JMP aus der MoveAnimTbl-Dispatch (C1F39F, anim_cmd.asm:9738); Funktionsgrenze statt Miss-Einstieg (r06)"
 
 [[func]]
 name = "MoveAnimDownRight"
@@ -13674,25 +13815,37 @@ note = "Landung per JMP aus der MoveAnimTbl-Dispatch (C1F39F, anim_cmd.asm:9738)
 name = "MoveAnimRight"
 addr = "f41c"
 bank = 0xc1
-emit = false
+emit = true
+entry_m = 1
+entry_x = 0
+note = "Landung per JMP aus der MoveAnimTbl-Dispatch (C1F39F, anim_cmd.asm:9738); Funktionsgrenze statt Miss-Einstieg (r06)"
 
 [[func]]
 name = "MoveAnimUpLeft"
 addr = "f42e"
 bank = 0xc1
-emit = false
+emit = true
+entry_m = 1
+entry_x = 0
+note = "Landung per JMP aus der MoveAnimTbl-Dispatch (C1F39F, anim_cmd.asm:9738); Funktionsgrenze statt Miss-Einstieg (r06)"
 
 [[func]]
 name = "MoveAnimUp"
 addr = "f449"
 bank = 0xc1
-emit = false
+emit = true
+entry_m = 1
+entry_x = 0
+note = "Landung per JMP aus der MoveAnimTbl-Dispatch (C1F39F, anim_cmd.asm:9738); Funktionsgrenze statt Miss-Einstieg (r06)"
 
 [[func]]
 name = "MoveAnimUpRight"
 addr = "f45b"
 bank = 0xc1
-emit = false
+emit = true
+entry_m = 1
+entry_x = 0
+note = "Landung per JMP aus der MoveAnimTbl-Dispatch (C1F39F, anim_cmd.asm:9738); Funktionsgrenze statt Miss-Einstieg (r06)"
 
 [[func]]
 name = "magic_code07"
@@ -14277,7 +14430,7 @@ bank = 0xc2
 emit = true
 entry_m = 1
 entry_x = 1
-note = "Miss-Promotion, 1 Treffer"
+note = "Miss-Promotion, 0 Treffer"
 
 [[func]]
 name = "RemoveAction"
@@ -15027,7 +15180,7 @@ bank = 0xc2
 emit = true
 entry_m = 1
 entry_x = 1
-note = "Miss-Promotion, 3 Treffer"
+note = "Miss-Promotion, 0 Treffer"
 
 [[func]]
 name = "CheckDeadMonsters"
@@ -15147,7 +15300,7 @@ bank = 0xc2
 emit = true
 entry_m = 0
 entry_x = 1
-note = "Miss-Promotion, 1 Treffer"
+note = "Miss-Promotion, 0 Treffer"
 
 [[func]]
 name = "FindAIScriptEnd"
@@ -16419,7 +16572,7 @@ bank = 0xc2
 emit = true
 entry_m = 1
 entry_x = 1
-note = "Miss-Promotion, 112 Treffer"
+note = "Miss-Promotion, 133 Treffer"
 
 [[func]]
 name = "BattleEnd_01"
@@ -17698,7 +17851,10 @@ note = "Miss-Promotion, 0 Treffer"
 name = "GetSlotAttack"
 addr = "b4a3"
 bank = 0xc2
-emit = false
+emit = true
+entry_m = 1
+entry_x = 0
+note = "Miss-Promotion, 0 Treffer"
 
 [[func]]
 name = "LoadTrainGfx"
