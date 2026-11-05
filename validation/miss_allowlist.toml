@@ -40,47 +40,16 @@ mx = "M1X0"
 reason = "CheckShortEntrance: authority_conflict_at_C01ABA_m1x0_from_1AB6 (M=1 nach jsr SetParentMap)"
 resolve = "wie CheckLongEntrance"
 
-# r05 (2026-11-03): ValidateSpellList ist von Hand gesperrt (tools/ff6/symbols_overrides.toml, emit = false).
-# Grund ist ein Codegen-Fehler im Framework: Die Tabellenziele C25704/570E/5716 (jmp (AddToSpellListTbl,x),
-# party.asm:771) werden eigene Funktionen mit Eintritt M1X0. Ihr plp/plx am Schleifenende zieht fest 16 Bit,
-# obwohl das php beim Eintritt der Elternfunktion M1X1 sicherte. S liegt dann 1 daneben, und das rts springt
-# ins Leere (der Kampf ueberschreibt $0001-$2000). Folge der Sperre sind die Eintraege unten.
-
-[[miss]]
-target = 0xC2568D
-mx = "M1X1"
-reason = "ValidateSpellList: von Hand gesperrt (Framework-Fehler plp in Tabellenziel-Funktionen, docs/STATUS.md 11-03)"
-resolve = "Framework-Fix in einer Pin-Session (Breite nach plp ohne eigenes php nicht statisch annehmen), dann Sperre aufheben"
-
-[[miss]]
-target = 0xC25704
-mx = "M1X0"
-reason = "Landung aus jmp (AddToSpellListTbl,x) in der gesperrten ValidateSpellList (Interpreter)"
-resolve = "wie ValidateSpellList"
-
-[[miss]]
-target = 0xC2570E
-mx = "M1X0"
-reason = "Landung aus jmp (AddToSpellListTbl,x) in der gesperrten ValidateSpellList (Interpreter)"
-resolve = "wie ValidateSpellList"
-
-[[miss]]
-target = 0xC22544
-mx = "M1X1"
-reason = "InitChars: unproven_call_at_C2256A_to_C2568D_m1x1 (ValidateSpellList gesperrt)"
-resolve = "wie ValidateSpellList"
-
-[[miss]]
-target = 0xC223ED
-mx = "M1X1"
-reason = "InitBattle: unproven_call_at_C2246F_to_C22544_m1x1 (Kette ueber InitChars zur gesperrten ValidateSpellList)"
-resolve = "wie ValidateSpellList"
+# Pin-Session 2026-11-05 (snesrecomp 7b570a032de3): Die Sperre von ValidateSpellList ist aufgehoben. Der Fix im
+# Framework haelt jmp (AddToSpellListTbl,x) in der Funktion, solange ihr Pfad das php haelt; ValidateSpellList,
+# InitChars und InitBattle sind AOT, ihre Eintraege und die Landungen C25704/C2570E sind entfallen. Battle_ext bleibt
+# LLE-only, weil BattleLoop in seinem Graphen CheckBattleEnd aufruft (Eintrag unten).
 
 [[miss]]
 target = 0xC20000
 mx = "M1X0"
-reason = "Battle_ext: unproven_call_at_C20016_to_C223ED_m1x1 (Kette ueber InitBattle zur gesperrten ValidateSpellList)"
-resolve = "wie ValidateSpellList"
+reason = "Battle_ext: unproven_call_at_C20081_to_C247ED_m1x1 (BattleLoop im eigenen Graphen ruft CheckBattleEnd, Eintrag unten)"
+resolve = "wie CheckBattleEnd"
 
 # r05 (2026-11-05): Nach den Exit-Breiten fuer die CheckStatus-Aufrufer, ExecAttack und AIRand3
 # (recomp/bankc2.cfg) bleibt CheckBattleEnd. Es verwirft auf mehreren Wegen die eigene
@@ -91,5 +60,5 @@ resolve = "wie ValidateSpellList"
 [[miss]]
 target = 0xC247ED
 mx = "M1X1"
-reason = "CheckBattleEnd: unproven_call_at_C2483D_to_C24A76_m1x1, CheckFinalBattle -> RestartBattle (C20016) -> InitBattle -> InitChars -> ValidateSpellList (gesperrt)"
-resolve = "wie ValidateSpellList; danach pruefen, ob die pla/pla-Ausgaenge (BattleLoop im eigenen Graphen, unproven_call_at_C20081_to_C247ED) die Variante weiter LLE-only halten"
+reason = "CheckBattleEnd: unproven_call_at_C2483D_to_C24A76_m1x1 und unproven_call_at_C20081_to_C247ED_m1x1 (BattleLoop im eigenen Graphen). Seit der Pin-Session 2026-11-05 halten allein die pla/pla-Ausgaenge die Variante LLE-only: Sie verwerfen die eigene Ruecksprungadresse, dafuer gibt es keine Exit-Breite"
+resolve = "Framework-Fakt fuer Ausgaenge, die die eigene Ruecksprungadresse verwerfen (verwandt mit Callee raeumt N Byte ab, docs/STATUS.md); bis dahin dulden"

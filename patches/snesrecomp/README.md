@@ -15,9 +15,11 @@ Branchs `ff6/patches`. Der Branch liegt nicht im Upstream-Repo, sondern im Fork,
 | `0007-fix-count-the-vertical-mosaic-block-from-the-first-v.patch` | `c2d515ccd146fc8e17673c1cb9bea9d503b2d6b1` (0006) | `3526b299a19ddc1670c6ec3e2849b65273edcaa5` | `c3c0b7e83880d8b92f46d9a51f3778fc6f71276c` |
 | `0008-fix-take-the-field-s-raster-baseline-from-the-end-of.patch` | `3526b299a19ddc1670c6ec3e2849b65273edcaa5` (0007) | `d35131ba8b5c1cfea05ea18768deb24818a9b52c` | `c0e6e32b244447b9a1ec42be3da162aa626d1ffc` |
 | `0009-fix-apply-the-last-drawn-raster-line-before-the-walk.patch` | `d35131ba8b5c1cfea05ea18768deb24818a9b52c` (0008) | `23ede2b7438ca83c31a3fb55376abf9a7901ca9b` | `028b8f1a9184061e1e0d43f549177f9ffb188f27` |
-| `0010-fix-sync-the-beam-on-hvbjoy-instead-of-the-polling-t.patch` | `23ede2b7438ca83c31a3fb55376abf9a7901ca9b` (0009) | `a76eb19a0d9dd2da14a1451f7fc1c4dd771c2ed5` (Branch `ff6/patches`) | `1b2415154bd82be86b9b81280658ff197d6a4492` |
+| `0010-fix-sync-the-beam-on-hvbjoy-instead-of-the-polling-t.patch` | `23ede2b7438ca83c31a3fb55376abf9a7901ca9b` (0009) | `a76eb19a0d9dd2da14a1451f7fc1c4dd771c2ed5` | `1b2415154bd82be86b9b81280658ff197d6a4492` |
+| `0011-fix-read-the-mode-2-offset-per-tile-rows-at-bg3vofs-.patch` | `a76eb19a0d9dd2da14a1451f7fc1c4dd771c2ed5` (0010) | `a77cd7eae8fbb46d2e39f019444cb1ddee777a37` | `f4b54b3d9f8aeb7ba76549f85f7ce57907bc5797` |
+| `0012-fix-keep-a-jmp-abs-x-dispatch-local-while-its-path-h.patch` | `a77cd7eae8fbb46d2e39f019444cb1ddee777a37` (0011) | `7b570a032de317772c0cf518d305fe27aed3c611` (Branch `ff6/patches`) | `91c7d8f498a585e786886ba3ff01d90387773180` |
 
-Pin ist der Commit von 0010.
+Pin ist der Commit von 0012.
 
 0001: DSP-Registerspiegel startet mit den Einschaltwerten von snes9x 1.63
 (`initial_regs`), damit FF6 frame-gleich zur snes9x-Referenz bootet. Hintergrund und
@@ -64,6 +66,18 @@ begann der NMI in FF6s Menü bis zu 3 Zeilen zu spät, der Farbverlauf der Equip
 
 Hintergrund und Prüfung von 0008 bis 0010: `docs/STATUS.md`, Abschnitt „Menü-Tour r04“.
 
+0011: Der Mode-2-Renderer liest die Offset-per-Tile-Zeilen bei BG3VOFS (H) und BG3VOFS + 8 (V),
+und ein V-Eintrag ersetzt BG1VOFS so, dass Zeile y die Quellzeile Eintrag + y zeigt. Die Korrekturen
+aus snes9x (`- 1`, `+ 1`) gelten dort für BGnVOFS + 1 und 0-basierte Zeilen, im Framework lagen sie
+eine Zeile daneben. Ohne den Fix standen die Walzen des Kampfbefehls Slot still.
+
+0012: Ein `JMP (abs)`/`JMP (abs,X)`-Dispatch, dessen Pfad ein PHP hält, bleibt in der Funktion
+(lokaler berechneter Sprung, Ziele mit der PHP-Historie, auch HiROM-Ziele unter $8000). Python-Decoder
+und nativer Analyzer gleich. Ohne den Fix zog `ValidateSpellList` nach dem `plp` in den
+abgespaltenen Tabellenzielen `plx` mit 16 Bit, und das `rts` sprang in die Zero Page.
+
+Hintergrund und Prüfung von 0011 und 0012: `docs/STATUS.md`, Abschnitt „Pin-Session 11-05 (OPT und plp)“.
+
 ## Nachbau in einem frischen Klon
 
 Normalerweise reicht `git submodule update --init`, weil der Fork den Pin-Commit enthält.
@@ -72,9 +86,9 @@ nachbauen (cwd = Repo-Wurzel, Submodul vorher auf das Upstream-Repo zeigen lasse
 
 ```bash
 git -C snesrecomp switch -c ff6/patches 147b55e252dcb3e7680a99c7c2f50e7183891844
-git -C snesrecomp am ../patches/snesrecomp/0001-*.patch ../patches/snesrecomp/0002-*.patch ../patches/snesrecomp/0003-*.patch ../patches/snesrecomp/0004-*.patch ../patches/snesrecomp/0005-*.patch ../patches/snesrecomp/0006-*.patch ../patches/snesrecomp/0007-*.patch ../patches/snesrecomp/0008-*.patch ../patches/snesrecomp/0009-*.patch ../patches/snesrecomp/0010-*.patch
+git -C snesrecomp am ../patches/snesrecomp/0001-*.patch ../patches/snesrecomp/0002-*.patch ../patches/snesrecomp/0003-*.patch ../patches/snesrecomp/0004-*.patch ../patches/snesrecomp/0005-*.patch ../patches/snesrecomp/0006-*.patch ../patches/snesrecomp/0007-*.patch ../patches/snesrecomp/0008-*.patch ../patches/snesrecomp/0009-*.patch ../patches/snesrecomp/0010-*.patch ../patches/snesrecomp/0011-*.patch ../patches/snesrecomp/0012-*.patch
 git -C snesrecomp rev-parse HEAD^{tree}
 ```
 
 Die Commit-Hashes weichen ab (Committer und Datum), maßgeblich ist der Tree. Er muss
-`1b2415154bd82be86b9b81280658ff197d6a4492` sein (Zwischenstände: siehe Tabelle).
+`91c7d8f498a585e786886ba3ff01d90387773180` sein (Zwischenstände: siehe Tabelle).

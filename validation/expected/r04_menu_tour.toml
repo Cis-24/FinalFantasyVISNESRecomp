@@ -558,7 +558,7 @@ discoveries = 263
 rom = 0
 allowlist = 2
 wram = 261
-interpreted = 203690522
+interpreted = 203749558
 
 [dump.char_ctrl]
 wram = "33aa142e72eef190b3d8020d45e1fe7d9eeda512c81350965c481bb626432359"

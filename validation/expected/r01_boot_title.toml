@@ -12,7 +12,7 @@ discoveries = 152
 rom = 0
 allowlist = 1
 wram = 151
-interpreted = 19173642
+interpreted = 19173704
 
 [dump.title]
 wram = "b9b354432c327cbb875f885ad5d30917ac013af143a2a4560bbb6198c1ef508f"

@@ -47,7 +47,7 @@ discoveries = 265
 rom = 0
 allowlist = 4
 wram = 261
-interpreted = 132614949
+interpreted = 132671125
 
 [dump.door_m006]
 wram = "889bc1da41a982803e66be62dcc7c5b071cccc6cca1764e39da5edde02a1ca4f"

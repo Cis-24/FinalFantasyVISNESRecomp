@@ -916,7 +916,7 @@ bank = 0xc0
 emit = true
 entry_m = 1
 entry_x = 0
-note = "Miss-Promotion, 7379 Treffer"
+note = "Miss-Promotion, 15428 Treffer"
 
 [[func]]
 name = "Done_C018E3"
@@ -931,7 +931,7 @@ bank = 0xc0
 emit = true
 entry_m = 1
 entry_x = 0
-note = "Miss-Promotion, 0 Treffer"
+note = "Miss-Promotion, 90 Treffer"
 
 [[func]]
 name = "Loop_C018FF"
@@ -1000,7 +1000,7 @@ bank = 0xc0
 emit = true
 entry_m = 1
 entry_x = 0
-note = "Miss-Promotion, 0 Treffer"
+note = "Miss-Promotion, 90 Treffer"
 
 [[func]]
 name = "Loop_C01A8F"
@@ -5629,7 +5629,7 @@ bank = 0xc0
 emit = true
 entry_m = 1
 entry_x = 0
-note = "Miss-Promotion, 7 Treffer"
+note = "Miss-Promotion, 14 Treffer"
 
 [[func]]
 name = "StartupEventLoop"
@@ -14322,7 +14322,7 @@ bank = 0xc2
 emit = true
 entry_m = 1
 entry_x = 0
-note = "Miss-Promotion, 1 Treffer"
+note = "Miss-Promotion, 2 Treffer"
 
 [[func]]
 name = "UpdateBattleTime_ext"
@@ -15696,7 +15696,7 @@ bank = 0xc2
 emit = true
 entry_m = 1
 entry_x = 1
-note = "Miss-Promotion, 1 Treffer"
+note = "Miss-Promotion, 2 Treffer"
 
 [[func]]
 name = "InitChars"
@@ -15705,7 +15705,7 @@ bank = 0xc2
 emit = true
 entry_m = 1
 entry_x = 1
-note = "Miss-Promotion, 1 Treffer"
+note = "Miss-Promotion, 2 Treffer"
 
 [[func]]
 name = "InitGauge"
@@ -16572,7 +16572,7 @@ bank = 0xc2
 emit = true
 entry_m = 1
 entry_x = 1
-note = "Miss-Promotion, 133 Treffer"
+note = "Miss-Promotion, 800 Treffer"
 
 [[func]]
 name = "BattleEnd_01"
@@ -17034,8 +17034,10 @@ note = "Miss-Promotion, 0 Treffer"
 name = "ValidateSpellList"
 addr = "568d"
 bank = 0xc2
-emit = false
-note = "Gesperrt (2026-11-03): Die Tabellenziele C25704/570E/5716 (jmp (AddToSpellListTbl,x), party.asm:771) werden eigene Funktionen M1X0; deren plp/plx am Schleifenende zieht fest 16 Bit, obwohl das php beim Eintritt M1X1 sicherte. S liegt 1 daneben, rts springt ins Leere (Framework-Codegen, docs/STATUS.md)."
+emit = true
+entry_m = 1
+entry_x = 1
+note = "Miss-Promotion, 6 Treffer"
 
 [[func]]
 name = "LoadMagicTargetFlags"
@@ -29815,7 +29817,7 @@ bank = 0xc5
 emit = true
 entry_m = 1
 entry_x = 0
-note = "Miss-Promotion, 0 Treffer"
+note = "Miss-Promotion, 28 Treffer"
 
 [[func]]
 name = "TfrSong_ext"
@@ -29851,7 +29853,10 @@ emit = false
 name = "PlaySong"
 addr = "0180"
 bank = 0xc5
-emit = false
+emit = true
+entry_m = 1
+entry_x = 0
+note = "Funktionsgrenze (2026-11-05): Ziel von jmp (PlaySongTbl,x) in ExecSound (sound_main.asm:260). Seit dem Pin 7b570a032de3 bleibt die Dispatch lokal (ExecSound haelt ein php), PlaySong ist also keine eigene Funktion mehr. Ruft interpretierter WRAM-Code ExecSound_ext, erreicht die SPC-Warteschleife die LLE-Deadline, und der Interpreter setzt an C50180 fort; ohne Grenze ist das ein goto_gap (15 Treffer je Kampfroute)."
 
 [[func]]
 name = "TfrSong"
@@ -29899,7 +29904,10 @@ note = "Miss-Promotion, 0 Treffer"
 name = "TfrGameSfxPtrs"
 addr = "0640"
 bank = 0xc5
-emit = false
+emit = true
+entry_m = 1
+entry_x = 0
+note = "Miss-Promotion, 0 Treffer"
 
 [[func]]
 name = "WaitTfrSPC"

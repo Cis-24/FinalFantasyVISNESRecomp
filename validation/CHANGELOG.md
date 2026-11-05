@@ -4,6 +4,13 @@ Jede Änderung an `validation/expected/*.toml` (Ereignisse, Dump-Hashes) braucht
 begründeten Eintrag (PLAN 5.3). Erzeugt werden die Erwartungen mit
 `bash tools/ff6/regress.sh --quick --update`; geprüft ohne `--update`.
 
+## 2026-11-05: Pin-Wechsel snesrecomp `7b570a032de3` (OPT und plp), r06 `slot` und `interpreted` neu
+- Pin `a76eb19a0d9d` → `7b570a032de3` (Patches 0011 Mode-2-Offset-per-Tile, 0012 lokale Dispatch unter `php`), docs/STATUS.md „Pin-Session 11-05 (OPT und plp)“.
+- `r06_battle_commands.toml`: Bild-Hash von `slot` neu. Die Slot-Maske (Rechteck 74-181/163-210) ist aus `masks.toml` entfernt; mit 0011 ist das Bild gleich der Referenz `work/ref/r06` (0 Pixel Abweichung, alle 20 Dumps und PPU-Write-Ströme gleich). Alle anderen Dump-Hashes aller Routen bytegleich, Ereignisse unverändert.
+- r05 und r06: geduldete Misses 11 → 6 und 9 → 4 (Sperre von `ValidateSpellList` aufgehoben; `ValidateSpellList`, `InitChars`, `InitBattle` AOT, Landungen C25704/C2570E entfallen; `miss_allowlist.toml` entsprechend), discoveries 272 → 267 und 270 → 265. 0 ROM-Misses in allen Routen.
+- `interpreted` in allen 9 Routen neu: r01 19 173 642 → 19 173 704, r02 172 007 297 → 172 065 392, r03 130 101 727 → 130 160 058, r04 203 690 522 → 203 749 558, r05 144 346 121 → 144 401 549, r06 164 578 053 → 164 605 612, r10 167 737 344 → 167 794 565, r11 132 614 949 → 132 671 125, r12 142 419 448 → 142 475 479. Die Mehrarbeit liegt im Sound-Treiber: Eintritt von `ExecSound` (C50131-C50170) und Warteschleife von `InterruptSPC` (C505BF-C505C5) laufen nach Rückgaben an den Interpreter öfter interpretiert zu Ende, seit `PlaySong` als lokales Ziel in `ExecSound_ext` liegt (Ursache nicht abschließend belegt). Dafür entfallen Teile von `InitBattle` (C22402-C2240A).
+- `src/gen` `a34a08df34089aac` → `fd76e7288a82faca` (32487 Roots, 37201 Varianten, 17025 AOT, 20176 LLE; Overrides 2809 generiert plus 40 von Hand, neu `ValidateSpellList`, `TfrGameSfxPtrs`, Funktionsgrenze `PlaySong`).
+
 ## 2026-11-05: r06_battle_commands erstmals gesetzt (szenengekeyt)
 - `r06_battle_commands.toml` neu: 20 Dumps, 128 Ereignisse, 16554 Frames, Lauf 40 s. Nur in `--full`. 0 ROM-Misses, 9 geduldet, WRAM-Allowlist 261, interpretiert 164 578 053.
 - Die Route lag in `validation/routes_pending/`. Geändert, damit die Szene auf beiden Seiten gleich bleibt (docs/STATUS.md, „r06 szenengekeyt gegen die Referenz“): Tanz Love Sonata statt Wind Song (kein Hintergrund-/Stolper-Wurf zur Ausführungszeit), Vicks' ATB danach auf 0, vor m13 auf die laufende Hauptschleife warten, im Schluss Sap von Wache 0 entfernen, drei Meldungen statt vier.

@@ -1470,12 +1470,6 @@ tags   = ["m13"]
 
 [[mask]]
 file   = "fb"
-rect   = [74, 163, 181, 210]
-reason = """Slot-Walzen (Zeilen 164-211, Mode 2 mit Offset-per-Tile aus der BG3-Map bei $8000, $2109 = $40). OPT-Tabelle im VRAM, alle HDMA-Writes und BG3VOFS = 0 sind auf beiden Seiten gleich, das Bild nicht: Framework-Fehler im optimierten Mode-2-Renderer (snesrecomp runner/src/snes/ppu.c PpuDrawBackground_4bpp_opt). Er rechnet opt_vscroll = BG3VOFS - 1 wie snes9x (gfx.cpp:1325), snes9x speichert aber BG3VOFS + 1 (gfx.cpp:309). Bei BG3VOFS = 0 liest der Recomp die V-Offsets aus der H-Zeile, die Walzen stehen auf Offset 0. Maske entfaellt mit dem Fix in der naechsten Pin-Session (docs/STATUS.md)."""
-tags   = ["slot"]
-
-[[mask]]
-file   = "fb"
 rect   = [205, 166, 242, 168]
 reason = """ATB-Leisten von TERRA (Zeilen 166-168) und WEDGE (178-180) samt Endkappen: Fuellstand je Frame und Palette der vollen Leiste, siehe $2022 und die BG3-Map-Maske."""
 tags   = ["m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08", "m09", "m10", "m11", "m12", "m13", "m14", "slot", "victory", "msg1", "msg2", "msg3"]
