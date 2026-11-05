@@ -121,6 +121,42 @@ bank = 0xc2
 emit = false
 note = "Gesperrt (2026-11-03): Die Tabellenziele C25704/570E/5716 (jmp (AddToSpellListTbl,x), party.asm:771) werden eigene Funktionen M1X0; deren plp/plx am Schleifenende zieht fest 16 Bit, obwohl das php beim Eintritt M1X1 sicherte. S liegt 1 daneben, rts springt ins Leere (Framework-Codegen, docs/STATUS.md)."
 
+[[func]]
+name = "ExecSelfAttack"
+addr = "3167"
+bank = 0xc2
+emit = true
+entry_m = 1
+entry_x = 1
+note = "Funktionsgrenze (2026-11-05): Ziel von jmp ExecSelfAttack in 10 Befehls- und KI-Handlern (attack.asm:8, .i8, lda #$80 mit M1). Ohne Grenze liegt der Koerper samt ExecAttack-Schleife (pea ExecAttack-1; rts) in jedem Handler-Graphen; Exit-Breite in recomp/bankc2.cfg."
+
+[[func]]
+name = "InitMagitekSelect"
+addr = "5983"
+bank = 0xc1
+emit = true
+entry_m = 1
+entry_x = 0
+note = "Landung per JMP aus der InitCmdSelectTbl-Dispatch (C17CDE, cursor.asm:2226); Funktionsgrenze statt Miss-Einstieg"
+
+[[func]]
+name = "MoveAnimDownLeft"
+addr = "f3c2"
+bank = 0xc1
+emit = true
+entry_m = 1
+entry_x = 0
+note = "Landung per JMP aus der MoveAnimTbl-Dispatch (C1F39F, anim_cmd.asm:9738); Funktionsgrenze statt Miss-Einstieg"
+
+[[func]]
+name = "MoveAnimLeft"
+addr = "f40a"
+bank = 0xc1
+emit = true
+entry_m = 1
+entry_x = 0
+note = "Landung per JMP aus der MoveAnimTbl-Dispatch (C1F39F, anim_cmd.asm:9738); Funktionsgrenze statt Miss-Einstieg"
+
 # >>> BEGIN promote_misses (generiert, nicht von Hand aendern)
 [[func]]
 name = "DecTimersMenuBattle_ext"
@@ -10677,7 +10713,7 @@ bank = 0xc2
 emit = true
 entry_m = 1
 entry_x = 1
-note = "Miss-Promotion, 4 Treffer"
+note = "Miss-Promotion, 0 Treffer"
 
 [[func]]
 name = "CheckJump"
@@ -10734,6 +10770,15 @@ entry_x = 1
 note = "Miss-Promotion, 0 Treffer"
 
 [[func]]
+name = "ReraiseEffect"
+addr = "0799"
+bank = 0xc2
+emit = true
+entry_m = 1
+entry_x = 1
+note = "Miss-Promotion, 0 Treffer"
+
+[[func]]
 name = "Sub_C207AD"
 addr = "07ad"
 bank = 0xc2
@@ -10776,7 +10821,7 @@ bank = 0xc2
 emit = true
 entry_m = 1
 entry_x = 1
-note = "Miss-Promotion, 4 Treffer"
+note = "Miss-Promotion, 0 Treffer"
 
 [[func]]
 name = "Sub_C208C6"
@@ -12072,7 +12117,16 @@ bank = 0xc2
 emit = true
 entry_m = 0
 entry_x = 1
-note = "Miss-Promotion, 3 Treffer"
+note = "Miss-Promotion, 0 Treffer"
+
+[[func]]
+name = "CalcReflectDmg"
+addr = "3483"
+bank = 0xc2
+emit = true
+entry_m = 0
+entry_x = 1
+note = "Miss-Promotion, 0 Treffer"
 
 [[func]]
 name = "RunicEffect"
@@ -12306,7 +12360,7 @@ bank = 0xc2
 emit = true
 entry_m = 0
 entry_x = 1
-note = "Miss-Promotion, 3 Treffer"
+note = "Miss-Promotion, 0 Treffer"
 
 [[func]]
 name = "TargetEffectNone"
@@ -12657,7 +12711,7 @@ bank = 0xc2
 emit = true
 entry_m = 1
 entry_x = 1
-note = "Miss-Promotion, 3 Treffer"
+note = "Miss-Promotion, 0 Treffer"
 
 [[func]]
 name = "Sub_C24CC3"

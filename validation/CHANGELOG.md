@@ -4,6 +4,13 @@ Jede Änderung an `validation/expected/*.toml` (Ereignisse, Dump-Hashes) braucht
 begründeten Eintrag (PLAN 5.3). Erzeugt werden die Erwartungen mit
 `bash tools/ff6/regress.sh --quick --update`; geprüft ohne `--update`.
 
+## 2026-11-05: r05_first_battle erstmals gesetzt, r05 in der Schnell-Suite
+- `r05_first_battle.toml` neu: 9 Dumps, 52 Ereignisse, 14006 Frames, Lauf 34 s. Die Route lag in `validation/routes_pending/`, bis ihre 14 ROM-Misses aufgelöst waren. Jetzt 0 ROM-Misses, 11 geduldet (4 Field wie r03, 7 Folgen der `ValidateSpellList`-Sperre), WRAM-Allowlist 261, interpretiert 144 346 121.
+- Auflösung: Exit-Breiten aus dem Quelltext für die 7 Aufrufer von `CheckStatus` (pea-Parameter), `ExecAttack` (pea/rts-Schleife), `ExecSelfAttack` und `AIRand3` (pla/pla) in `recomp/bankc2.cfg`; `ExecSelfAttack` als Funktionsgrenze, die Goto-Landungen `InitMagitekSelect`, `MoveAnimDownLeft`, `MoveAnimLeft` als Funktionsgrenzen (`symbols_overrides.toml`, 18 Einträge von Hand, 2791 generiert). `CheckBattleEnd` neu in `miss_allowlist.toml` (Kette über CheckFinalBattle und RestartBattle zur gesperrten `ValidateSpellList`).
+- Referenzvergleich gegen `work/ref/r05`: alle 9 Dumps WRAM, VRAM, CGRAM, OAM, FB gleich (Masken aus Abschnitt r05), PPU-Write-Strom 9/9 gleich.
+- Die 7 anderen Erwartungen bytegleich, auch `interpreted`. `src/gen` jetzt `51b90d5a148671da` (32111 Roots, 16775 AOT, 20050 LLE).
+- `QUICK` = r01 + r03 + r04 + r05.
+
 ## 2026-11-03: Kampf-Promotionen und r05 (pending), keine Erwartung geändert
 - 2789 generierte Promotionen (vorher 1649), AOT 8670 → 16649, `src/gen` `87c89a729aa3c41d`. `ValidateSpellList` von Hand gesperrt (Framework-Fehler, docs/STATUS.md). Alle 7 Erwartungen (r01-r04, r10-r12) bytegleich, `regress.sh --full` ohne `--update` 816 PASS, `--quick` grün (183 s).
 - `masks.toml`: neuer Abschnitt r05 (52 Einträge, nur r05-Tags), `rect` für Bildmasken; `b_dlg_north`, `b_after`, `b_dlg_next` in 16 r03-Field-Masken ergänzt. Für die anderen Tags ändert sich nichts.

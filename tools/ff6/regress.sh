@@ -11,7 +11,7 @@
 # Ausgabe: PASS/FAIL-Tabelle. Logs: WS/work/logs/regress_*, Dumps: WS/work/regress/<rNN>.
 # Exit 0 nur, wenn alles gruen ist (Regel: kein Commit auf main bei roter Schnell-Suite).
 #
-#   --quick     Schnell-Suite (Routen aus QUICK; r05/r09 folgen mit ihren Phasen)
+#   --quick     Schnell-Suite (Routen aus QUICK; r09 folgt mit seiner Phase)
 #   --full      alle Routen in validation/routes
 #   --no-regen  src/gen nicht neu erzeugen
 #   --no-build  nicht bauen
@@ -22,7 +22,7 @@ GR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 WS="$(cd "$GR/.." && pwd)"
 cd "$GR"
 
-QUICK=(r01_boot_title r03_field_walk r04_menu_tour)
+QUICK=(r01_boot_title r03_field_walk r04_menu_tour r05_first_battle)
 SUITE=""; REGEN=1; BUILD=1; UPDATE=()
 while [ $# -gt 0 ]; do
   case "$1" in

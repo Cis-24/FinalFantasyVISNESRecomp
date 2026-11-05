@@ -81,3 +81,15 @@ target = 0xC20000
 mx = "M1X0"
 reason = "Battle_ext: unproven_call_at_C20016_to_C223ED_m1x1 (Kette ueber InitBattle zur gesperrten ValidateSpellList)"
 resolve = "wie ValidateSpellList"
+
+# r05 (2026-11-05): Nach den Exit-Breiten fuer die CheckStatus-Aufrufer, ExecAttack und AIRand3
+# (recomp/bankc2.cfg) bleibt CheckBattleEnd. Es verwirft auf mehreren Wegen die eigene
+# Ruecksprungadresse (pla/pla) und springt nach TerminateBattle, BattleLoop oder ueber
+# CheckFinalBattle/BattleEnd_06 nach RestartBattle (battle_end.asm:94-96, 135-139, 369-371, 388-390).
+# Damit liegt InitBattle im eigenen Graphen, und die Kette endet in der gesperrten ValidateSpellList.
+
+[[miss]]
+target = 0xC247ED
+mx = "M1X1"
+reason = "CheckBattleEnd: unproven_call_at_C2483D_to_C24A76_m1x1, CheckFinalBattle -> RestartBattle (C20016) -> InitBattle -> InitChars -> ValidateSpellList (gesperrt)"
+resolve = "wie ValidateSpellList; danach pruefen, ob die pla/pla-Ausgaenge (BattleLoop im eigenen Graphen, unproven_call_at_C20081_to_C247ED) die Variante weiter LLE-only halten"
