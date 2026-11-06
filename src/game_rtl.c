@@ -68,8 +68,36 @@ static void GameInitialize(void)
     }
 }
 
+#ifdef SNES_COSIM
+#include <stdlib.h>
+#include "cpu_state.h"
+#include "snes/snes.h"
+#include "snes/apu.h"
+/* Co-sim diagnostics only (build-cosim, tools/ff6/cosim/cosim.sh): with FF6_COSIM_APU_LOG
+ * set, print the SPC cycle counter at every frame cut. Logged at the start of the next
+ * frame, i.e. after the frame-boundary APU sync, which is the state the co-sim checkpoint
+ * sees. The reference prints the same line (ref_driver_ff6.patch, FF6_REF_APU_LOG). */
+static void CosimApuLog(void)
+{
+    static int on = -1;
+    static unsigned long long frame;
+    if (on < 0) on = getenv("FF6_COSIM_APU_LOG") != NULL;
+    if (!on || !g_snes || !g_snes->apu) return;
+    if (frame) {
+        fprintf(stderr, "[apulog] cut=%llu master=%llu spc=%llu\n", frame,
+                (unsigned long long)g_cpu.master_cycles,
+                (unsigned long long)g_snes->apu->portClock);
+        fflush(stderr);   /* the coordinator terminates A without a flush */
+    }
+    frame++;
+}
+#endif
+
 void GameRunOneFrame(void)
 {
+#ifdef SNES_COSIM
+    CosimApuLog();
+#endif
     snes_beam_frame_driver_run_frame();
 }
 

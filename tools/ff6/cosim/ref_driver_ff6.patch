@@ -8,7 +8,7 @@
  
  /* ── globals the runner device layer + cosim_state (REF) reference ────────── */
  uint8_t    g_ram[0x20000];
-@@ -44,6 +45,12 @@
+@@ -44,6 +45,19 @@
  static uint64_t s_joy_reads;
  static uint64_t s_joy_nonzero_reads;
  static uint64_t s_joy_strobe_writes;
@@ -18,10 +18,29 @@
 +static uint64_t s_bus_master;      /* their master clocks */
 +static uint64_t s_dma_master;      /* $420B DMA clocks charged during the opcode */
 +static uint64_t s_refresh_phase;   /* master clocks since the last refresh charge */
++/* FF6 variant, diagnostic: FF6_REF_APU_LIKE_A=1 reproduces two properties of the recomp's
++ * APU timeline (runner apu.c/common_rtl.c) to test whether they explain an A-vs-B split:
++ * the SPC stands still from reset until the CPU's first port write (the guest-to-SPC anchor
++ * is set there), and the first frame, only 225 lines long, still counts a full 17088 SPC
++ * cycles. Off by default: the reference itself keeps the hardware behaviour. */
++static int  s_apu_like_a = -1;
++static bool s_spc_started;
  
  /* ── RTL glue the runner device sources call ─────────────────────────────── */
  void RtlApuLock(void)   {}
-@@ -90,6 +97,8 @@
+@@ -53,7 +67,10 @@
+ uint8 rtl_apu_port_observers_read(uint16 reg, uint8 value) { (void)reg; return value; }
+ /* Accurate reference: latch the CPU->APU port immediately (hardware behaviour),
+  * NOT the recomp's deferred sample-time scheduler. adr is $2140-$2143. */
+-void RtlApuWrite(uint16 adr, uint8 val) { g_snes->apu->inPorts[adr & 3] = val; }
++void RtlApuWrite(uint16 adr, uint8 val) {
++    s_spc_started = true;   /* FF6 variant: the APU-like-A mode starts the SPC here */
++    g_snes->apu->inPorts[adr & 3] = val;
++}
+ /* The ref advances the APU in its own frame loop (accurate rate), so the
+  * runner's per-touch catch-up accumulator is a no-op here. */
+ void rtl_accumulate_apu_catchup(void) {}
+@@ -90,6 +107,8 @@
  /* ── interp816 memory bus = the runner's self-contained SNES bus ─────────── */
  static uint8_t bus_read(void *mem, uint32_t adr) {
      (void)mem;
@@ -30,7 +49,7 @@
      uint8_t value = snes_read(g_snes, adr);
      uint16_t reg = (uint16_t)adr;
      uint8_t bank = (uint8_t)(adr >> 16);
-@@ -114,6 +123,10 @@
+@@ -114,6 +133,10 @@
      if ((bank < 0x40 || (bank >= 0x80 && bank < 0xc0)) &&
          (uint16_t)adr == 0x4016)
          s_joy_strobe_writes++;
@@ -41,7 +60,7 @@
      snes_write(g_snes, adr, v);
  }
  
-@@ -357,6 +370,9 @@
+@@ -357,6 +380,9 @@
              snes->inNmi = true;
              if (snes->nmiEnabled) cpu->nmiWanted = true;   /* deliver NMI */
              if (snes->autoJoyRead) snes->autoJoyTimer = 4224;
@@ -51,7 +70,7 @@
          }
      } else if (snes->hPos == 1024) {
          if (!snes->inVblank) dma_doHdma(snes->dma);
-@@ -366,10 +382,28 @@
+@@ -366,10 +392,30 @@
      if (snes->hPos == 1364) {
          snes->hPos = 0;
          snes->vPos++;
@@ -65,6 +84,8 @@
 +    Snes *snes = g_snes;
 +    g_ref_master_cycles += master;
 +    for (uint64_t i = 0; i < master; i += 2) handle_pos_stuff(snes);
++    if (s_apu_like_a < 0) s_apu_like_a = getenv("FF6_REF_APU_LIKE_A") != NULL;
++    if (s_apu_like_a && !s_spc_started) return;   /* SPC stands still until the first write */
 +    /* accurate APU: advance the real SPC at the true rate */
 +    snes->apuCatchupCycles += (double)master * kApuCyclesPerMaster;
 +    snes_catchupApu(snes);
@@ -81,7 +102,7 @@
  /* ── one guest frame: interp opcodes interleaved with H/V + accurate APU ─── */
  static bool run_one_frame(void) {
      Snes *snes = g_snes;
-@@ -387,13 +421,19 @@
+@@ -387,13 +433,19 @@
          int cyc = interp816_runOpcode(cpu);         /* CPU bus cycles */
          s_cpu_insns++;
          if (cyc <= 0) cyc = 1;
@@ -107,7 +128,7 @@
      }
      return guard > 0;
  }
-@@ -445,6 +485,7 @@
+@@ -445,6 +497,7 @@
      if (!data) { fprintf(stderr, "ref: cannot read ROM '%s'\n", rom); return 1; }
  
      g_snes = snes_init(g_ram);
@@ -115,7 +136,7 @@
      cart_set_master_clock_source(g_snes->cart, &g_ref_master_cycles);
      g_ppu = g_snes->ppu;
      if (!snes_loadRom(g_snes, data, (int)size)) { fprintf(stderr, "ref: loadRom failed\n"); return 1; }
-@@ -455,6 +496,7 @@
+@@ -455,6 +508,7 @@
      /* interp816 drives the bus; reset reads the reset vector via bus_read. */
      g_ref_cpu = interp816_init(NULL, bus_read, bus_write);
      interp816_reset(g_ref_cpu);
@@ -123,7 +144,30 @@
  
      fprintf(stderr, "ref: interp816 + runner devices, headless attract\n");
      if (!standalone_frames)
-@@ -506,6 +548,11 @@
+@@ -466,6 +520,22 @@
+                     (unsigned long long)s_frames);
+             return 1;
+         }
++        if (s_apu_like_a > 0 && s_frames == 1 && s_spc_started) {
++            /* FF6 variant, APU-like-A: the short first frame counts a full frame of SPC time. */
++            double bonus = 17088.0 - (double)g_ref_master_cycles * kApuCyclesPerMaster;
++            if (bonus > 0) {
++                g_snes->apuCatchupCycles += bonus;
++                snes_catchupApu(g_snes);
++            }
++        }
++        {   /* FF6 variant: SPC cycle counter at the frame cut (same line as src/game_rtl.c). */
++            static int apu_log = -1;
++            if (apu_log < 0) apu_log = getenv("FF6_REF_APU_LOG") != NULL;
++            if (apu_log)
++                fprintf(stderr, "[apulog] cut=%llu master=%llu spc=%llu\n",
++                        (unsigned long long)s_frames, (unsigned long long)g_ref_master_cycles,
++                        (unsigned long long)g_snes->apu->portClock);
++        }
+         collect_logic_stats();
+         collect_video_stats();
+         /* Deterministic audio consumer: drain one frame's worth so the DSP ring
+@@ -506,6 +576,11 @@
              cosim_frame();
          }
      }
