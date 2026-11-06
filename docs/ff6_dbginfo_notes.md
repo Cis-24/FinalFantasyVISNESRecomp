@@ -1,26 +1,26 @@
-# ff6 dbginfo Notes (ff6-en.dbg, ld65 dbgfile version 2.0)
-Vorläufiger Ort (GR existiert noch nicht), in Phase 3 nach GR\docs\ff6_dbginfo_notes.md verschieben.
-Stichprobe 2026-10-28, Build cc65 V2.19.
+# ff6 dbginfo notes (ff6-en.dbg, ld65 dbgfile version 2.0)
+First written outside the game repository, which did not exist yet; it has since moved to `docs/`.
+Sample taken 2026-10-28, build cc65 V2.19.
 
-Datei: 76 MB; info: seg=163, scope=6930, sym=183776, span=529876, line=400800, type=51.
+File: 76 MB; info: seg=163, scope=6930, sym=183776, span=529876, line=400800, type=51.
 
-## Ergebnisse
-1. `.addr`-Tabellen (EventCmdTbl @ C0:98C4, BattleEventCmdTbl @ C1:FDBE): JA, typisiert.
-   Jeder Eintrag ist ein eigener `span` (size=2) mit `type=2` (Typ-Wert `80014100`) an
-   seg-relativem Offset; daneben ein untypisierter Gesamt-Span (EventCmdTbl: size 406, 203 Einträge).
-2. Instruktions-Spans: KEIN `type` (Größe 1 bis 4, z. B. in ClearDlgTextTiles). 268914 von 529876 Spans untypisiert
-   (enthält Instruktionen und Gesamt-/Zeilenspans).
-3. `scope type=scope` mit `size`: 5824 Scopes, davon nur 773 mit `size` (und `span=`);
-   430 mit `sym=`. Procs mit Code (z. B. ClearDlgTextTiles size=34) haben `size` + `span`-Liste;
-   leere/Namespace-Scopes nicht. Scope id=0 ist Modul-Wurzel (size/span je Segment).
+## Findings
+1. `.addr` tables (EventCmdTbl @ C0:98C4, BattleEventCmdTbl @ C1:FDBE): YES, typed.
+   Each entry is its own `span` (size=2) with `type=2` (type value `80014100`) at a
+   segment-relative offset; next to them is an untyped span for the whole table (EventCmdTbl: size 406, 203 entries).
+2. Instruction spans: NO `type` (size 1 to 4, e.g. in ClearDlgTextTiles). 268914 of 529876 spans are untyped
+   (this includes instructions as well as whole-table and line spans).
+3. `scope type=scope` with `size`: 5824 scopes, only 773 of them with `size` (and `span=`);
+   430 with `sym=`. Procs with code (e.g. ClearDlgTextTiles size=34) have `size` and a `span` list;
+   empty and namespace scopes do not. Scope id=0 is the module root (size/span per segment).
 
-## Typ-Tabelle (Größe -> Typ-ID, Wert), nach Häufigkeit
+## Type table (size -> type ID, value), by frequency
 - 1 byte: type 1 (`800120`), 145596x
 - 2 byte: type 16 (`800220`) 48939x; type 2 (`80014100`, .addr) 20954x; type 0 (`800121`) 16571x
-- 3 byte: type 24 (`80014200`) 8741x (vermutl. .faraddr); type 7 (`800320`) 6103x
+- 3 byte: type 24 (`80014200`) 8741x (probably .faraddr); type 7 (`800320`) 6103x
 - 16 byte: type 5 (`801020`) 6421x
-Typ-IDs sind buildabhängig → nicht fest verdrahten, über `type`-Records (`val`) auflösen.
-Die Deutung 2=.addr, 24=.faraddr ist aus Größe + Position abgeleitet, nicht in ca65-Doku geprüft.
+Type IDs depend on the build, so never hard-wire them; resolve them through the `type` records (`val`).
+Reading 2 as .addr and 24 as .faraddr is inferred from size and position, not checked against the ca65 docs.
 
-## Offen
-- Typ-Wert-Kodierung (ca65 Typstring) gegen cc65-Doku/Quelle verifizieren, bevor Abschnitt 3.3 sie nutzt.
+## Open
+- Verify the type value encoding (ca65 type string) against the cc65 docs or source before section 3.3 relies on it.
