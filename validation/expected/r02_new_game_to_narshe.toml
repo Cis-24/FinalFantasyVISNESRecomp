@@ -41,7 +41,7 @@ discoveries = 265
 rom = 0
 allowlist = 2
 wram = 263
-interpreted = 172065392
+interpreted = 172094876
 
 [dump.cliff]
 wram = "6ee42bf5558364533cc9d738e45561c8028b799857f8eb58dec7170b9f595972"

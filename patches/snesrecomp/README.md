@@ -17,9 +17,10 @@ branch `ff6/patches`. The branch is not in the upstream repository but in the fo
 | `0009-fix-apply-the-last-drawn-raster-line-before-the-walk.patch` | `d35131ba8b5c1cfea05ea18768deb24818a9b52c` (0008) | `23ede2b7438ca83c31a3fb55376abf9a7901ca9b` | `028b8f1a9184061e1e0d43f549177f9ffb188f27` |
 | `0010-fix-sync-the-beam-on-hvbjoy-instead-of-the-polling-t.patch` | `23ede2b7438ca83c31a3fb55376abf9a7901ca9b` (0009) | `a76eb19a0d9dd2da14a1451f7fc1c4dd771c2ed5` | `1b2415154bd82be86b9b81280658ff197d6a4492` |
 | `0011-fix-read-the-mode-2-offset-per-tile-rows-at-bg3vofs-.patch` | `a76eb19a0d9dd2da14a1451f7fc1c4dd771c2ed5` (0010) | `a77cd7eae8fbb46d2e39f019444cb1ddee777a37` | `f4b54b3d9f8aeb7ba76549f85f7ce57907bc5797` |
-| `0012-fix-keep-a-jmp-abs-x-dispatch-local-while-its-path-h.patch` | `a77cd7eae8fbb46d2e39f019444cb1ddee777a37` (0011) | `7b570a032de317772c0cf518d305fe27aed3c611` (branch `ff6/patches`) | `91c7d8f498a585e786886ba3ff01d90387773180` |
+| `0012-fix-keep-a-jmp-abs-x-dispatch-local-while-its-path-h.patch` | `a77cd7eae8fbb46d2e39f019444cb1ddee777a37` (0011) | `7b570a032de317772c0cf518d305fe27aed3c611` | `91c7d8f498a585e786886ba3ff01d90387773180` |
+| `0013-fix-run-the-spc-from-reset-and-end-the-first-frame-a.patch` | `7b570a032de317772c0cf518d305fe27aed3c611` (0012) | `7cd67ca3f5be61e3c4c846af346fd43ba62325f1` (branch `ff6/patches`) | `e75a4984667ce31d73b04d2292c7f3b00d361ed1` |
 
-The pin is the commit of 0012.
+The pin is the commit of 0013.
 
 0001: The DSP register mirror starts with the power-on values of snes9x 1.63
 (`initial_regs`), so that FF6 boots frame-identical to the snes9x reference. Background and
@@ -80,6 +81,15 @@ the zero page.
 
 Background and verification for 0011 and 0012: `docs/STATUS.md`, section "Pin session 11-05 (OPT and plp)".
 
+0013: The SPC runs from reset. `RtlRunFrame` maps the start of its frame onto the SPC clock
+whenever nothing is mapped yet (`apu_anchorGuestTime`), instead of waiting for the CPU's first
+write to `$2140-$2143`; and with extended frame timing the first frame after reset counts from
+reset to the first vblank (V=225) instead of a whole field. WAI still advances a whole field from
+the second frame on. Without the fix, FF6's SPC stood still for the first 5888 SPC cycles and the
+first frame gained 2413, so the SPC ran 3475 cycles (about 53 lines) behind the hardware timeline
+for the whole run. Background and verification: `docs/STATUS.md`, section "Pin session 11-06 (APU
+timeline from reset)".
+
 ## Rebuilding in a fresh clone
 
 Normally `git submodule update --init` is enough, because the fork contains the pin commit.
@@ -88,9 +98,9 @@ patches (cwd = repository root; point the submodule at the upstream repository f
 
 ```bash
 git -C snesrecomp switch -c ff6/patches 147b55e252dcb3e7680a99c7c2f50e7183891844
-git -C snesrecomp am ../patches/snesrecomp/0001-*.patch ../patches/snesrecomp/0002-*.patch ../patches/snesrecomp/0003-*.patch ../patches/snesrecomp/0004-*.patch ../patches/snesrecomp/0005-*.patch ../patches/snesrecomp/0006-*.patch ../patches/snesrecomp/0007-*.patch ../patches/snesrecomp/0008-*.patch ../patches/snesrecomp/0009-*.patch ../patches/snesrecomp/0010-*.patch ../patches/snesrecomp/0011-*.patch ../patches/snesrecomp/0012-*.patch
+git -C snesrecomp am ../patches/snesrecomp/0001-*.patch ../patches/snesrecomp/0002-*.patch ../patches/snesrecomp/0003-*.patch ../patches/snesrecomp/0004-*.patch ../patches/snesrecomp/0005-*.patch ../patches/snesrecomp/0006-*.patch ../patches/snesrecomp/0007-*.patch ../patches/snesrecomp/0008-*.patch ../patches/snesrecomp/0009-*.patch ../patches/snesrecomp/0010-*.patch ../patches/snesrecomp/0011-*.patch ../patches/snesrecomp/0012-*.patch ../patches/snesrecomp/0013-*.patch
 git -C snesrecomp rev-parse HEAD^{tree}
 ```
 
 The commit hashes differ (committer and date); the tree is what counts. It must be
-`91c7d8f498a585e786886ba3ff01d90387773180` (intermediate states: see the table).
+`e75a4984667ce31d73b04d2292c7f3b00d361ed1` (intermediate states: see the table).

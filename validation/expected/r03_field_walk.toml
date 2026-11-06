@@ -41,7 +41,7 @@ discoveries = 265
 rom = 0
 allowlist = 4
 wram = 261
-interpreted = 130160058
+interpreted = 130190603
 
 [dump.back_south]
 wram = "e6075ffd9dd86a160c26c9197f7671117ef30ea506b35da6f6c52ff9d54583e1"

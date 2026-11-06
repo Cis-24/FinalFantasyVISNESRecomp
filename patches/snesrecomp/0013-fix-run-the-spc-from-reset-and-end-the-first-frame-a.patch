@@ -1,0 +1,410 @@
+From 7cd67ca3f5be61e3c4c846af346fd43ba62325f1 Mon Sep 17 00:00:00 2001
+From: Neivin Detlefsen <neivin.detlefsen@gmx.de>
+Date: Fri, 6 Nov 2026 22:39:36 +0100
+Subject: [PATCH 13/13] fix: run the spc from reset and end the first frame at
+ the first vblank
+
+Two properties of the APU frame timeline put the SPC behind the
+hardware for the whole run.
+
+The guest-to-SPC mapping was only set by apu_schedulePortWrite, at the
+CPU's first write to $2140-$2143. Until then apu_runToGuestCycle
+returned at once, so neither port reads nor the frame-boundary sync ran
+the SPC. RtlRunFrame now maps the start of its frame whenever nothing
+is mapped (apu_anchorGuestTime): the first frame after reset, or the
+frame after an HLE upload cleared the port schedule. An existing
+mapping stays, and the callback-ahead rebase in apu_schedulePortWrite
+is unchanged. The shared-clock co-sim keeps its touch-only pacing.
+
+With extended frame timing every frame counted at least a whole field
+(17088 SPC cycles). The first frame of the beam frame driver runs from
+reset to V=225, 306902 master clocks or 14674 SPC cycles, and gained
+2413. The first frame after reset now has the reset-to-first-vblank
+span as its minimum; WAI still advances a whole field from the second
+frame on.
+
+FF6 writes first about 5888 SPC cycles into its first frame. Net, its
+SPC ran 3475 cycles (about 53 lines) behind the CPU from the first
+frame cut on; every SPC handshake wait then ended at a different point
+inside the frame than on hardware.
+
+Regression: tests/audio/apu_frame_timeline_test.c drives RtlRunFrame
+from reset (7 FAIL before the fix: SPC at 0 without a port write,
+11200 instead of 14674 at the first cut, first write scheduled at 0
+instead of 5888), and apu_port_guest_time_test.c checks the mapping
+and the first-frame clock (3 FAIL before).
+---
+ runner/src/apu_frame_clock.h                  |  17 +-
+ runner/src/common_rtl.c                       |  21 +++
+ runner/src/snes/apu.c                         |  13 ++
+ runner/src/snes/apu.h                         |   5 +
+ tests/audio/apu_frame_timeline_test.c         | 153 ++++++++++++++++++
+ tests/run_c_tests.sh                          |  15 ++
+ .../apu_port_guest_time_test.c                |  51 ++++++
+ 7 files changed, 273 insertions(+), 2 deletions(-)
+ create mode 100644 tests/audio/apu_frame_timeline_test.c
+
+diff --git a/runner/src/apu_frame_clock.h b/runner/src/apu_frame_clock.h
+index f00c2334..7de57ffa 100644
+--- a/runner/src/apu_frame_clock.h
++++ b/runner/src/apu_frame_clock.h
+@@ -4,6 +4,13 @@
+ #define RTL_MASTER_CYCLES_PER_FRAME 357368ull
+ #define RTL_APU_CYCLES_PER_FRAME 17088ull
+ 
++/* Reset to the first vblank: the beam starts at V=0 and the first NMI comes
++ * at V=225 (overscan is off after reset), 225 lines of 1364 master clocks. */
++#define RTL_MASTER_CYCLES_TO_FIRST_VBLANK (225ull * 1364ull)
++#define RTL_APU_CYCLES_TO_FIRST_VBLANK                                    \
++  (RTL_MASTER_CYCLES_TO_FIRST_VBLANK * RTL_APU_CYCLES_PER_FRAME /         \
++   RTL_MASTER_CYCLES_PER_FRAME)
++
+ /* A host iteration can include an NMI-disabled loader spanning many hardware
+  * frames. Keep its elapsed time when beginning the following iteration. */
+ typedef struct RtlApuFrameClock {
+@@ -26,8 +33,14 @@ static inline uint64_t rtl_apu_clock_now(const RtlApuFrameClock *clock,
+ static inline uint64_t rtl_apu_clock_finish(RtlApuFrameClock *clock,
+                                            uint64_t master) {
+   uint64_t end = rtl_apu_clock_now(clock, master);
+-  uint64_t minimum = clock->start_guest + RTL_APU_CYCLES_PER_FRAME;
+-  if (end < minimum) end = minimum;  /* WAI still advances a hardware frame. */
++  /* WAI still advances a hardware frame. The first frame after reset (no
++   * frame finished yet, last_duration 0) ends at the first vblank instead:
++   * a beam runner stops it at V=225, and a whole field there credited the
++   * SPC with 2413 cycles that never elapsed. */
++  uint64_t minimum = clock->start_guest +
++      (clock->last_duration ? RTL_APU_CYCLES_PER_FRAME
++                            : RTL_APU_CYCLES_TO_FIRST_VBLANK);
++  if (end < minimum) end = minimum;
+   clock->last_duration = end - clock->start_guest;
+   clock->next_guest = end;
+   /* Leave the current origin intact: raster IRQs can still touch APU ports
+diff --git a/runner/src/common_rtl.c b/runner/src/common_rtl.c
+index da9a0460..4327cf73 100644
+--- a/runner/src/common_rtl.c
++++ b/runner/src/common_rtl.c
+@@ -284,6 +284,26 @@ static uint64_t rtl_apu_guest_cycle(void) {
+          within * RTL_APU_CYCLES_PER_FRAME /
+              RTL_MASTER_CYCLES_PER_FRAME;
+ }
++
++/* The SPC runs from reset. Without a mapping from guest time to the SPC
++ * clock, apu_runToGuestCycle does nothing, and the mapping used to come only
++ * with the CPU's first write to $2140-$2143: until then neither port reads
++ * nor the frame-boundary sync ran the SPC (FF6 writes first about 5888 SPC
++ * cycles into its first frame). Map the start of the frame instead whenever
++ * nothing is mapped: the first frame after reset, or the frame after an HLE
++ * upload cleared the port schedule. */
++static void rtl_apu_anchor_frame_start(void) {
++  if (!g_snes || !g_snes->apu)
++    return;
++#ifdef SNES_COSIM
++  /* The shared-clock co-sim paces the SPC by port touches alone. */
++  if (cosim_apu_shared_clock())
++    return;
++#endif
++  RtlApuLock();
++  apu_anchorGuestTime(g_snes->apu, rtl_apu_guest_cycle());
++  RtlApuUnlock();
++}
+ // $420D bit 0 (FastROM / MEMSEL): 1 => $80-$FF:$8000-$FFFF code runs fast (6
+ // master clocks/access) instead of slow (8). Tracked here so emitted blocks in
+ // the WS2 mirror banks weight their master-cycle charge correctly at runtime.
+@@ -811,6 +831,7 @@ bool RtlRunFrame(uint32 inputs) {
+   g_apu_frame_start_master = g_cpu.master_cycles;
+   g_apu_frame_time_valid = true;
+   rtl_apu_clock_begin(&g_apu_frame_clock, g_cpu.master_cycles);
++  rtl_apu_anchor_frame_start();
+   WatchdogFrameStart();
+   // Watchdog guard: WatchdogCheck() (called per-block in v2 gen) longjmps
+   // here when a frame exceeds 5s, so an infinite loop in recompiled code
+diff --git a/runner/src/snes/apu.c b/runner/src/snes/apu.c
+index 991758d9..95755780 100644
+--- a/runner/src/snes/apu.c
++++ b/runner/src/snes/apu.c
+@@ -127,6 +127,19 @@ bool apu_schedulePortWrite(Apu* apu, uint8_t port, uint8_t val,
+   return true;
+ }
+ 
++bool apu_anchorGuestTime(Apu* apu, uint64_t guest_cycle) {
++  /* An existing mapping stays: queued writes keep their guest deltas, and a
++   * callback that ran ahead is rebased by apu_schedulePortWrite as before. */
++  if (apu->portTimeValid)
++    return false;
++  apu->portGuestAnchor = guest_cycle;
++  apu->portTargetAnchor = apu->portClock;
++  apu->portLastGuest = guest_cycle;
++  apu->portLastTarget = apu->portClock;
++  apu->portTimeValid = true;
++  return true;
++}
++
+ /* Apply all CPU bus events due before this SPC cycle executes. */
+ static void apu_drainPortQueue(Apu* apu) {
+   while (apu->portQHead != apu->portQTail) {
+diff --git a/runner/src/snes/apu.h b/runner/src/snes/apu.h
+index f3c72cc9..a6474a91 100644
+--- a/runner/src/snes/apu.h
++++ b/runner/src/snes/apu.h
+@@ -108,6 +108,11 @@ void apu_writePortNow(Apu* apu, uint8_t port, uint8_t val);
+  * enqueue the write. False means the caller must advance the APU and retry. */
+ bool apu_schedulePortWrite(Apu* apu, uint8_t port, uint8_t val,
+                            uint64_t guest_cycle);
++/* Map a guest timestamp onto the SPC's current cycle without a bus event,
++ * unless a mapping exists already. A runtime with a frame timeline calls this
++ * where the timeline starts, so the SPC runs from reset as on hardware rather
++ * than from the CPU's first port write. True if it set the mapping. */
++bool apu_anchorGuestTime(Apu* apu, uint64_t guest_cycle);
+ uint32_t apu_portQueueDepth(const Apu* apu);
+ /* Advance real SPC execution until every queued bus event has landed. */
+ bool apu_runUntilPortQueueEmpty(Apu* apu, uint32_t max_cycles);
+diff --git a/tests/audio/apu_frame_timeline_test.c b/tests/audio/apu_frame_timeline_test.c
+new file mode 100644
+index 00000000..e2ac0eb3
+--- /dev/null
++++ b/tests/audio/apu_frame_timeline_test.c
+@@ -0,0 +1,153 @@
++/* The APU timeline of the first frames after reset, through the runtime's
++ * own RtlRunFrame and frame-boundary sync. common_rtl.c is included whole, as
++ * in audio_delivery_test.c; whole-program LTO drops the host entry points the
++ * test does not reach, and the stubs below stand in for the frame observers.
++ *
++ * On hardware the SPC runs from reset. A beam-driven runner (extended frame
++ * timing) ends its first frame at the first vblank, V=225: 225 lines of
++ * master clocks, not a whole field. Both have to hold before the CPU's first
++ * APU port write; FF6's comes about 5888 SPC cycles into the first frame. */
++#include <stdio.h>
++#include "../../runner/src/common_rtl.c"
++#include "../../runner/src/snes/dsp_shadow.h"
++/* MinGW's sdl2.pc passes -Dmain=SDL_main; this test has its own entry. */
++#undef main
++
++/* One thread; only the production host supplies a real mutex. */
++static int apu_lock_depth;
++void RtlApuLock(void) { ++apu_lock_depth; }
++void RtlApuUnlock(void) { --apu_lock_depth; }
++SpcPlayer *g_spc_player;
++Snes *g_snes;
++
++/* Runtime state and frame observers RtlRunFrame reaches; none of the
++ * observers touches the APU. */
++CpuState g_cpu;
++const RtlGameInfo *g_rtl_game_info;
++jmp_buf g_watchdog_jmp;
++FrameDumpCallback g_framedump_callback;
++int snes_frame_counter;
++uint64_t g_apu_timer0_total_ticks;
++void WatchdogFrameStart(void) {}
++void ppudma_frame_snapshot(int frame) { (void)frame; }
++void Tier2CoverageTick(int frame) { (void)frame; }
++int snes_runahead_active(void) { return 0; }
++uint64_t snesrecomp_host_now_ns(void) { return 0; }
++DspShadow *dsp_shadow_create(void) { return NULL; }
++void dsp_shadow_free(DspShadow *shadow) { (void)shadow; }
++void dsp_shadow_process(DspShadow *shadow, Dsp *dsp, int canonical_left,
++                        int canonical_right, int *out_left, int *out_right) {
++  (void)shadow; (void)dsp;
++  *out_left = canonical_left;
++  *out_right = canonical_right;
++}
++/* The touch-based catch-up belongs to boot before the frame timeline; with
++ * a frame running, the SPC must only follow guest time. */
++static int legacy_catchups;
++void snes_catchupApu(Snes *snes) { (void)snes; legacy_catchups++; }
++
++/* The frame body: master clocks it runs, and optionally one port write. */
++static uint64_t frame_master;
++static int64_t write_at = -1;
++static void run_frame(void) {
++  uint64_t start = g_cpu.master_cycles;
++  if (write_at >= 0) {
++    g_cpu.master_cycles = start + (uint64_t)write_at;
++    RtlApuWrite(0x2140, 0xcc);
++    write_at = -1;
++  }
++  g_cpu.master_cycles = start + frame_master;
++}
++static const RtlGameInfo game = { .run_frame = run_frame };
++
++static int failures;
++static void check(int ok, const char *what, uint64_t got, uint64_t want) {
++  if (ok) return;
++  fprintf(stderr, "FAIL: %s (got %llu, want %llu)\n", what,
++          (unsigned long long)got, (unsigned long long)want);
++  failures++;
++}
++static void expect_clock(const char *what, uint64_t want) {
++  check(g_snes->apu->portClock == want, what, g_snes->apu->portClock, want);
++}
++
++/* Power-on: fresh APU, zeroed host pacing, beam at V=0. */
++static void power_on(void) {
++  apu_reset(g_snes->apu);
++  snes_frame_counter = 0;
++  g_apu_frame_time_valid = false;
++  g_apu_frame_clock = (RtlApuFrameClock){0};
++  g_apu_frame_start_master = g_cpu.master_cycles;
++}
++
++static void run(uint64_t master) {
++  frame_master = master;
++  RtlRunFrame(0);
++  check(apu_lock_depth == 0, "APU lock released", (uint64_t)apu_lock_depth, 0);
++}
++
++/* Reset to V=225 as the beam frame driver measures it (306902 master clocks
++ * in FF6), and the SPC cycles that span is worth. */
++#define FIRST_FRAME_MASTER 306902ull
++#define FIRST_FRAME_SPC \
++  (FIRST_FRAME_MASTER * RTL_APU_CYCLES_PER_FRAME / RTL_MASTER_CYCLES_PER_FRAME)
++
++int main(void) {
++  static Snes machine;
++  machine.apu = apu_init();
++  g_snes = &machine;
++  g_rtl_game_info = &game;
++  RtlEnableExtendedFrameTiming();
++
++  /* No port write at all: the SPC still runs from reset. */
++  power_on();
++  run(FIRST_FRAME_MASTER);
++  expect_clock("first frame without a port write runs the SPC to V=225",
++               FIRST_FRAME_SPC);
++  run(RTL_MASTER_CYCLES_PER_FRAME);
++  expect_clock("second frame adds one field", FIRST_FRAME_SPC + RTL_APU_CYCLES_PER_FRAME);
++
++  /* FF6's boot: the first write comes inside the first frame. It must land at
++   * its own guest time, and the frame must still end at V=225. */
++  power_on();
++  write_at = 123139;  /* 5888 SPC cycles after reset */
++  run(FIRST_FRAME_MASTER);
++  check(machine.apu->inPorts[0] == 0xcc, "first port write landed",
++        machine.apu->inPorts[0], 0xcc);
++  expect_clock("first frame with a port write ends at V=225", FIRST_FRAME_SPC);
++  run(RTL_MASTER_CYCLES_PER_FRAME);
++  expect_clock("second frame after the write adds one field",
++               FIRST_FRAME_SPC + RTL_APU_CYCLES_PER_FRAME);
++
++  /* The write is timed against the reset anchor: scheduled at the guest cycle
++   * of its master position, not at whatever the SPC had run when it came. */
++  power_on();
++  write_at = 123139;
++  run(FIRST_FRAME_MASTER);
++  check(machine.apu->portLastTarget == 5888,
++        "first port write is scheduled at its guest cycle since reset",
++        machine.apu->portLastTarget, 5888);
++
++  /* WAI still advances a hardware frame after the first one. */
++  power_on();
++  run(FIRST_FRAME_MASTER);
++  run(1000);
++  expect_clock("a WAI-short later frame still counts a field",
++               FIRST_FRAME_SPC + RTL_APU_CYCLES_PER_FRAME);
++
++  /* A first frame cut short by WAI still covers reset to the first vblank. */
++  power_on();
++  run(1000);
++  expect_clock("a WAI-short first frame reaches the first vblank",
++               225ull * 1364ull * RTL_APU_CYCLES_PER_FRAME / RTL_MASTER_CYCLES_PER_FRAME);
++
++  check(legacy_catchups == 0, "no touch-based catch-up inside frames",
++        (uint64_t)legacy_catchups, 0);
++  apu_free(machine.apu);
++  if (failures) {
++    fprintf(stderr, "apu_frame_timeline_test: %d FAIL\n", failures);
++    return 1;
++  }
++  puts("apu_frame_timeline_test: PASS");
++  return 0;
++}
+diff --git a/tests/run_c_tests.sh b/tests/run_c_tests.sh
+index 6b59deaa..b0343f82 100644
+--- a/tests/run_c_tests.sh
++++ b/tests/run_c_tests.sh
+@@ -344,6 +344,21 @@ echo "=== APU guest-time pacing ==="
+     $GC_SECTIONS_LINKER -o "$OUT/apu_port_guest_time_test"
+ "$OUT/apu_port_guest_time_test"
+ 
++echo "=== APU frame timeline from reset ==="
++# Includes common_rtl.c whole and drives RtlRunFrame; see the note on
++# RTL_UNIT_FLAGS below.
++"$CC" $(pkg-config --cflags sdl2) -std=c11 -Wall -Wextra -O2 -flto -fwhole-program \
++    -ffunction-sections -fdata-sections -DSNESRECOMP_TRACE=0 -D_POSIX_C_SOURCE=200809L \
++    -I "$ROOT/runner/src/desktop" -I "$ROOT/runner/src" \
++    "$ROOT/tests/audio/apu_frame_timeline_test.c" \
++    "$ROOT/runner/src/snes/apu.c" \
++    "$ROOT/runner/src/snes/spc.c" \
++    "$ROOT/runner/src/snes/dsp.c" \
++    "$ROOT/runner/src/snes/joypad.c" \
++    "$ROOT/runner/src/audio_trace.c" \
++    $GC_SECTIONS_LINKER -lm -o "$OUT/apu_frame_timeline_test"
++"$OUT/apu_frame_timeline_test"
++
+ echo "=== benchmark helper ==="
+ "$CC" -std=c11 -Wall -Wextra -Werror -O1 \
+     -I "$ROOT/runner/src" \
+diff --git a/tests/runtime_dispatch/apu_port_guest_time_test.c b/tests/runtime_dispatch/apu_port_guest_time_test.c
+index ee8e7095..73ec4b68 100644
+--- a/tests/runtime_dispatch/apu_port_guest_time_test.c
++++ b/tests/runtime_dispatch/apu_port_guest_time_test.c
+@@ -236,6 +236,57 @@ int main(void) {
+   failures += check(rtl_apu_clock_now(&clock, 0) == clock.start_guest,
+                     "CPU reset cannot underflow the within-frame timestamp");
+ 
++  /* The SPC runs from reset: a runtime maps the start of its frame timeline
++   * without a port write, and guest-clock syncs run the SPC from there. */
++  apu_reset(apu);
++  failures += check(apu_runToGuestCycle(apu, 3000, 1u << 20) &&
++                    apu->portClock == 0,
++                    "an unmapped timeline does not run the SPC");
++  failures += check(apu_anchorGuestTime(apu, 0) && apu->portTimeValid,
++                    "frame start maps guest time at reset");
++  failures += check(apu_runToGuestCycle(apu, 3000, 1u << 20) &&
++                    apu->portClock == 3000,
++                    "the SPC runs from reset without a port write");
++  failures += check(apu_schedulePortWrite(apu, 0, 0xcc, 5888) &&
++                    apu->portLastTarget == 5888,
++                    "a first port write keeps its guest time since reset");
++  failures += check(!apu_anchorGuestTime(apu, 9000) &&
++                    apu->portGuestAnchor == 0 && apu->portTargetAnchor == 0,
++                    "a frame start keeps an existing mapping");
++  failures += check(apu_runToGuestCycle(apu, 6000, 1u << 20) &&
++                    apu->portClock == 6000 && apu->inPorts[0] == 0xcc,
++                    "the write lands at its guest time");
++  /* A callback that ran ahead of the mapping is still rebased by the next
++   * write, not pulled back. */
++  apu_runCycles(apu, 1000);
++  failures += check(apu_schedulePortWrite(apu, 1, 0x11, 6100) &&
++                    apu->portLastTarget == 7000 &&
++                    apu->portGuestAnchor == 6100,
++                    "callback-ahead rebase survives the reset mapping");
++
++  /* The first frame after reset ends at the first vblank (V=225). A beam
++   * runner measures exactly that span; crediting a whole field put the SPC
++   * 2413 cycles ahead for the rest of the run. WAI keeps its hardware frame
++   * from the second frame on. */
++  const uint64_t to_first_vblank =
++      225ull * 1364ull * RTL_APU_CYCLES_PER_FRAME / RTL_MASTER_CYCLES_PER_FRAME;
++  clock = (RtlApuFrameClock){0};
++  rtl_apu_clock_begin(&clock, 1000);
++  end = rtl_apu_clock_finish(&clock, 1000 + 306902);
++  failures += check(end == 306902 * RTL_APU_CYCLES_PER_FRAME /
++                               RTL_MASTER_CYCLES_PER_FRAME &&
++                        end == to_first_vblank && clock.last_duration == end,
++                    "first frame counts reset to V=225, not a whole field");
++  rtl_apu_clock_begin(&clock, 1000 + 306902);
++  end = rtl_apu_clock_finish(&clock, 1000 + 306902 + 100);
++  failures += check(end == to_first_vblank + RTL_APU_CYCLES_PER_FRAME,
++                    "WAI still advances a hardware frame after the first");
++  clock = (RtlApuFrameClock){0};
++  rtl_apu_clock_begin(&clock, 0);
++  end = rtl_apu_clock_finish(&clock, 100);
++  failures += check(end == to_first_vblank,
++                    "a WAI-short first frame still reaches the first vblank");
++
+ #if !SNESRECOMP_SPC_DIAGNOSTICS
+   failures += check(g_spc_pc_histogram[0] == 0 &&
+                     g_spc_pc_max_seen == 0,
+-- 
+2.56.0.windows.3
+
