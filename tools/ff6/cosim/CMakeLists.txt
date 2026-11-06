@@ -8,8 +8,22 @@ project(ff6_cosim_ref C)
 set(CMAKE_C_STANDARD 11)
 get_filename_component(GR ${CMAKE_CURRENT_SOURCE_DIR}/../../.. ABSOLUTE)
 set(RUNSNES ${GR}/snesrecomp/runner/src)
+# FF6 variant of the driver: ref_driver_ff6.patch is applied to a copy in the build directory
+# (git apply, MSYS2 has no patch). It aligns the reference with the beam frame driver: frame
+# cut at the vblank edge (V=225) before the NMI, master clocks per bus transfer by region
+# (snes_cycles.h, MEMSEL from $420D), internal cycles at 6, DRAM refresh 40 per 1364, and the
+# $420B DMA time through snes_set_master_clock_charge_hook.
+set(PATCHED ${CMAKE_BINARY_DIR}/patched)
+add_custom_command(
+    OUTPUT ${PATCHED}/ref_driver.c
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${PATCHED}
+    COMMAND ${CMAKE_COMMAND} -E copy ${GR}/snesrecomp/cosim/ref_driver.c ${PATCHED}/ref_driver.c
+    COMMAND git apply --unsafe-paths --directory=patched ${CMAKE_CURRENT_SOURCE_DIR}/ref_driver_ff6.patch
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    DEPENDS ${GR}/snesrecomp/cosim/ref_driver.c ${CMAKE_CURRENT_SOURCE_DIR}/ref_driver_ff6.patch
+    COMMENT "Applying ref_driver_ff6.patch")
 add_executable(ff6_cosim_ref
-    ${GR}/snesrecomp/cosim/ref_driver.c
+    ${PATCHED}/ref_driver.c
     ref_glue.c
     ${RUNSNES}/cosim.c
     ${RUNSNES}/cosim_state.c
