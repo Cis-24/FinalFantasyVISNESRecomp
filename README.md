@@ -24,17 +24,18 @@ Work in progress; not yet playable from start to finish.
 
 - Boots to the title screen and runs the intro, the field (walking, doors,
   map changes) and the main menu.
-- Battles are the current work. The first battle and a battle with twelve
-  commands (Fight, Magic, Summon, Item, Steal, SwdTech, Throw, Tools, Blitz,
-  Sketch, Slot, Dance) run through to the victory and back to the field.
+- Battles are the current work. The first battle and two battles with the
+  player commands (Fight, Magic, Summon, Item, Steal, SwdTech, Throw, Tools,
+  Blitz, Sketch, Slot, Dance; Lore, X-Magic, Morph, Revert, Runic, Capture,
+  Jump, Control, Mimic, GP Rain, Rage, Row, Def) run through to the victory
+  and back to the field.
 
 Validated routes (`validation/routes`): boot to title, new game to Narshe,
-field walk, menu tour, first battle, battle commands, field modes, doors, menu
-scrolling. Battles depend on lag frames (ATB and random numbers), so they are
-compared against the reference per scene, with the timing dependent values
-masked. Each route replays
-fixed input and compares memory, video memory and the frame buffer at
-checkpoints. Known and explained differences from the reference are masked in
+field walk, menu tour, first battle, battle commands (two routes), field
+modes, doors, menu scrolling. Battles depend on lag frames (ATB and random
+numbers), so they are compared against the reference per scene, with the
+timing dependent values masked. Each route replays fixed input and compares
+memory, video memory and the frame buffer at checkpoints. Known and explained differences from the reference are masked in
 `validation/masks.toml`, each with a reason.
 
 ## ROM identity

@@ -357,6 +357,33 @@ entry_m = 1
 entry_x = 0
 note = "Landung per JMP aus MakeToolsListTbl[4] (C1587F/C158BB, menu.asm:4505/4542); Funktionsgrenze statt Miss-Einstieg (r06)"
 
+[[func]]
+name = "InitLoreSelect"
+addr = "58ed"
+bank = 0xc1
+emit = true
+entry_m = 1
+entry_x = 0
+note = "Landung per JMP aus der InitCmdSelectTbl-Dispatch (C17CDE, cursor.asm:2226); Funktionsgrenze statt Miss-Einstieg (r13)"
+
+[[func]]
+name = "InitRageSelect"
+addr = "5927"
+bank = 0xc1
+emit = true
+entry_m = 1
+entry_x = 0
+note = "Landung per JMP aus der InitCmdSelectTbl-Dispatch (C17CDE, cursor.asm:2226); Funktionsgrenze statt Miss-Einstieg (r13)"
+
+[[func]]
+name = "InitXMagicInput"
+addr = "7ce1"
+bank = 0xc1
+emit = true
+entry_m = 1
+entry_x = 0
+note = "Landung per JMP aus der InitCmdSelectTbl-Dispatch (C17CDE, cursor.asm:2226); Funktionsgrenze statt Miss-Einstieg (r13)"
+
 # >>> BEGIN promote_misses (generiert, nicht von Hand aendern)
 [[func]]
 name = "DecTimersMenuBattle_ext"
@@ -878,7 +905,7 @@ bank = 0xc0
 emit = true
 entry_m = 1
 entry_x = 0
-note = "Miss-Promotion, 15428 Treffer"
+note = "Miss-Promotion, 7373 Treffer"
 
 [[func]]
 name = "CheckLongEntrance"
@@ -887,7 +914,7 @@ bank = 0xc0
 emit = true
 entry_m = 1
 entry_x = 0
-note = "Miss-Promotion, 90 Treffer"
+note = "Miss-Promotion, 0 Treffer"
 
 [[func]]
 name = "SetParentMap"
@@ -914,7 +941,7 @@ bank = 0xc0
 emit = true
 entry_m = 1
 entry_x = 0
-note = "Miss-Promotion, 90 Treffer"
+note = "Miss-Promotion, 0 Treffer"
 
 [[func]]
 name = "InitScrollPos"
@@ -4154,7 +4181,7 @@ bank = 0xc0
 emit = true
 entry_m = 1
 entry_x = 0
-note = "Miss-Promotion, 14 Treffer"
+note = "Miss-Promotion, 7 Treffer"
 
 [[func]]
 name = "BattleMosaic"
@@ -6146,6 +6173,24 @@ entry_x = 0
 note = "Miss-Promotion, 0 Treffer"
 
 [[func]]
+name = "def_window_data_set"
+addr = "48a4"
+bank = 0xc1
+emit = true
+entry_m = 1
+entry_x = 0
+note = "Miss-Promotion, 2 Treffer"
+
+[[func]]
+name = "Sub_C148CB"
+addr = "48cb"
+bank = 0xc1
+emit = true
+entry_m = 1
+entry_x = 0
+note = "Miss-Promotion, 1 Treffer"
+
+[[func]]
 name = "tmp_buffer_copy"
 addr = "48f2"
 bank = 0xc1
@@ -6423,6 +6468,15 @@ emit = true
 entry_m = 1
 entry_x = 0
 note = "Miss-Promotion, 0 Treffer"
+
+[[func]]
+name = "get_chg_def_para"
+addr = "4e9f"
+bank = 0xc1
+emit = true
+entry_m = 1
+entry_x = 0
+note = "Miss-Promotion, 3 Treffer"
 
 [[func]]
 name = "set_cgadd_sub"
@@ -7476,6 +7530,15 @@ emit = true
 entry_m = 1
 entry_x = 0
 note = "Miss-Promotion, 0 Treffer"
+
+[[func]]
+name = "check_command_mon"
+addr = "7a70"
+bank = 0xc1
+emit = true
+entry_m = 1
+entry_x = 0
+note = "Miss-Promotion, 4 Treffer"
 
 [[func]]
 name = "init_buf_input"
@@ -10832,7 +10895,7 @@ bank = 0xc2
 emit = true
 entry_m = 1
 entry_x = 0
-note = "Miss-Promotion, 2 Treffer"
+note = "Miss-Promotion, 1 Treffer"
 
 [[func]]
 name = "UpdateBattleTime_ext"
@@ -10869,6 +10932,15 @@ emit = true
 entry_m = 1
 entry_x = 1
 note = "Miss-Promotion, 0 Treffer"
+
+[[func]]
+name = "LoadMimicAction"
+addr = "01d9"
+bank = 0xc2
+emit = true
+entry_m = 1
+entry_x = 1
+note = "Miss-Promotion, 1 Treffer"
 
 [[func]]
 name = "SaveMimicAction"
@@ -12092,7 +12164,7 @@ bank = 0xc2
 emit = true
 entry_m = 1
 entry_x = 1
-note = "Miss-Promotion, 2 Treffer"
+note = "Miss-Promotion, 0 Treffer"
 
 [[func]]
 name = "InitChars"
@@ -12101,7 +12173,7 @@ bank = 0xc2
 emit = true
 entry_m = 1
 entry_x = 1
-note = "Miss-Promotion, 2 Treffer"
+note = "Miss-Promotion, 0 Treffer"
 
 [[func]]
 name = "InitGauge"
@@ -12947,7 +13019,7 @@ bank = 0xc2
 emit = true
 entry_m = 1
 entry_x = 1
-note = "Miss-Promotion, 800 Treffer"
+note = "Miss-Promotion, 1523 Treffer"
 
 [[func]]
 name = "Sub_C24903"
@@ -13298,7 +13370,7 @@ bank = 0xc2
 emit = true
 entry_m = 1
 entry_x = 1
-note = "Miss-Promotion, 6 Treffer"
+note = "Miss-Promotion, 0 Treffer"
 
 [[func]]
 name = "LoadMagicTargetFlags"
@@ -13560,6 +13632,15 @@ emit = true
 entry_m = 1
 entry_x = 1
 note = "Miss-Promotion, 0 Treffer"
+
+[[func]]
+name = "UpdateCharGfxBuf_C25D26"
+addr = "5d26"
+bank = 0xc2
+emit = true
+entry_m = 1
+entry_x = 1
+note = "Miss-Promotion, 1 Treffer"
 
 [[func]]
 name = "WinBattle"
@@ -24908,7 +24989,7 @@ bank = 0xc5
 emit = true
 entry_m = 1
 entry_x = 0
-note = "Miss-Promotion, 28 Treffer"
+note = "Miss-Promotion, 0 Treffer"
 
 [[func]]
 name = "TfrSamples"

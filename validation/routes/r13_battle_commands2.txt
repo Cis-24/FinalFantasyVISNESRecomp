@@ -1,0 +1,310 @@
+# r13: Kampfbefehle (PLAN Phase 8), zweiter Teil: die Befehle, die r06 nicht abdeckt, im selben Event-Kampf gegen
+# die zwei Narshe-Wachen. Terra (Actor 0, eine echte Figur mit Spruch- und Lore-Liste): Lore (Aqua Rake), X-Magic
+# (zweimal der erste Spruch der Liste, Cure), Morph, Revert, Fight, Def. Wedge: Runic, Capture, Jump, Control und ein
+# Angriff der gesteuerten Wache. Vicks: Mimic (wiederholt Runic), GP Rain, Def, Row, Rage. Row und Def ueber
+# links/rechts im Befehlsfenster. Schluss: Wachen auf 1 HP, Terra Aqua Rake, Sieg, drei Meldungen, Rueckkehr aufs Field.
+# Einstieg und Kampfstart wie r06 (Praefix bis $106A == 21, Event bei $7E:1FF7). Lag-Abgleich wie r06: Wachen-ATB per
+# forcepoke auf 0, zbe bei jedem Menue und vor jedem bestaetigenden A gleichgesetzt; nach Jump bleibt zbe 1000 Bilder
+# fest. Die Reihenfolge der Menues ist nicht reihum (nach Morph und Revert kommt Terra sofort wieder dran), sie ist
+# auf Referenz und Recomp gleich und steht deshalb fest in der Route.
+# Erzeugt mit work/routes/r13_gen.py (nicht versioniert).
+until 0019 == 09 6000
+wait 60
+press a 2
+until 0082 == 12 8000
+until 00D3 == 01 4000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 0019 == 02 3000
+wait 120
+press a 2
+until 0082 == 13 20000
+until 00D3 == 01 1500
+press a 2
+until16 00E5 == 0000 3000
+until 00E7 == CA 100
+wait 60
+until 106A == 21 60
+# Party: HP/MP 999, Status frei (kein Magitek), Befehle. Slot 0 Terra $1600, Slot 14 Wedge $1806, Slot 15 Vicks $182B.
+# Terra: Lore, X-Magic, Morph, Fight. Wedge: Runic, Capture, Jump, Control. Vicks: Mimic, GP Rain, Rage, Item.
+# Runic braucht eine Waffe mit Runic-Flag (battle/party.asm UpdateCmdList); Wedge traegt die MithrilBlade
+# (data/item_prop.asm: BUSHIDO, TWO_HAND, RUNIC).
+poke 1609 E703E703E703E703
+poke 1614 00000C170300
+poke 161E 00
+poke 180F E703E703E703E703
+poke 181A 00000B06160E
+poke 1834 E703E703E703E703
+poke 183F 000012181001
+# Morph: $1DD1.2 (als w7e3eb0 + 12 in den Kampf kopiert, battle/init.asm:43) gibt den Befehl frei, die Morph-Leiste
+# $1CF6 muss ueber $0F liegen (battle/party.asm InitCmdList, UpdateCmdList). $FF: Morph haelt rund 2000 ATB-Takte.
+poke 1CF6 FF
+poke 1DD1 04
+# Event: 4D 01 3F (Kampfgruppe 1 = zweimal Kampf 2), 96 (einblenden), FE (wie r06)
+poke 1FF7 4D013F96FE
+poke 05F4 F71F7E
+poke 0594 0000CA
+poke 05C7 01
+poke 00E5 F71F7E0300
+until 8233 == 3F 300
+poke 021B 00030A00
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE EE
+# Wachen (Monster 6, 7) auf 5000 HP, ihre ATB bleibt 0 (wie r06).
+poke 3C00 88138813
+poke 3C28 88138813
+forcepoke 3224 00000000
+dump c01
+# Terra: Lore, Aqua Rake. Die Lore-Liste hat feste Plaetze (Index = Lore-Nummer), Aqua Rake ist
+# Nummer 3; Zeile $8927 + Figur (btlgfx/cursor.asm LORE_SELECT).
+press a 2
+until 7BC2 == 1B 300
+press down 2
+until 8927 == 01 60
+press down 2
+until 8927 == 02 60
+press down 2
+until 8927 == 03 60
+press a 2
+until 7BC2 == 38 300
+poke 00BE 29
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 21
+dump c02
+# Wedge: Runic
+press a 2
+until 7BC2 == 38 300
+poke 00BE 39
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 31
+dump c03
+# Vicks: Mimic
+press a 2
+until 7BC2 == 38 300
+poke 00BE 49
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 41
+dump c04
+# Wedge: Capture
+press down 2
+until 8910 == 01 60
+press a 2
+until 7BC2 == 38 300
+poke 00BE 59
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 51
+dump c05
+# Terra: X-Magic, zweimal Fire
+press down 2
+until 890F == 01 60
+press a 2
+until 7BC2 == 0E 300
+press a 2
+until 7BC2 == 38 300
+press a 2
+until 7BC2 == 0E 300
+press a 2
+until 7BC2 == 38 300
+poke 00BE 69
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 61
+dump c06
+# Vicks: GP Rain
+press down 2
+until 8911 == 01 60
+press a 2
+until 7BC2 == 38 300
+poke 00BE 79
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 71
+dump c07
+# Wedge: Jump. Die Landung kommt ueber die Advance-Wait-Warteschlange (battle/action_1.asm _00e4)
+# rund 750 Bilder spaeter; ob vor oder nach dem naechsten Menue, entscheidet der Lag. zbe bleibt deshalb
+# 1000 Bilder lang fest, die Landung (Schaden per Rand) liegt auf beiden Seiten in diesem Fenster.
+press down 2
+until 8910 == 01 60
+press down 2
+until 8910 == 02 60
+press a 2
+until 7BC2 == 38 300
+poke 00BE 89
+press a 2
+pokefor 00BE 89 1000
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 81
+dump c08
+# Terra: Morph (Ziel ist Terra selbst)
+press down 2
+until 890F == 01 60
+press down 2
+until 890F == 02 60
+press a 2
+until 7BC2 == 38 300
+poke 00BE 99
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 91
+dump c09
+# Figur 2: Def (rechts im Befehlsfenster)
+press right 2
+until 7BC2 == 27 300
+poke 00BE A9
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE A1
+dump c10
+# Terra: Revert (ersetzt Morph auf demselben Platz)
+press down 2
+until 890F == 01 60
+press down 2
+until 890F == 02 60
+press a 2
+until 7BC2 == 38 300
+poke 00BE B9
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE B1
+dump c11
+# Terra: Fight
+press down 2
+until 890F == 01 60
+press down 2
+until 890F == 02 60
+press down 2
+until 890F == 03 60
+press a 2
+until 7BC2 == 38 300
+poke 00BE C9
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE C1
+dump c12
+# Wedge: Control
+press down 2
+until 8910 == 01 60
+press down 2
+until 8910 == 02 60
+press down 2
+until 8910 == 03 60
+press a 2
+until 7BC2 == 38 300
+poke 00BE D9
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE D1
+dump c13
+# Figur 2: Row (links im Befehlsfenster, btlgfx/cursor.asm CMD_SELECT)
+press left 2
+until 7BC2 == 24 300
+poke 00BE E9
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE E1
+dump c14
+# Figur 0: Def (rechts im Befehlsfenster)
+press right 2
+until 7BC2 == 27 300
+poke 00BE F9
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE F1
+dump c15
+# Wedge steuert die Wache: erster Eintrag im Control-Menue
+press a 2
+until 7BC2 == 38 300
+poke 00BE 09
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 01
+dump c16
+# Vicks: Rage, erster bekannter Rage (Ziel ist Vicks selbst, btlgfx/cursor.asm RAGE_SELECT)
+press down 2
+until 8911 == 01 60
+press down 2
+until 8911 == 02 60
+press a 2
+until 7BC2 == 1E 300
+press a 2
+until 7BC2 == 38 300
+poke 00BE 19
+press a 2
+# Mit Rage handelt Vicks danach selbstaendig (wie nach Dance in r06); seine ATB ($321C) bleibt 0.
+forcepoke 321C 0000
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 11
+dump c17
+# Schluss: Wachen auf 1 HP. Lore Aqua Rake trifft beide (Fire aus X-Magic richtet bei den Wachen keinen
+# Schaden an, schon im Zug davor nicht).
+poke 3C00 01000100
+# Terra: Lore, Aqua Rake. Die Lore-Liste hat feste Plaetze (Index = Lore-Nummer), Aqua Rake ist
+# Nummer 3; Zeile $8927 + Figur (btlgfx/cursor.asm LORE_SELECT).
+press a 2
+until 7BC2 == 1B 300
+press down 2
+until 8927 == 01 60
+press down 2
+until 8927 == 02 60
+press down 2
+until 8927 == 03 60
+press a 2
+until 7BC2 == 38 300
+poke 00BE 29
+press a 2
+until 628D == 01 3000
+dump c_victory
+until E9F5 != 00 600
+wait 8
+dump c_msg1
+press a 2
+until E9F5 == 00 600
+until E9F5 != 00 600
+wait 8
+dump c_msg2
+press a 2
+until E9F5 == 00 600
+until E9F5 != 00 600
+wait 8
+dump c_msg3
+press a 2
+until E9F5 == 00 600
+until16 1501 == 0182 1200
+until 0082 == 13 3000
+until16 00E5 == 0000 600
+until 00E7 == CA 100
+wait 60
+dump c_after
+quit

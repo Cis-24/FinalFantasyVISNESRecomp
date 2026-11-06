@@ -4,6 +4,14 @@ Jede Änderung an `validation/expected/*.toml` (Ereignisse, Dump-Hashes) braucht
 begründeten Eintrag (PLAN 5.3). Erzeugt werden die Erwartungen mit
 `bash tools/ff6/regress.sh --quick --update`; geprüft ohne `--update`.
 
+## 2026-11-06: r13_battle_commands2 erstmals gesetzt (szenengekeyt), `interpreted` von r05 und r06 neu
+- `r13_battle_commands2.toml` neu: 22 Dumps, 130 Ereignisse, 17070 Frames, Lauf 39 s. Nur in `--full`. Zweiter Teil der Kampfbefehle (Lore, X-Magic, Morph, Revert, Runic, Capture, Jump, Control, Mimic, GP Rain, Rage, Row, Def), docs/STATUS.md „Route r13 Kampfbefehle, zweiter Teil“. 0 ROM-Misses, 4 geduldet, WRAM-Allowlist 261, interpretiert 170 110 922.
+- Referenzvergleich gegen `work/ref/r13` (snes9x): alle 22 Dumps WRAM, VRAM, CGRAM, OAM, FB gleich, PPU-Write-Strom 22/22 gleich. Gegen snes9x nur szenengekeyt (PLAN Phase 8, Entscheidung 2026-11-05).
+- `masks.toml`: 41 r05-Kampfmasken klassenweise um die r13-Tags ergänzt (`c01`-`c17`, `c_victory`, `c_msg1`-`c_msg3`, `c_after`), neuer Abschnitt r13 mit 178 Bereichen, 11 Bildrechtecken und 3 HDMA-Duldungen. Die r13-Tags sind eigene Namen, damit die r06-Masken (Tags `m01` usw.) nicht auf r13 greifen und umgekehrt; für r01-r12 ändert sich nichts.
+- Miss-Runde: 3 Goto-Landungen aus der InitCmdSelectTbl von Hand (`InitLoreSelect`, `InitRageSelect`, `InitXMagicInput`), 6 Aufrufziele generiert (2809 → 2815). `src/gen` `fd76e7288a82faca` → `5bba91971854d0de` (32559 Roots, 37273 Varianten, 17061 AOT, 20212 LLE).
+- `interpreted` neu, nur gemeldet: r05 144 401 549 → 144 401 172, r06 164 605 612 → 164 590 811 (die neuen AOT-Funktionen laufen dort kompiliert). Ereignisse und alle Hashes der 9 alten Erwartungen unverändert, die 7 anderen Dateien bytegleich.
+- `regress.sh --full --update` grün (515 s), danach ohne `--update` 984 PASS, 0 FAIL (10 Routen, 447 s ohne Regen und Build). Logs `work/logs/r13_full_update.txt`, `r13_full_check.txt`.
+
 ## 2026-11-05: Pin-Wechsel snesrecomp `7b570a032de3` (OPT und plp), r06 `slot` und `interpreted` neu
 - Pin `a76eb19a0d9d` → `7b570a032de3` (Patches 0011 Mode-2-Offset-per-Tile, 0012 lokale Dispatch unter `php`), docs/STATUS.md „Pin-Session 11-05 (OPT und plp)“.
 - `r06_battle_commands.toml`: Bild-Hash von `slot` neu. Die Slot-Maske (Rechteck 74-181/163-210) ist aus `masks.toml` entfernt; mit 0011 ist das Bild gleich der Referenz `work/ref/r06` (0 Pixel Abweichung, alle 20 Dumps und PPU-Write-Ströme gleich). Alle anderen Dump-Hashes aller Routen bytegleich, Ereignisse unverändert.

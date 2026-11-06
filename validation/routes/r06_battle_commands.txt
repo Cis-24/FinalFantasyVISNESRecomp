@@ -1,5 +1,5 @@
 # r06: Kampfbefehle (PLAN Phase 8), erster Teil: zwoelf Befehle in einem Event-Kampf gegen die zwei Narshe-Wachen.
-# Terra: Fight, Magic (Fire), Summon (Ramuh), Item (Tonic). Wedge: Steal, SwdTech (Slash), Throw (Shuriken),
+# Terra: Fight, Magic (Cure), Summon (Ramuh), Item (Tonic). Wedge: Steal, SwdTech (Slash), Throw (Shuriken),
 # Tools (AutoCrossbow). Vicks: Blitz (Pummel), Sketch, Slot, Dance (Love Sonata). Danach Wachen auf 1 HP, Terra
 # Summon, Wedge Tools, Sieg, vier Meldungen, Rueckkehr aufs Field.
 # Einstieg wie r03 bis zum freien Field ($106A == 21). Statt bsnes-SRAM (PLAN 5.1; der bsnes-Core liefert kein WRAM)
@@ -111,7 +111,7 @@ until 7BCB == 00 3000
 until 7BC2 == 05 3000
 poke 00BE 41
 dump m04
-# Terra: Magic, Fire
+# Terra: Magic, erster Spruch der Liste (Cure, die Liste beginnt mit den Heilzaubern)
 press down 2
 until 890F == 01 60
 press a 2
