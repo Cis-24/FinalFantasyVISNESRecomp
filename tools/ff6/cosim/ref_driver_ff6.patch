@@ -8,7 +8,7 @@
  
  /* ── globals the runner device layer + cosim_state (REF) reference ────────── */
  uint8_t    g_ram[0x20000];
-@@ -44,6 +45,19 @@
+@@ -44,6 +45,57 @@ uint64_t   g_ref_cycles;
  static uint64_t s_joy_reads;
  static uint64_t s_joy_nonzero_reads;
  static uint64_t s_joy_strobe_writes;
@@ -25,10 +25,48 @@
 + * cycles. Off by default: the reference itself keeps the hardware behaviour. */
 +static int  s_apu_like_a = -1;
 +static bool s_spc_started;
++/* FF6 variant, diagnostic: FF6_REF_PRICE_LIKE_AOT=1 prices every opcode like the recomp's
++ * generated (AOT) code: the block constant charges all of the opcode's cycles, data and
++ * internal ones included, at the speed of the code bank (6 for FastROM banks $80-$FF with
++ * MEMSEL set, else 8). Off by default: the reference keeps the bus-accurate pricing. */
++static int  s_price_like_aot = -1;
++/* With FF6_REF_LLE_PCS=<file> (one hex PC24 per line, the PCs the A side interpreted) only
++ * opcodes at other PCs get the AOT-like price; the listed ones keep the bus-accurate one,
++ * as in the A side's interpreter (interp_bridge.c). */
++static uint8_t *s_lle_pcs;
++/* FF6 variant, diagnostic: FF6_REF_CUT_PCS=<file> (hex PC24 per line) reproduces the A side's
++ * frame cut granularity: A checks the frame deadline only at AOT block prologues and before
++ * interpreted opcodes, so it cuts (and takes the NMI) at the first such PC after V=225. With
++ * the file set, B keeps running past V=225 with the NMI held until the next listed PC. */
++static uint8_t *s_cut_pcs;
++static int      s_cut_init;
++
++static uint8_t *load_pc_set(const char *env) {
++    const char *path = getenv(env);
++    if (!path || !path[0]) return NULL;
++    FILE *f = fopen(path, "r");
++    if (!f) { fprintf(stderr, "ref: cannot read %s '%s'\n", env, path); return NULL; }
++    uint8_t *set = calloc(1u << 21, 1);
++    unsigned pc, n = 0;
++    while (set && fscanf(f, "%x", &pc) == 1) {
++        pc &= 0xFFFFFFu;
++        set[pc >> 3] |= (uint8_t)(1u << (pc & 7));
++        n++;
++    }
++    fclose(f);
++    fprintf(stderr, "ref: %u PCs from %s (%s)\n", n, path, env);
++    return set;
++}
++
++static bool pc_in_set(const uint8_t *set, uint32_t pc) {
++    return set && (set[(pc & 0xFFFFFFu) >> 3] & (1u << (pc & 7)));
++}
++
++static void load_lle_pcs(void) { s_lle_pcs = load_pc_set("FF6_REF_LLE_PCS"); }
  
  /* ── RTL glue the runner device sources call ─────────────────────────────── */
  void RtlApuLock(void)   {}
-@@ -53,7 +67,10 @@
+@@ -53,7 +105,10 @@ void rtl_sync_apu_to_cpu_locked(void) {}
  uint8 rtl_apu_port_observers_read(uint16 reg, uint8 value) { (void)reg; return value; }
  /* Accurate reference: latch the CPU->APU port immediately (hardware behaviour),
   * NOT the recomp's deferred sample-time scheduler. adr is $2140-$2143. */
@@ -40,7 +78,7 @@
  /* The ref advances the APU in its own frame loop (accurate rate), so the
   * runner's per-touch catch-up accumulator is a no-op here. */
  void rtl_accumulate_apu_catchup(void) {}
-@@ -90,6 +107,8 @@
+@@ -90,6 +145,8 @@ void dsp_shadow_verify_echo(const int16_t *l, const int16_t *r, const int8_t *co
  /* ── interp816 memory bus = the runner's self-contained SNES bus ─────────── */
  static uint8_t bus_read(void *mem, uint32_t adr) {
      (void)mem;
@@ -49,7 +87,7 @@
      uint8_t value = snes_read(g_snes, adr);
      uint16_t reg = (uint16_t)adr;
      uint8_t bank = (uint8_t)(adr >> 16);
-@@ -114,6 +133,10 @@
+@@ -114,6 +171,10 @@ static void bus_write(void *mem, uint32_t adr, uint8_t v) {
      if ((bank < 0x40 || (bank >= 0x80 && bank < 0xc0)) &&
          (uint16_t)adr == 0x4016)
          s_joy_strobe_writes++;
@@ -60,7 +98,7 @@
      snes_write(g_snes, adr, v);
  }
  
-@@ -357,6 +380,9 @@
+@@ -357,6 +418,9 @@ static void handle_pos_stuff(Snes *snes) {
              snes->inNmi = true;
              if (snes->nmiEnabled) cpu->nmiWanted = true;   /* deliver NMI */
              if (snes->autoJoyRead) snes->autoJoyTimer = 4224;
@@ -70,7 +108,7 @@
          }
      } else if (snes->hPos == 1024) {
          if (!snes->inVblank) dma_doHdma(snes->dma);
-@@ -366,10 +392,30 @@
+@@ -366,10 +430,30 @@ static void handle_pos_stuff(Snes *snes) {
      if (snes->hPos == 1364) {
          snes->hPos = 0;
          snes->vPos++;
@@ -102,8 +140,48 @@
  /* ── one guest frame: interp opcodes interleaved with H/V + accurate APU ─── */
  static bool run_one_frame(void) {
      Snes *snes = g_snes;
-@@ -387,13 +433,19 @@
+@@ -377,23 +461,65 @@ static bool run_one_frame(void) {
+     uint64_t target = s_frames + 1;
+     /* Guard against a runaway (spin with no vPos progress): cap opcodes/frame. */
+     long guard = 20000000;
+-    while (s_frames < target && guard-- > 0) {
++    long late = 0;
++    if (!s_cut_init) { s_cut_init = 1; s_cut_pcs = load_pc_set("FF6_REF_CUT_PCS"); }
++    while (guard-- > 0) {
++        bool hold_nmi = false;
++        if (s_frames >= target) {
++            /* FF6 variant: past V=225; cut here unless the A-like cut granularity is on
++             * and this PC is not one where A checks its deadline. */
++            uint32_t pcn = ((uint32_t)cpu->k << 16) | (uint32_t)cpu->pc;
++            if (!s_cut_pcs || pc_in_set(s_cut_pcs, pcn) || late++ > 200000) break;
++            hold_nmi = true;
++        }
+         /* Instruction-granular co-sim checkpoint (SNES_COSIM_SYNC_PC): the ref's
+          * live interp IS g_ref_cpu, which cosim_state snapshots directly, so no
+          * sync needed. Offer this opcode boundary before executing it. */
+         cosim_insn(((uint32_t)cpu->k << 16) | (uint32_t)cpu->pc);
+         s_pc_ring[s_pc_seq++ & 31u] =
+             ((uint32_t)cpu->k << 16) | (uint32_t)cpu->pc;
++        uint8_t code_bank = cpu->k;                 /* FF6 variant: AOT-like pricing */
++        uint32_t code_pc = ((uint32_t)cpu->k << 16) | (uint32_t)cpu->pc;
++        {   /* FF6 variant, diagnostic: FF6_REF_PCLOG=lo-hi logs PC and master clock before
++             * every opcode of frames lo..hi (frame = cuts so far), to align with the A side's
++             * SNESRECOMP_AOTBLK and SNESRECOMP_CYC_WATCH logs. */
++            static int pl = -1; static unsigned long long pl_lo, pl_hi;
++            if (pl < 0) {
++                const char *e = getenv("FF6_REF_PCLOG");
++                pl = (e && sscanf(e, "%llu-%llu", &pl_lo, &pl_hi) == 2) ? 1 : 0;
++            }
++            if (pl && s_frames >= pl_lo && s_frames <= pl_hi)
++                fprintf(stderr, "[bpc] f=%llu pc=$%06X master=%llu\n",
++                        (unsigned long long)s_frames,
++                        ((unsigned)cpu->k << 16) | (unsigned)cpu->pc,
++                        (unsigned long long)g_ref_master_cycles);
++        }
++        bool nmi_held = hold_nmi && cpu->nmiWanted;
++        if (nmi_held) cpu->nmiWanted = false;
          int cyc = interp816_runOpcode(cpu);         /* CPU bus cycles */
++        if (nmi_held) cpu->nmiWanted = true;
          s_cpu_insns++;
          if (cyc <= 0) cyc = 1;
 -        int master = cyc * 8;                        /* slowROM approx (6/8/12); */
@@ -111,6 +189,13 @@
 +         * its region speed, the remaining internal cycles at 6 master clocks. */
 +        unsigned internal = (unsigned)cyc > s_bus_cycles ? (unsigned)cyc - s_bus_cycles : 0;
 +        uint64_t master = s_bus_master + (uint64_t)internal * SNES_CYC_INTERNAL;
++        if (s_price_like_aot < 0) {
++            s_price_like_aot = getenv("FF6_REF_PRICE_LIKE_AOT") != NULL;
++            if (s_price_like_aot) load_lle_pcs();
++        }
++        if (s_price_like_aot &&
++            !pc_in_set(s_lle_pcs, code_pc))
++            master = (uint64_t)cyc * ((s_memsel && (code_bank & 0x80)) ? 6u : 8u);
          g_ref_cycles += (uint64_t)cyc;               /* reported only, not compared */
 -        g_ref_master_cycles += (uint64_t)master;
 -        for (int i = 0; i < master; i += 2) handle_pos_stuff(snes);
@@ -128,7 +213,7 @@
      }
      return guard > 0;
  }
-@@ -445,6 +497,7 @@
+@@ -445,6 +571,7 @@ int main(int argc, char **argv) {
      if (!data) { fprintf(stderr, "ref: cannot read ROM '%s'\n", rom); return 1; }
  
      g_snes = snes_init(g_ram);
@@ -136,7 +221,7 @@
      cart_set_master_clock_source(g_snes->cart, &g_ref_master_cycles);
      g_ppu = g_snes->ppu;
      if (!snes_loadRom(g_snes, data, (int)size)) { fprintf(stderr, "ref: loadRom failed\n"); return 1; }
-@@ -455,6 +508,7 @@
+@@ -455,6 +582,7 @@ int main(int argc, char **argv) {
      /* interp816 drives the bus; reset reads the reset vector via bus_read. */
      g_ref_cpu = interp816_init(NULL, bus_read, bus_write);
      interp816_reset(g_ref_cpu);
@@ -144,7 +229,7 @@
  
      fprintf(stderr, "ref: interp816 + runner devices, headless attract\n");
      if (!standalone_frames)
-@@ -466,6 +520,22 @@
+@@ -466,6 +594,22 @@ int main(int argc, char **argv) {
                      (unsigned long long)s_frames);
              return 1;
          }
@@ -167,7 +252,7 @@
          collect_logic_stats();
          collect_video_stats();
          /* Deterministic audio consumer: drain one frame's worth so the DSP ring
-@@ -506,6 +576,11 @@
+@@ -506,6 +650,11 @@ int main(int argc, char **argv) {
              cosim_frame();
          }
      }

@@ -16,8 +16,9 @@
 # Gates: 1 = A vs A, 2 = B vs B, 3a/3b = one WRAM byte flipped after cp 20 (must halt at cp 21
 # with only 'ram' split), 4a/4b = hash-vs-byte audit every 25 checkpoints. avb compares the full
 # state, avbram only the 128 KiB WRAM. Logs: WS/work/logs/cosim_<mode>.txt, stride 1 frame.
-# For avb/avbram: COSIM_A_ENV="K=V ..." adds A-side environment, COSIM_ARGS="..." adds
-# coordinator options (e.g. "--compare cpu,ram --transient-grace 30").
+# For avb/avbram: COSIM_A_ENV="K=V ..." adds A-side environment, COSIM_B_ENV="K=V ..." B-side
+# environment (the diagnostic modes of ref_driver_ff6.patch), COSIM_ARGS="..." adds coordinator
+# options (e.g. "--compare cpu,ram --transient-grace 30").
 set -u
 GR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 WS="$(cd "$GR/.." && pwd)"
@@ -70,6 +71,8 @@ COORD="python $(cygpath -m "$GR/snesrecomp/tools/snes_cosim.py")"
 AENV=(--a-env SNES_COSIM_AUDIO=1)
 # Extra A-side environment for avb/avbram, e.g. COSIM_A_ENV="SNES_COSIM_ACCURATE_APU=1".
 for kv in ${COSIM_A_ENV:-}; do AENV+=(--a-env "$kv"); done
+BENV=()
+for kv in ${COSIM_B_ENV:-}; do BENV+=(--b-env "$kv"); done
 AAENV=(--a-env SNES_COSIM_AUDIO=1 --b-env SNES_COSIM_AUDIO=1)
 INJ=(--max 200 --inject ram:1000:255 --inject-at 20)
 # saves/save.srm is relative to the cwd: every run starts with empty SRAM.
@@ -83,8 +86,8 @@ case $mode in
   gate3b) $COORD --a-cmd "$B" --b-cmd "$B" --stride 1 "${INJ[@]}" ;;
   gate4a) $COORD --a-cmd "$A" --b-cmd "$A2" "${AAENV[@]}" --stride 1 --max "$MAX" --audit 25 ;;
   gate4b) $COORD --a-cmd "$B" --b-cmd "$B" --stride 1 --max "$MAX" --audit 25 ;;
-  avb)    $COORD --a-cmd "$A" --b-cmd "$B" "${AENV[@]}" --stride 1 --max "$MAX" ${COSIM_ARGS:-} ;;
-  avbram) $COORD --a-cmd "$A" --b-cmd "$B" "${AENV[@]}" --stride 1 --max "$MAX" --compare ram ${COSIM_ARGS:-} ;;
+  avb)    $COORD --a-cmd "$A" --b-cmd "$B" "${AENV[@]}" "${BENV[@]}" --stride 1 --max "$MAX" ${COSIM_ARGS:-} ;;
+  avbram) $COORD --a-cmd "$A" --b-cmd "$B" "${AENV[@]}" "${BENV[@]}" --stride 1 --max "$MAX" --compare ram ${COSIM_ARGS:-} ;;
   *) echo "usage: cosim.sh build [a|b|ab] | gate1|gate2|gate3a|gate3b|gate4a|gate4b|avb|avbram [MAX]"
      exit 2 ;;
 esac > "$LOG" 2>&1
