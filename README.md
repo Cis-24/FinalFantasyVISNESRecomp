@@ -32,11 +32,18 @@ Work in progress; not yet playable from start to finish.
 
 Validated routes (`validation/routes`): boot to title, new game to Narshe,
 field walk, menu tour, first battle, battle commands (two routes), field
-modes, doors, menu scrolling. Battles depend on lag frames (ATB and random
-numbers), so they are compared against the reference per scene, with the
-timing dependent values masked. Each route replays fixed input and compares
-memory, video memory and the frame buffer at checkpoints. Known and explained differences from the reference are masked in
+modes, doors, menu scrolling. Each route replays fixed input and compares
+memory, video memory and the frame buffer at checkpoints. Known and
+explained differences from the reference are masked in
 `validation/masks.toml`, each with a reason.
+
+Battles depend on lag frames (ATB and random numbers), so they are compared
+against the reference per scene, with the timing dependent values masked.
+Exact equality in battle is the current work: a co-simulation runs the
+recompiled build and the framework's reference interpreter side by side
+and compares their state after every frame. For this the generated code
+charges every memory access at the speed of its address, as the
+interpreter does, so both sides keep the same CPU timing.
 
 ## ROM identity
 
@@ -59,7 +66,7 @@ revision fails immediately instead of producing subtly wrong output.
 
 ```sh
 git submodule update --init --recursive
-bash tools/regen.sh --rom /path/to/Final Fantasy III (USA).sfc
+bash tools/regen.sh --rom "/path/to/Final Fantasy III (USA).sfc"
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build -j
 ```
@@ -79,7 +86,7 @@ both from ever being committed.
 
 ```sh
 ./build/FinalFantasyViSNESRecomp                     # launcher picks the ROM
-./build/FinalFantasyViSNESRecomp /path/to/Final Fantasy III (USA).sfc # or name it and skip the launcher
+./build/FinalFantasyViSNESRecomp "/path/to/Final Fantasy III (USA).sfc"  # or name it and skip the launcher
 ```
 
 With no ROM on the command line the build opens the recomp-ui launcher: a ROM
@@ -101,6 +108,9 @@ than mis-executing ten frames in.
   native translation yet. These misses are resolved before anything new.
 - `recomp/symbols.toml` names routines and decides which ones become native
   code; `tools/regen.sh` syncs it into the bank configs.
+- `tools/ff6/cosim/` builds the reference side of the co-simulation and
+  drives the comparison (`cosim.sh`); the game side is the normal build
+  configured with `-DSNES_COSIM=ON`.
 - `patches/snesrecomp/` documents the framework fixes this port depends on.
   The submodule points at a fork that carries them on the branch `ff6/patches`.
 - `docs/STATUS.md` is the running development log.
