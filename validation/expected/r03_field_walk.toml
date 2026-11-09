@@ -3,37 +3,37 @@
 # Aenderung nur mit begruendetem Eintrag in validation/CHANGELOG.md.
 events = [
   "f=3442 until 00019 ok after 3442 frames",
-  "f=6541 until 00082 ok after 3036 frames",
-  "f=8553 until 000D3 ok after 2012 frames",
-  "f=8663 until 000D3 ok after 107 frames",
-  "f=8925 until 000D3 ok after 259 frames",
-  "f=9207 until 000D3 ok after 279 frames",
-  "f=9294 until 000D3 ok after 84 frames",
-  "f=9545 until 000D3 ok after 248 frames",
-  "f=9807 until 000D3 ok after 259 frames",
-  "f=10929 until 00019 ok after 1119 frames",
-  "f=11084 until 00082 ok after 32 frames",
-  "f=11480 until 000D3 ok after 396 frames",
-  "f=11621 until 000E5 ok after 138 frames",
-  "f=11621 until 000E7 ok after 0 frames",
-  "f=11699 until 0106A ok after 18 frames",
-  "f=11699 dump start ok",
-  "f=11747 until 0106A ok after 9 frames",
-  "f=11747 dump col_left ok",
-  "f=11795 until 0106A ok after 9 frames",
-  "f=11795 dump col_right ok",
-  "f=11949 until 000D3 ok after 121 frames",
-  "f=11955 until 0106A ok after 6 frames",
-  "f=11955 dump dlg_south ok",
-  "f=12081 until 000E5 ok after 123 frames",
-  "f=12081 until 000E7 ok after 0 frames",
-  "f=12123 until 0106A ok after 12 frames",
-  "f=12123 dump back_south ok",
-  "f=12409 until 000D3 ok after 69 frames",
-  "f=12419 until 0106A ok after 10 frames",
-  "f=12419 dump dlg_north ok",
-  "f=12464 until 08233 ok after 42 frames",
-  "f=12472 quit",
+  "f=6542 until 00082 ok after 3037 frames",
+  "f=8554 until 000D3 ok after 2012 frames",
+  "f=8664 until 000D3 ok after 107 frames",
+  "f=8926 until 000D3 ok after 259 frames",
+  "f=9208 until 000D3 ok after 279 frames",
+  "f=9295 until 000D3 ok after 84 frames",
+  "f=9546 until 000D3 ok after 248 frames",
+  "f=9808 until 000D3 ok after 259 frames",
+  "f=10930 until 00019 ok after 1119 frames",
+  "f=11085 until 00082 ok after 32 frames",
+  "f=11482 until 000D3 ok after 397 frames",
+  "f=11623 until 000E5 ok after 138 frames",
+  "f=11623 until 000E7 ok after 0 frames",
+  "f=11702 until 0106A ok after 19 frames",
+  "f=11702 dump start ok",
+  "f=11750 until 0106A ok after 9 frames",
+  "f=11750 dump col_left ok",
+  "f=11798 until 0106A ok after 9 frames",
+  "f=11798 dump col_right ok",
+  "f=11955 until 000D3 ok after 124 frames",
+  "f=11958 until 0106A ok after 3 frames",
+  "f=11958 dump dlg_south ok",
+  "f=12087 until 000E5 ok after 126 frames",
+  "f=12087 until 000E7 ok after 0 frames",
+  "f=12126 until 0106A ok after 9 frames",
+  "f=12126 dump back_south ok",
+  "f=12415 until 000D3 ok after 72 frames",
+  "f=12422 until 0106A ok after 7 frames",
+  "f=12422 dump dlg_north ok",
+  "f=12470 until 08233 ok after 45 frames",
+  "f=12478 quit",
 ]
 
 [miss]  # nur gemeldet, nicht entscheidend
@@ -41,7 +41,7 @@ discoveries = 265
 rom = 0
 allowlist = 4
 wram = 261
-interpreted = 130190603
+interpreted = 128169079
 
 [dump.back_south]
 wram = "e6075ffd9dd86a160c26c9197f7671117ef30ea506b35da6f6c52ff9d54583e1"

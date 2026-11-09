@@ -18,9 +18,10 @@ branch `ff6/patches`. The branch is not in the upstream repository but in the fo
 | `0010-fix-sync-the-beam-on-hvbjoy-instead-of-the-polling-t.patch` | `23ede2b7438ca83c31a3fb55376abf9a7901ca9b` (0009) | `a76eb19a0d9dd2da14a1451f7fc1c4dd771c2ed5` | `1b2415154bd82be86b9b81280658ff197d6a4492` |
 | `0011-fix-read-the-mode-2-offset-per-tile-rows-at-bg3vofs-.patch` | `a76eb19a0d9dd2da14a1451f7fc1c4dd771c2ed5` (0010) | `a77cd7eae8fbb46d2e39f019444cb1ddee777a37` | `f4b54b3d9f8aeb7ba76549f85f7ce57907bc5797` |
 | `0012-fix-keep-a-jmp-abs-x-dispatch-local-while-its-path-h.patch` | `a77cd7eae8fbb46d2e39f019444cb1ddee777a37` (0011) | `7b570a032de317772c0cf518d305fe27aed3c611` | `91c7d8f498a585e786886ba3ff01d90387773180` |
-| `0013-fix-run-the-spc-from-reset-and-end-the-first-frame-a.patch` | `7b570a032de317772c0cf518d305fe27aed3c611` (0012) | `7cd67ca3f5be61e3c4c846af346fd43ba62325f1` (branch `ff6/patches`) | `e75a4984667ce31d73b04d2292c7f3b00d361ed1` |
+| `0013-fix-run-the-spc-from-reset-and-end-the-first-frame-a.patch` | `7b570a032de317772c0cf518d305fe27aed3c611` (0012) | `7cd67ca3f5be61e3c4c846af346fd43ba62325f1` | `e75a4984667ce31d73b04d2292c7f3b00d361ed1` |
+| `0014-fix-price-generated-code-per-bus-transfer-like-the-i.patch` | `7cd67ca3f5be61e3c4c846af346fd43ba62325f1` (0013) | `ddf6aebd6dabd2e79abd74d348e9f32338d0520d` (branch `ff6/patches`) | `cae6778d5c0a2c213477f0b4c25948f90422144c` |
 
-The pin is the commit of 0013.
+The pin is the commit of 0014.
 
 0001: The DSP register mirror starts with the power-on values of snes9x 1.63
 (`initial_regs`), so that FF6 boots frame-identical to the snes9x reference. Background and
@@ -90,6 +91,17 @@ first frame gained 2413, so the SPC ran 3475 cycles (about 53 lines) behind the 
 for the whole run. Background and verification: `docs/STATUS.md`, section "Pin session 11-06 (APU
 timeline from reset)".
 
+0014: Generated code prices time per bus transfer like the interpreter. The block constant holds
+the opcode and operand fetches at the code speed and the internal cycles at 6 master clocks;
+every data transfer (operand, indirect pointer, stack, return frame) goes through the paced
+accessors, which add the speed of the address they touch. Indirect pointers are read once, the
+runtime-only extra cycles cost 6, the `(dp),Y` page cross and MVN/MVP per byte are charged.
+The beam frame driver charges the interrupt entry (8 CPU cycles native), and a store to `$420B`
+checks the frame deadline right after the DMA. Without the fix, a WRAM access in FastROM code
+cost 6 instead of 8 master clocks and the co-sim A ran up to 12 900 CPU cycles ahead of the
+bus-accurate reference. Background and verification: `docs/STATUS.md`, section "Pin session
+11-08 (bus-accurate AOT pricing)".
+
 ## Rebuilding in a fresh clone
 
 Normally `git submodule update --init` is enough, because the fork contains the pin commit.
@@ -98,9 +110,9 @@ patches (cwd = repository root; point the submodule at the upstream repository f
 
 ```bash
 git -C snesrecomp switch -c ff6/patches 147b55e252dcb3e7680a99c7c2f50e7183891844
-git -C snesrecomp am ../patches/snesrecomp/0001-*.patch ../patches/snesrecomp/0002-*.patch ../patches/snesrecomp/0003-*.patch ../patches/snesrecomp/0004-*.patch ../patches/snesrecomp/0005-*.patch ../patches/snesrecomp/0006-*.patch ../patches/snesrecomp/0007-*.patch ../patches/snesrecomp/0008-*.patch ../patches/snesrecomp/0009-*.patch ../patches/snesrecomp/0010-*.patch ../patches/snesrecomp/0011-*.patch ../patches/snesrecomp/0012-*.patch ../patches/snesrecomp/0013-*.patch
+git -C snesrecomp am ../patches/snesrecomp/0001-*.patch ../patches/snesrecomp/0002-*.patch ../patches/snesrecomp/0003-*.patch ../patches/snesrecomp/0004-*.patch ../patches/snesrecomp/0005-*.patch ../patches/snesrecomp/0006-*.patch ../patches/snesrecomp/0007-*.patch ../patches/snesrecomp/0008-*.patch ../patches/snesrecomp/0009-*.patch ../patches/snesrecomp/0010-*.patch ../patches/snesrecomp/0011-*.patch ../patches/snesrecomp/0012-*.patch ../patches/snesrecomp/0013-*.patch ../patches/snesrecomp/0014-*.patch
 git -C snesrecomp rev-parse HEAD^{tree}
 ```
 
 The commit hashes differ (committer and date); the tree is what counts. It must be
-`e75a4984667ce31d73b04d2292c7f3b00d361ed1` (intermediate states: see the table).
+`cae6778d5c0a2c213477f0b4c25948f90422144c` (intermediate states: see the table).

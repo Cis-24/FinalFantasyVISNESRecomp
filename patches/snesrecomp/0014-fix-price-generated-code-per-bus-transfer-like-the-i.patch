@@ -1,0 +1,2359 @@
+From ddf6aebd6dabd2e79abd74d348e9f32338d0520d Mon Sep 17 00:00:00 2001
+From: Neivin Detlefsen <neivin.detlefsen@gmx.de>
+Date: Mon, 9 Nov 2026 18:24:15 +0100
+Subject: [PATCH 14/14] fix: price generated code per bus transfer like the
+ interpreter
+
+Generated blocks charged every CPU cycle at the speed of the code bank,
+data transfers included: a WRAM access cost 6 master clocks instead of 8
+in FastROM code, $4000-$41FF 6 instead of 12, and an internal cycle 8
+instead of 6 in slow code. The interpreter prices each bus transfer at
+the speed of its address and the remaining cycles at 6, so the same
+instructions took different time depending on the tier that ran them.
+
+The cost model now splits every instruction into fetch, data and
+internal cycles (snes_cycles.py, "Bus split"). The block constant holds
+the fetches at the code speed and the internal cycles at 6; every data
+transfer (operand, indirect pointer, stack, return frame) goes through
+the paced accessors, now static inline in cpu_state.h, which add the
+speed of the address they touch. Indirect pointers are read once into
+temporaries instead of once for the bank and again for the address.
+The runtime-only extra cycles (D.l, index page cross, taken branch) are
+internal and cost 6. The (dp),Y read page cross and MVN/MVP per byte
+are charged as well. Dispatch emitters that model a transfer without
+performing it charge it with cpu_bus_charge at the dispatch site.
+
+Two smaller timing gaps go with it. The beam frame driver charges the
+interrupt entry (2 internal cycles, the pushes and the vector reads,
+8 CPU cycles native), which it did not charge at all. A store to $420B
+(MDMAEN) ends the block's charge segment: the frame deadline is checked
+right after the DMA, so a frame ends at the first instruction boundary
+past it instead of at the next block, which once put two DMAs in one
+frame.
+
+tests/cpu_diff now compares cycles and bus-priced master clocks against
+interp816 for every opcode test and for loop sequences, in slow bank $00
+and FastROM bank $80, and runs in run_c_tests.sh; the old cost model
+diverges on 3 237 732 of 3 240 000 checks. beam_frame_driver_test checks
+the NMI entry cost (old: 0 master clocks).
+---
+ recompiler/snes_cycles.py                     | 117 +++++++++
+ recompiler/v2/codegen.py                      | 242 +++++++++++++++---
+ recompiler/v2/emit_function.py                | 220 +++++++++++++---
+ recompiler/v2/emitter_helpers.py              |  11 +-
+ recompiler/v2/ir.py                           |   4 +
+ recompiler/v2/widths.py                       |  15 ++
+ runner/src/beam_frame_driver.c                |  30 ++-
+ runner/src/cpu_state.c                        |  93 +------
+ runner/src/cpu_state.h                        |  74 +++++-
+ tests/cpu_diff/cpu_diff.c                     |  69 ++++-
+ tests/cpu_diff/cpu_diff.h                     |   4 +-
+ tests/cpu_diff/gen_ops.py                     |  49 +++-
+ tests/frame_driver/beam_frame_driver_test.c   |  34 ++-
+ tests/run_c_tests.sh                          |  10 +
+ tests/test_emitter_mask_shape.py              |  22 +-
+ tests/test_snes_cycles.py                     |  71 +++++
+ tests/v2/test_brk_rti.py                      |  27 +-
+ tests/v2/test_codegen_per_op_smoke.py         |   6 +-
+ tests/v2/test_continuation_live_pb.py         |  11 +-
+ tests/v2/test_emit_cycle_charge.py            | 179 +++++++++----
+ .../v2/test_indexed_addressing_bank_carry.py  |  23 +-
+ tests/v2/test_jsl_live_pb.py                  |  10 +-
+ tests/v2/test_nlr_idiom.py                    |   2 +-
+ tests/v2/test_short_call_live_pb.py           |   5 +
+ 24 files changed, 1041 insertions(+), 287 deletions(-)
+
+diff --git a/recompiler/snes_cycles.py b/recompiler/snes_cycles.py
+index 99e35927..50cac5fd 100644
+--- a/recompiler/snes_cycles.py
++++ b/recompiler/snes_cycles.py
+@@ -438,6 +438,123 @@ def block_static_cycles(items, e: int = 0):
+     return const, dynamics
+ 
+ 
++# ==============================================================================
++# Bus split (fetch, data, internal) for bus-accurate master-clock pricing
++# ==============================================================================
++#
++# A 65816 cycle is one of three kinds, and the SNES prices each differently:
++#   fetch     opcode and operand bytes, read at PB:PC   -> code region speed
++#   data      operand, pointer, stack and vector bytes  -> speed of their address
++#   internal  no bus transfer (IO cycle)                -> 6 master clocks
++# The interpreter (interp_bridge.c) charges exactly this: every bus transfer at
++# its region speed and the remaining cycles at 6. Generated code reproduces it
++# by charging fetch and internal cycles as a per-block constant and every data
++# transfer through the paced bus accessors (cpu_read8_paced etc.), so the data
++# cycles must be counted here exactly as the hardware performs them.
++#
++# Counts are the static case (native mode, the instruction's known M/X, D.l=0,
++# no page cross, branch not taken). The runtime-only modifiers are all internal
++# cycles. MVN/MVP are per byte (3 fetches, a read, a write, 2 internal).
++
++# Data bytes of opcodes whose transfers are not an addressing-mode operand.
++# Values are (fixed bytes, plus bytes per accumulator width, plus bytes per
++# index width): PHA pushes 1 or 2 bytes, JSR pushes the 2-byte return address.
++_DATA_SPECIAL = {
++    0x4C: (0, 0, 0),   # JMP abs
++    0x5C: (0, 0, 0),   # JML long
++    0x6C: (2, 0, 0),   # JMP (abs): pointer from bank 0
++    0x7C: (2, 0, 0),   # JMP (abs,X): pointer from PB
++    0xDC: (3, 0, 0),   # JML [abs]: long pointer from bank 0
++    0x20: (2, 0, 0),   # JSR abs: push PCH, PCL
++    0xFC: (4, 0, 0),   # JSR (abs,X): push PCH, PCL, pointer lo, hi
++    0x22: (3, 0, 0),   # JSL: push PB, PCH, PCL
++    0x60: (2, 0, 0),   # RTS: pull PCL, PCH
++    0x6B: (3, 0, 0),   # RTL: pull PCL, PCH, PB
++    0x40: (4, 0, 0),   # RTI (native): pull P, PCL, PCH, PB
++    0x00: (6, 0, 0),   # BRK (native): push PB, PCH, PCL, P; vector lo, hi
++    0x02: (6, 0, 0),   # COP (native)
++    0xF4: (2, 0, 0),   # PEA: push 2
++    0xD4: (4, 0, 0),   # PEI: pointer from DP, push 2
++    0x62: (2, 0, 0),   # PER: push 2
++    0x48: (0, 1, 0),   # PHA
++    0x68: (0, 1, 0),   # PLA
++    0xDA: (0, 0, 1),   # PHX
++    0xFA: (0, 0, 1),   # PLX
++    0x5A: (0, 0, 1),   # PHY
++    0x7A: (0, 0, 1),   # PLY
++    0x08: (1, 0, 0),   # PHP
++    0x28: (1, 0, 0),   # PLP
++    0x8B: (1, 0, 0),   # PHB
++    0xAB: (1, 0, 0),   # PLB
++    0x4B: (1, 0, 0),   # PHK
++    0x0B: (2, 0, 0),   # PHD
++    0x2B: (2, 0, 0),   # PLD
++    0x44: (2, 0, 0),   # MVP: read source, write destination (per byte)
++    0x54: (2, 0, 0),   # MVN
++}
++
++# Pointer bytes read before the operand by the indirect addressing modes.
++_POINTER_BYTES = {DP_INDIR: 2, INDIR_DPX: 2, INDIR_Y: 2, STK_IY: 2,
++                  INDIR_L: 3, INDIR_LY: 3}
++
++
++def instr_length(op: int, m: int = 1, x: int = 1) -> int:
++    """Bytes of opcode `op` (opcode plus operand) at widths m/x."""
++    spec = _d.opcode_table()[op][2]
++    return spec(m, x) if callable(spec) else spec
++
++
++def fetch_cycles(op: int, m: int = 1, x: int = 1) -> int:
++    """Cycles that fetch the opcode and operand bytes at PB:PC (code speed).
++
++    Every instruction byte is read in its own cycle, so this is the length.
++    MVN/MVP refetch their 3 bytes for every byte moved (per-byte count).
++    """
++    return instr_length(op, m, x)
++
++
++def data_cycles(op: int, m: int = 1, x: int = 1) -> int:
++    """Data bus transfers (bytes) of one execution of `op`, static case.
++
++    Data = every transfer that is not an instruction fetch: memory operands,
++    indirect pointers, stack pushes and pulls, interrupt vectors.
++    """
++    wa = 1 if m else 2
++    wx = 1 if x else 2
++    if op in _DATA_SPECIAL:
++        fixed, per_a, per_x = _DATA_SPECIAL[op]
++        return fixed + per_a * wa + per_x * wx
++    mn, mode = _info(op)
++    if mode in (IMP, ACC, IMM, REL, REL16):
++        return 0
++    w = wx if mn in _X_WIDTH_MNEMS else wa
++    if mn in _RMW_MNEMS:
++        return 2 * w                       # read, then write back
++    return _POINTER_BYTES.get(mode, 0) + w
++
++
++def internal_cycles(op: int, m: int = 1, x: int = 1, e: int = 0) -> int:
++    """Internal (bus-idle) cycles of `op`, static case: the rest of the
++    instruction's cycles after its fetches and data transfers."""
++    return (instr_static_cycles(op, m, x, e)
++            - fetch_cycles(op, m, x) - data_cycles(op, m, x))
++
++
++def block_bus_split(items, e: int = 0):
++    """Fold a block to (fetch, data, internal) cycle totals.
++
++    `items` is an iterable of (op, m_flag, x_flag), as for
++    block_static_cycles. fetch + data + internal == the block's static
++    CPU cycles.
++    """
++    fetch = data = internal = 0
++    for op, m_flag, x_flag in items:
++        fetch += fetch_cycles(op, m_flag, x_flag)
++        data += data_cycles(op, m_flag, x_flag)
++        internal += internal_cycles(op, m_flag, x_flag, e)
++    return fetch, data, internal
++
++
+ # ==============================================================================
+ # C header generation (keeps the runtime/reference engine drift-free)
+ # ==============================================================================
+diff --git a/recompiler/v2/codegen.py b/recompiler/v2/codegen.py
+index 402682b7..579021dd 100644
+--- a/recompiler/v2/codegen.py
++++ b/recompiler/v2/codegen.py
+@@ -95,6 +95,18 @@ def _trace_pc_arg() -> str:
+     return f"0x{_CURRENT_SOURCE_PC24 & 0xFFFFFF:06x}u"
+ 
+ 
++# Decoded instruction whose IR ops are being emitted (emit_function sets it
++# per instruction). Read-only context for cycle charges that depend on the
++# instruction rather than on one IR op: the (dp),Y page-cross cycle exists
++# only for a read at index width 8, which a Read op alone does not say.
++_CURRENT_INSN = None
++
++
++def set_current_insn(insn) -> None:
++    global _CURRENT_INSN
++    _CURRENT_INSN = insn
++
++
+ # Per-RTS/RTL-site flag: populated by the post-lowering stack-delta
+ # analyser (see decoder.analyze_function_trampoline_returns). When a
+ # Return op's source_pc24 is in this set, `_emit_return` emits the
+@@ -492,7 +504,8 @@ from v2.ir import (  # noqa: E402
+     Transfer, XBA, Nop, Break, Stop, PushEffectiveAddress,
+     Reg, SegRef, SegKind, Value,
+ )
+-from snes65816 import INDIR, INDIR_X  # noqa: E402
++from snes65816 import INDIR, INDIR_X, INDIR_Y  # noqa: E402
++from snes_cycles import data_cycles as _hw_data_cycles  # noqa: E402
+ 
+ 
+ # ── Helpers ─────────────────────────────────────────────────────────────────
+@@ -626,17 +639,91 @@ def _segref_addr_expr(seg: SegRef) -> tuple:
+     raise ValueError(f"unsupported SegKind {k}")
+ 
+ 
++def _segref_access(seg: SegRef, tag: str) -> tuple:
++    """Resolve a SegRef for a data access: (pre_lines, bank_expr, addr_expr).
++
++    Like _segref_addr_expr, but an indirect mode reads its pointer ONCE, into
++    temporaries named after `tag` (declared by pre_lines), instead of
++    embedding the pointer read in both the bank and the address expression.
++    The pointer bytes are data transfers on hardware, so they go through the
++    paced accessors: lo, hi (and bank) in bus order.
++    """
++    k = seg.kind
++    if k in (SegKind.DIRECT, SegKind.ABS_BANK, SegKind.LONG, SegKind.STACK):
++        bank, addr = _segref_addr_expr(seg)
++        return ([], bank, addr)
++    idx = ""
++    if seg.index == Reg.X:
++        idx = " + cpu->X"
++    elif seg.index == Reg.Y:
++        idx = " + cpu->Y"
++    ptr = f"_ip{tag}"
++    if k == SegKind.DP_INDIRECT:
++        # ((D + dp) word) (+ Y), DB bank.
++        pre = [f"uint16 {ptr} = cpu_read16_paced(cpu, 0x00, "
++               f"(uint16)(cpu->D + {seg.offset:#06x}));"]
++        return (pre, "cpu->DB", f"(uint16)({ptr}{idx})")
++    if k == SegKind.DP_INDIRECT_LONG:
++        # ((D + dp) long) (+ Y). The indexed form adds Y to the full 24-bit
++        # pointer, carry into the bank included (see _segref_addr_expr).
++        ptr_addr = f"(uint16)(cpu->D + {seg.offset:#06x})"
++        pb = f"_ib{tag}"
++        pre = [f"uint16 {ptr} = cpu_read16_paced(cpu, 0x00, {ptr_addr});",
++               f"uint8 {pb} = cpu_read8_paced(cpu, 0x00, (uint16)({ptr_addr} + 2));"]
++        if seg.index is None:
++            return (pre, pb, ptr)
++        idx_reg = "cpu->X" if seg.index == Reg.X else "cpu->Y"
++        eff24 = f"((((uint32){pb} << 16) | (uint32){ptr}) + (uint32){idx_reg})"
++        return (pre, f"(uint8)(({eff24}) >> 16)", f"(uint16)({eff24})")
++    if k == SegKind.DP_INDIRECT_X:
++        pre = [f"uint16 {ptr} = cpu_read16_paced(cpu, 0x00, "
++               f"(uint16)(cpu->D + {seg.offset:#06x} + cpu->X));"]
++        return (pre, "cpu->DB", ptr)
++    if k == SegKind.STACK_REL_INDIRECT_Y:
++        pre = [f"uint16 {ptr} = cpu_read16_paced(cpu, 0x00, "
++               f"(uint16)(cpu->S + {seg.offset:#06x}));"]
++        return (pre, "cpu->DB", f"(uint16)({ptr} + cpu->Y)")
++    raise ValueError(f"_segref_access: {k} is not a data operand")
++
++
++def _indirect_y_cross_lines(seg: SegRef, tag: str) -> List[str]:
++    """(dp),Y read at index width 8: +1 internal cycle when pointer + Y
++    leaves the pointer's page (W65C816S note 4; interp816 adrIdy). At
++    index width 16 the cycle is always taken and is in the static count."""
++    insn = _CURRENT_INSN
++    if (insn is None or seg.kind != SegKind.DP_INDIRECT or seg.index != Reg.Y
++            or getattr(insn, 'mode', None) != INDIR_Y
++            or not (getattr(insn, 'x_flag', 1) & 1)):
++        return []
++    ptr = f"_ip{tag}"
++    return [f"if (({ptr} & 0xFF00) != ((uint16)({ptr} + cpu->Y) & 0xFF00)) "
++            f"{{ cpu->cycles += 1; cpu->master_cycles += 6; }}"
++            f"  /* (dp),Y read page-cross */"]
++
++
+ # ── Per-op handlers ─────────────────────────────────────────────────────────
+ 
+ def _emit_read(op: Read) -> List[str]:
+-    bank, addr = _segref_addr_expr(op.seg)
+-    return [f"{widths.ctype(op.width)} {_v(op.out)} = "
+-            f"{widths.read_fn(op.width)}(cpu, {bank}, {addr});"]
++    if getattr(op, 'fetch', False):
++        # Instruction bytes read back from the program bank: the block's
++        # fetch charge already prices them.
++        bank, addr = _segref_addr_expr(op.seg)
++        return [f"{widths.ctype(op.width)} {_v(op.out)} = "
++                f"{widths.read_fn(op.width)}(cpu, {bank}, {addr});"]
++    tag = str(op.out.vid)
++    pre, bank, addr = _segref_access(op.seg, tag)
++    return [*pre, *_indirect_y_cross_lines(op.seg, tag),
++            f"{widths.ctype(op.width)} {_v(op.out)} = "
++            f"{widths.paced_read_fn(op.width)}(cpu, {bank}, {addr});"]
+ 
+ 
+ def _emit_write(op: Write) -> List[str]:
+-    bank, addr = _segref_addr_expr(op.seg)
+-    return [f"{widths.write_fn(op.width)}(cpu, {bank}, {addr}, {_v(op.src)});"]
++    pre, bank, addr = _segref_access(op.seg, "w")
++    call = (f"{widths.paced_write_fn(op.width)}(cpu, {bank}, {addr}, "
++            f"{_v(op.src)});")
++    if not pre:
++        return [call]
++    return ["{", *(f"  {ln}" for ln in pre), f"  {call}", "}"]
+ 
+ 
+ def _emit_readreg(op: ReadReg) -> List[str]:
+@@ -912,14 +999,15 @@ def _emit_incmem(op: IncMem) -> List[str]:
+     """INC/DEC memory: result = mem + delta (no carry-in); set Z/N from
+     result; leave C and V untouched. 65816 hw spec for INC/DEC abs/dp.
+     Distinct from ADC/SBC (Alu.ADD/SUB) which DO carry-in and update C/V."""
+-    bank, addr = _segref_addr_expr(op.seg)
++    pre, bank, addr = _segref_access(op.seg, "m")
+     delta = "+1" if op.delta == +1 else "-1"
+     ctype = widths.ctype(op.width)
+     lines = [
+         "{",
+-        f"  {ctype} _im = {widths.read_fn(op.width)}(cpu, {bank}, {addr});",
++        *(f"  {ln}" for ln in pre),
++        f"  {ctype} _im = {widths.paced_read_fn(op.width)}(cpu, {bank}, {addr});",
+         f"  _im = ({ctype})(_im {delta});",
+-        f"  {widths.write_fn(op.width)}(cpu, {bank}, {addr}, _im);",
++        f"  {widths.paced_write_fn(op.width)}(cpu, {bank}, {addr}, _im);",
+     ]
+     lines.extend(f"  {s}" for s in widths.set_nz_no_p("_im", op.width))
+     lines.append("}")
+@@ -954,25 +1042,27 @@ def _emit_bittest(op: BitTest) -> List[str]:
+ 
+ 
+ def _emit_bitsetmem(op: BitSetMem) -> List[str]:
+-    bank, addr = _segref_addr_expr(op.seg)
++    pre, bank, addr = _segref_access(op.seg, "m")
+     ctype = widths.ctype(op.width)
+     return [
+         "{",
+-        f"  {ctype} _m = {widths.read_fn(op.width)}(cpu, {bank}, {addr});",
++        *(f"  {ln}" for ln in pre),
++        f"  {ctype} _m = {widths.paced_read_fn(op.width)}(cpu, {bank}, {addr});",
+         f"  cpu->_flag_Z = ((_m & cpu->A) == 0) ? 1 : 0;",
+-        f"  {widths.write_fn(op.width)}(cpu, {bank}, {addr}, ({ctype})(_m | cpu->A));",
++        f"  {widths.paced_write_fn(op.width)}(cpu, {bank}, {addr}, ({ctype})(_m | cpu->A));",
+         "}",
+     ]
+ 
+ 
+ def _emit_bitclearmem(op: BitClearMem) -> List[str]:
+-    bank, addr = _segref_addr_expr(op.seg)
++    pre, bank, addr = _segref_access(op.seg, "m")
+     ctype = widths.ctype(op.width)
+     return [
+         "{",
+-        f"  {ctype} _m = {widths.read_fn(op.width)}(cpu, {bank}, {addr});",
++        *(f"  {ln}" for ln in pre),
++        f"  {ctype} _m = {widths.paced_read_fn(op.width)}(cpu, {bank}, {addr});",
+         f"  cpu->_flag_Z = ((_m & cpu->A) == 0) ? 1 : 0;",
+-        f"  {widths.write_fn(op.width)}(cpu, {bank}, {addr}, ({ctype})(_m & ~cpu->A));",
++        f"  {widths.paced_write_fn(op.width)}(cpu, {bank}, {addr}, ({ctype})(_m & ~cpu->A));",
+         "}",
+     ]
+ 
+@@ -1384,6 +1474,65 @@ def _live_dispatch_target_expr(insn) -> Optional[str]:
+             f"| (uint32)cpu_read16(cpu, cpu->PB, {offset}))")
+ 
+ 
++def hw_data_charge_lines(insn) -> List[str]:
++    """Bus time of the data transfers of a dispatching instruction.
++
++    The dispatch emitters (indirect JMP/JML/JSR switches, inlined helper
++    calls, stack dispatches that replace a push) model the instruction's data
++    transfers without performing them through the paced accessors: they read
++    the pointer for a switch, call through a runtime helper, or drop the push
++    altogether. The block constant leaves data cycles out, so the dispatch
++    site charges them here, once, from the registers before the instruction,
++    at the address each transfer uses on hardware. The emitted dispatch code
++    then keeps its own reads unpaced.
++    """
++    op = getattr(insn, 'opcode', None)
++    if op is None:
++        return []
++    m = getattr(insn, 'm_flag', 1) & 1
++    x = getattr(insn, 'x_flag', 1) & 1
++    ptr = (getattr(insn, 'operand', 0) or 0) & 0xFFFF
++
++    def push(n):
++        return [f"cpu_bus_charge(cpu, 0x00, (uint16)(cpu->S - {k}u));"
++                for k in range(n)]
++
++    def bank0(n):
++        return [f"cpu_bus_charge(cpu, 0x00, (uint16)0x{(ptr + k) & 0xFFFF:04x});"
++                for k in range(n)]
++
++    def pb_indexed(n):
++        return [f"cpu_bus_charge(cpu, cpu->PB, (uint16)(0x{ptr:04x} + cpu->X + {k}u));"
++                for k in range(n)]
++
++    if op in (0x4C, 0x5C):          # JMP abs / JML long: no data
++        body = []
++    elif op == 0x6C:                # JMP (abs)
++        body = bank0(2)
++    elif op == 0xDC:                # JML [abs]
++        body = bank0(3)
++    elif op == 0x7C:                # JMP (abs,X)
++        body = pb_indexed(2)
++    elif op == 0xFC:                # JSR (abs,X): push PCH, PCL, then pointer
++        body = push(2) + pb_indexed(2)
++    elif op == 0x20:                # JSR abs (inline-table helper)
++        body = push(2)
++    elif op == 0x22:                # JSL (inline-table helper)
++        body = push(3)
++    elif op in (0x48, 0xDA, 0x5A, 0x08, 0x8B, 0x4B, 0x0B, 0xF4, 0x62):
++        body = push(_hw_data_cycles(op, m, x))   # stack dispatch push
++    elif op == 0xD4:                # PEI: pointer from DP, then push 2
++        body = ([f"cpu_bus_charge(cpu, 0x00, (uint16)(cpu->D + 0x{ptr & 0xFF:02x} + {k}u));"
++                 for k in range(2)] + push(2))
++    else:
++        raise ValueError(
++            f"hw_data_charge_lines: no bus model for dispatch opcode "
++            f"${op:02X} at ${getattr(insn, 'addr', 0) & 0xFFFFFF:06X}")
++    if not body:
++        return []
++    return ["/* bus time of the instruction's data transfers */", *body]
++
++
+ def _transfer_target_expr(pc24: int, long: bool) -> str:
+     """Short transfers keep PBR even when their C body belongs to a mirror."""
+     if long:
+@@ -2196,16 +2345,16 @@ def _emit_return_frame_push(op: 'Call') -> List[str]:
+         pbr = "cpu->PB" if site is not None else "0xff"
+         return [
+             "  /* JSL return frame -> cpu->S (Option-1) */",
+-            f"  cpu_write8(cpu, 0x00, cpu->S, {pbr}); cpu->S = (uint16)(cpu->S - 1);",
+-            f"  cpu_write8(cpu, 0x00, cpu->S, 0x{(ret16 >> 8) & 0xFF:02x}); cpu->S = (uint16)(cpu->S - 1);",
+-            f"  cpu_write8(cpu, 0x00, cpu->S, 0x{ret16 & 0xFF:02x}); cpu->S = (uint16)(cpu->S - 1);",
++            f"  cpu_write8_paced(cpu, 0x00, cpu->S, {pbr}); cpu->S = (uint16)(cpu->S - 1);",
++            f"  cpu_write8_paced(cpu, 0x00, cpu->S, 0x{(ret16 >> 8) & 0xFF:02x}); cpu->S = (uint16)(cpu->S - 1);",
++            f"  cpu_write8_paced(cpu, 0x00, cpu->S, 0x{ret16 & 0xFF:02x}); cpu->S = (uint16)(cpu->S - 1);",
+             "  cpu->host_return_valid = 3;  /* paired host caller, JSL frame */",
+         ]
+     ret16 = ((site + 2) & 0xFFFF) if site is not None else 0xFFFF
+     return [
+         "  /* JSR return frame -> cpu->S (Option-1) */",
+-        f"  cpu_write8(cpu, 0x00, cpu->S, 0x{(ret16 >> 8) & 0xFF:02x}); cpu->S = (uint16)(cpu->S - 1);",
+-        f"  cpu_write8(cpu, 0x00, cpu->S, 0x{ret16 & 0xFF:02x}); cpu->S = (uint16)(cpu->S - 1);",
++        f"  cpu_write8_paced(cpu, 0x00, cpu->S, 0x{(ret16 >> 8) & 0xFF:02x}); cpu->S = (uint16)(cpu->S - 1);",
++        f"  cpu_write8_paced(cpu, 0x00, cpu->S, 0x{ret16 & 0xFF:02x}); cpu->S = (uint16)(cpu->S - 1);",
+         "  cpu->host_return_valid = 2;  /* paired host caller, JSR frame */",
+     ]
+ 
+@@ -2459,9 +2608,11 @@ def _emit_return(op: Return) -> List[str]:
+         # I_NMI/I_IRQ invocation; without that push this over-pops cpu->S.
+         return [
+             "cpu_trace_event(cpu, 0, CPU_TR_RTI, 0, 0);",
+-            "{ cpu->S = (uint16)(cpu->S + 1); cpu->P = cpu_read8(cpu, 0x00, cpu->S); cpu_p_to_mirrors(cpu);",
+-            "  cpu->S = (uint16)(cpu->S + 2);  /* pull + discard PC */",
+-            "  if (!cpu->emulation) cpu->S = (uint16)(cpu->S + 1);  /* native: pull + discard PB */",
++            "{ cpu->S = (uint16)(cpu->S + 1); cpu->P = cpu_read8_paced(cpu, 0x00, cpu->S); cpu_p_to_mirrors(cpu);",
++            "  /* pull + discard PC (and PB): the bus reads still take their time */",
++            "  cpu_bus_charge(cpu, 0x00, (uint16)(cpu->S + 1)); cpu_bus_charge(cpu, 0x00, (uint16)(cpu->S + 2));",
++            "  cpu->S = (uint16)(cpu->S + 2);",
++            "  if (!cpu->emulation) { cpu_bus_charge(cpu, 0x00, (uint16)(cpu->S + 1)); cpu->S = (uint16)(cpu->S + 1); }",
+             "  cpu_trace_px_record(cpu, 0, 3 /*RTI*/, cpu->P, cpu->P);",
+             "  return RECOMP_RETURN_NORMAL; /* RTI: popped interrupt frame */ }",
+         ]
+@@ -2490,13 +2641,13 @@ def _emit_return(op: Return) -> List[str]:
+     lines = [
+         f"{{ uint16 _ret_s = cpu->S;  /* {label_inner} pop hardware return frame */",
+         "  cpu->S = (uint16)(cpu->S + 1);",
+-        "  uint16 _rpcl = (uint16)cpu_read8(cpu, 0x00, cpu->S);",
++        "  uint16 _rpcl = (uint16)cpu_read8_paced(cpu, 0x00, cpu->S);",
+         "  cpu->S = (uint16)(cpu->S + 1);",
+-        "  uint16 _rpch = (uint16)cpu_read8(cpu, 0x00, cpu->S);",
++        "  uint16 _rpch = (uint16)cpu_read8_paced(cpu, 0x00, cpu->S);",
+     ]
+     if op.long:
+         lines.append("  cpu->S = (uint16)(cpu->S + 1);")
+-        lines.append("  uint8 _rpb = cpu_read8(cpu, 0x00, cpu->S);")
++        lines.append("  uint8 _rpb = cpu_read8_paced(cpu, 0x00, cpu->S);")
+     else:
+         lines.append("  uint8 _rpb = cpu->PB;")
+     # Frame size this RTS/RTL pops (RTS = 2 bytes, RTL = 3). The dispatch
+@@ -2651,8 +2802,10 @@ def _emit_break(op: Break) -> List[str]:
+         # brk_rti: BRK pushes PB, the address past its signature byte and P
+         # (native mode), sets I and clears D; the vector's bare RTI pulls the
+         # same four bytes. What stays is the bytes left below S and the time:
+-        # the BRK's cycles are the block's, the RTI's 7 (6 + 1 native) are
+-        # charged here at the speed of bank $00, where the vector points.
++        # the BRK's fetches and internal cycles are in the block constant, its
++        # four pushes and two vector reads are priced here, and so is the
++        # RTI's 7 (6 + 1 native): its fetch at the vector's target, two
++        # internal cycles and its four pulls.
+         # Only the native vector ($FFE6) was validated: in emulation mode
+         # BRK goes through $FFFE, so that case runs in the interpreter.
+         site = op.source_pc24 & 0xFFFFFF
+@@ -2665,12 +2818,15 @@ def _emit_break(op: Break) -> List[str]:
+             "}",
+             "{ uint16 _s = cpu->S;",
+             "  cpu_mirrors_to_p(cpu);",
+-            "  cpu_write8(cpu, 0x00, _s, cpu->PB);",
+-            f"  cpu_write8(cpu, 0x00, (uint16)(_s - 1), 0x{ret >> 8:02x});",
+-            f"  cpu_write8(cpu, 0x00, (uint16)(_s - 2), 0x{ret & 0xFF:02x});",
+-            "  cpu_write8(cpu, 0x00, (uint16)(_s - 3), (uint8)cpu->P);",
+-            "  cpu->cycles += 7;",
+-            "  cpu->master_cycles += 7 * 8; }",
++            "  cpu_write8_paced(cpu, 0x00, _s, cpu->PB);",
++            f"  cpu_write8_paced(cpu, 0x00, (uint16)(_s - 1), 0x{ret >> 8:02x});",
++            f"  cpu_write8_paced(cpu, 0x00, (uint16)(_s - 2), 0x{ret & 0xFF:02x});",
++            "  cpu_write8_paced(cpu, 0x00, (uint16)(_s - 3), (uint8)cpu->P);",
++            "  uint16 _rti = cpu_read16_paced(cpu, 0x00, 0xFFE6);  /* BRK vector */",
++            "  cpu->cycles += 7;  /* the vector's RTI */",
++            "  cpu->master_cycles += cpu_bus_speed(0x00, _rti) + 2 * 6;",
++            "  cpu_bus_charge(cpu, 0x00, (uint16)(_s - 3)); cpu_bus_charge(cpu, 0x00, (uint16)(_s - 2));",
++            "  cpu_bus_charge(cpu, 0x00, (uint16)(_s - 1)); cpu_bus_charge(cpu, 0x00, _s); }",
+         ]
+     if not op.tier_to_lle:
+         return ["/* COP: software interrupt */" if op.cop
+@@ -2697,16 +2853,16 @@ def _emit_pea_per_pei(op: PushEffectiveAddress) -> List[str]:
+         return [
+             "{ uint16 _old_s = cpu->S;",
+             "  cpu->S = (uint16)(cpu->S - 1);",
+-            f"  cpu_write16(cpu, 0x00, cpu->S, (uint16){op.seg.offset:#06x});",
++            f"  cpu_write16_paced(cpu, 0x00, cpu->S, (uint16){op.seg.offset:#06x});",
+             "  cpu->S = (uint16)(cpu->S - 1);",
+             "  cpu_trace_stack_op(cpu, 0, CPU_STACK_OP_PEA, _old_s, -2); }",
+         ]
+     if op.seg.kind == SegKind.DP_INDIRECT:
+         return [
+             "{ uint16 _old_s = cpu->S;",
+-            f"  uint16 _peival = cpu_read16(cpu, 0x00, (uint16)(cpu->D + {op.seg.offset:#06x}));",
++            f"  uint16 _peival = cpu_read16_paced(cpu, 0x00, (uint16)(cpu->D + {op.seg.offset:#06x}));",
+             "  cpu->S = (uint16)(cpu->S - 1);",
+-            "  cpu_write16(cpu, 0x00, cpu->S, _peival);",
++            "  cpu_write16_paced(cpu, 0x00, cpu->S, _peival);",
+             "  cpu->S = (uint16)(cpu->S - 1);",
+             "  cpu_trace_stack_op(cpu, 0, CPU_STACK_OP_PEI, _old_s, -2); }",
+         ]
+@@ -2728,11 +2884,13 @@ def _emit_blockmove(op: BlockMove) -> List[str]:
+         f"  cpu_trace_db_change(cpu, {trace_pc}, _old_db, _dst_b, {et});",
+         "  /* MVN/MVP always transfer at least one byte. A is count-minus-one,",
+         "   * and an interrupt resumes at this same opcode with the updated",
+-        "   * A/X/Y/DB state. The block's static charge covers the first byte;",
+-        "   * each repeated byte costs another seven CPU cycles. */",
++        "   * A/X/Y/DB state. The block's static charge covers the first byte's",
++        "   * fetches and internal cycles; each repeated byte costs another seven",
++        "   * CPU cycles (3 fetches, 2 internal). Every byte's read and write are",
++        "   * paced at their own addresses. */",
+         "  do {",
+-        "    uint8 _b = cpu_read8(cpu, _src_b, cpu->X);",
+-        "    cpu_write8(cpu, _dst_b, cpu->Y, _b);",
++        "    uint8 _b = cpu_read8_paced(cpu, _src_b, cpu->X);",
++        "    cpu_write8_paced(cpu, _dst_b, cpu->Y, _b);",
+         f"    cpu->X = (uint16)(cpu->X {delta});",
+         f"    cpu->Y = (uint16)(cpu->Y {delta});",
+         "    if (cpu->x_flag) { cpu->X &= 0x00FFu; cpu->Y &= 0x00FFu; }",
+@@ -2742,7 +2900,7 @@ def _emit_blockmove(op: BlockMove) -> List[str]:
+         f"        return interp_bridge_lle_yield_unwind(cpu, {_transfer_target_expr(_CURRENT_SOURCE_PC24, False)});",
+         "      }",
+         "      cpu->cycles += 7;",
+-        f"      cpu->master_cycles += 7 * {speed_expr};",
++        f"      cpu->master_cycles += 3 * {speed_expr} + 2 * 6;",
+         "    }",
+         "  } while (cpu->A != 0xFFFF);",
+         "}",
+diff --git a/recompiler/v2/emit_function.py b/recompiler/v2/emit_function.py
+index 45a8fcf4..b3580d70 100644
+--- a/recompiler/v2/emit_function.py
++++ b/recompiler/v2/emit_function.py
+@@ -40,10 +40,12 @@ from v2.naming import (  # noqa: E402
+     variant_suffix as _variant_suffix,
+ )
+ from snes_cycles import (  # noqa: E402
+-    block_static_cycles, instr_runtime_charges,
++    block_static_cycles, instr_runtime_charges, data_cycles, fetch_cycles,
++    internal_cycles,
+ )
+ from snes65816 import (  # noqa: E402
+     ABS_X as _MODE_ABS_X, ABS_Y as _MODE_ABS_Y, IMM as _MODE_IMM,
++    ABS as _MODE_ABS, LONG as _MODE_LONG,
+     get_rom_mapping, ROM_MAP_SA1, rom_offset,
+ )
+ from v2.ir import (  # noqa: E402
+@@ -117,7 +119,7 @@ def _live_operand(insn, ops: List[IROp]) -> List[IROp]:
+         raise ValueError(
+             f"live_operand at ${pc:06X}: {insn.mnem} lowers without a leading "
+             f"constant operand to replace")
+-    return [Read(seg=seg, width=first.width, out=first.out)] + list(ops[1:])
++    return [Read(seg=seg, width=first.width, out=first.out, fetch=True)] + list(ops[1:])
+ 
+ 
+ def _block_cycle_const(pairs) -> int:
+@@ -143,24 +145,103 @@ def _block_cycle_const(pairs) -> int:
+     return const
+ 
+ 
++def _insn_bus_split(insn, elided_data: bool = False):
++    """(fetch, internal) cycles of one instruction for the master charge.
++
++    The block constant prices the opcode and operand fetches at the code
++    speed and the internal cycles at 6; the instruction's data transfers are
++    priced by the paced accessors as they happen (snes_cycles.py, "Bus
++    split"). An instruction whose emission is elided (trampoline setup, NLR
++    pulls) performs no data transfer, so its data cycles stay in the
++    constant at the internal price instead of being dropped.
++    """
++    op = getattr(insn, 'opcode', None)
++    if op is None:
++        return 0, 0
++    m = getattr(insn, 'm_flag', 1)
++    x = getattr(insn, 'x_flag', 1)
++    fetch = fetch_cycles(op, m, x)
++    internal = internal_cycles(op, m, x)
++    if elided_data:
++        internal += data_cycles(op, m, x)
++    return fetch, internal
++
++
++# Store forms whose static address can be the general-purpose DMA enable.
++_STORE_MNEMS = frozenset({'STA', 'STX', 'STY', 'STZ'})
++_MDMAEN = 0x420B
++
++
++def _writes_mdmaen(insn) -> bool:
++    """True when `insn` stores to $420B (MDMAEN) through a static address.
++
++    Writing MDMAEN runs the general-purpose DMA at once; its time can carry
++    the master clock past the frame deadline in the middle of a block. FF6
++    stores it as `sta/stz/stx/sty hMDMAEN` (abs), `sta f:hMDMAEN` (long) and
++    16-bit `sta hMDMAEN - 1`. An abs store reaches the register only with DB
++    in a system bank; the extra deadline check after it is harmless when DB
++    is elsewhere.
++    """
++    mn = getattr(insn, 'mnem', None)
++    if mn not in _STORE_MNEMS:
++        return False
++    mode = getattr(insn, 'mode', None)
++    operand = getattr(insn, 'operand', 0) or 0
++    if mode == _MODE_ABS:
++        base = operand & 0xFFFF
++    elif mode == _MODE_LONG:
++        b = (operand >> 16) & 0xFF
++        if not (b <= 0x3F or 0x80 <= b <= 0xBF):
++            return False
++        base = operand & 0xFFFF
++    else:
++        return False
++    if mn in ('STX', 'STY'):
++        width = 1 if (getattr(insn, 'x_flag', 1) & 1) else 2
++    else:
++        width = 1 if (getattr(insn, 'm_flag', 1) & 1) else 2
++    return base <= _MDMAEN <= base + width - 1
++
++
++def _master_charge_expr(fetch: int, internal: int, spd_expr: str, spd_const):
++    """C expression for a block segment's master clocks (fetch at the code
++    speed, internal at 6), or None when there is nothing to charge."""
++    if spd_const is not None:
++        total = fetch * spd_const + internal * 6
++        return str(total) if total else None
++    if fetch and internal:
++        return f"{fetch} * {spd_expr} + {internal * 6}"
++    if fetch:
++        return f"{fetch} * {spd_expr}"
++    if internal:
++        return f"{internal * 6}"
++    return None
++
++
++# Marker line a block's emit leaves after an MDMAEN store; composition turns
++# it into the deadline check and the charge of the rest of the block.
++_BUS_SPLIT_MARK = "/*@bus_split@*/"
++
++
+ def _block_speed(bank: int, pc: int):
+     """Code-region cycle weighting, using live PBR for mirrored bodies."""
+     from v2.emitter_helpers import runtime_code_speed
+     return runtime_code_speed(((bank & 0xFF) << 16) | (pc & 0xFFFF))
+ 
+ 
+-def _dynamic_charge_lines(insn, speed_expr: str = "8") -> List[str]:
++def _dynamic_charge_lines(insn) -> List[str]:
+     """Runtime-only per-instruction cycle charges (Axis-2 step C dynamics),
+     emitted as conditional `cpu->cycles += 1;` statements just before the
+     instruction's effect. Branch-taken is charged at the terminator instead.
+ 
+-    Each +1 CPU-cycle charge also adds `speed_expr` master clocks (Axis-5), so
+-    the master-clock accumulator stays region-weighted-consistent with `cycles`.
++    Every one of these extra cycles is an internal (bus-idle) cycle, so each
++    adds 6 master clocks, whatever the code region.
+ 
+-    Covered: D.l != 0 (any DP mode); index page-cross for abs,X / abs,Y READS
+-    (the base is the static operand; the index is the live register). NOT yet
+-    covered (documented residual, measured against bsnes): (dp),Y page-cross
+-    (runtime pointer) and MVN/MVP per-byte (the static charge counts one byte).
++    Covered here: D.l != 0 (any DP mode); index page-cross for abs,X / abs,Y
++    READS (the base is the static operand; the index is the live register).
++    The (dp),Y page cross needs the loaded pointer and is charged where the
++    pointer is read (codegen._indirect_y_cross_lines); MVN/MVP charge each
++    repeated byte in their loop (codegen._emit_blockmove).
+     """
+     op = getattr(insn, 'opcode', None)
+     if op is None:
+@@ -169,23 +250,21 @@ def _dynamic_charge_lines(insn, speed_expr: str = "8") -> List[str]:
+     out: List[str] = []
+     if 'dp' in charges:
+         out.append(
+-            f"if (cpu->D & 0xFF) {{ cpu->cycles += 1; "
+-            f"cpu->master_cycles += {speed_expr}; }}  /* D.l != 0 */")
++            "if (cpu->D & 0xFF) { cpu->cycles += 1; "
++            "cpu->master_cycles += 6; }  /* D.l != 0 */")
+     if 'xcross' in charges:
+         mode = getattr(insn, 'mode', None)
+         base = getattr(insn, 'operand', 0) & 0xFFFF
+         if mode == _MODE_ABS_X:
+             out.append(
+                 f"if ((0x{base:04X} & 0xFF00) != ((0x{base:04X} + cpu->X) & 0xFF00))"
+-                f" {{ cpu->cycles += 1; cpu->master_cycles += {speed_expr}; }}"
++                f" {{ cpu->cycles += 1; cpu->master_cycles += 6; }}"
+                 f"  /* abs,X read page-cross */")
+         elif mode == _MODE_ABS_Y:
+             out.append(
+                 f"if ((0x{base:04X} & 0xFF00) != ((0x{base:04X} + cpu->Y) & 0xFF00))"
+-                f" {{ cpu->cycles += 1; cpu->master_cycles += {speed_expr}; }}"
++                f" {{ cpu->cycles += 1; cpu->master_cycles += 6; }}"
+                 f"  /* abs,Y read page-cross */")
+-        # INDIR_Y (dp),Y: effective pointer is loaded at runtime from DP — not
+-        # reconstructable from the static operand; left as a measured residual.
+     return out
+ 
+ 
+@@ -1414,13 +1493,15 @@ def emit_function(rom: bytes, bank: int, start: int,
+             f"target outside this bank's import range */"
+         )
+ 
++    block_skip_idx: Dict[DecodeKey, set] = {}
++    block_splits: Dict[DecodeKey, List[int]] = {}
+     for key in block_order:
+         block = cfg.blocks[key]
+         lines: List[str] = []
+         block_terminated = False  # True if last op was branch/goto/return/call
+-        # Axis-5: master-clocks-per-CPU-cycle for this block's code region, used
+-        # to weight the dynamic (D.l/page-cross/branch-taken) master charges.
+-        _blk_spd_expr, _blk_spd_const = _block_speed(bank, key.pc)
++        # Instructions after an MDMAEN store end a charge segment (see
++        # _writes_mdmaen); the composition below splits the block constant.
++        block_split_after: List[int] = []
+ 
+         # Iterate the pre-lowered (Insn, [IROp]) pairs. Calling lower()
+         # again here would mint fresh Value-ids and break codegen's
+@@ -1445,6 +1526,7 @@ def emit_function(rom: bytes, bank: int, start: int,
+         # insn so the eventual RTS picks it up.
+         pairs = block_per_insn_ir.get(key, [])
+         skip_emit_idx = set()
++        block_skip_idx[key] = skip_emit_idx
+         for ji, (jdi, _jops) in enumerate(pairs):
+             if (jdi.mnem == 'JMP' and jdi.length == 4
+                     and getattr(jdi, 'dispatch_entries', None)):
+@@ -1572,7 +1654,9 @@ def emit_function(rom: bytes, bank: int, start: int,
+                 continue
+             # Axis-2 step C dynamics: charge runtime-only modifiers (D.l != 0,
+             # abs,X/Y read page-cross) for this instruction before its effect.
+-            for _ln in _dynamic_charge_lines(di_insn, _blk_spd_expr):
++            from v2.codegen import set_current_insn as _set_current_insn
++            _set_current_insn(di_insn)
++            for _ln in _dynamic_charge_lines(di_insn):
+                 lines.append(_ln)
+             for op in ir_ops:
+                 if isinstance(op, CondBranch):
+@@ -1586,12 +1670,13 @@ def emit_function(rom: bytes, bank: int, start: int,
+                     if taken is not None:
+                         target_stmt = _goto_or_return(taken, source_pc24=blk_pc24)
+                         # Axis-2: a taken conditional branch costs +1 cycle (the
+-                        # block const charged the not-taken base). Native mode;
+-                        # the emulation-only page-cross +1 is omitted (SNES game
++                        # block const charged the not-taken base), an internal
++                        # cycle at 6 master clocks. Native mode; the
++                        # emulation-only page-cross +1 is omitted (SNES game
+                         # code runs e=0).
+                         lines.append(
+                             f"if ({pred}) {{ cpu->cycles += 1; "
+-                            f"cpu->master_cycles += {_blk_spd_expr}; {target_stmt} }}")
++                            f"cpu->master_cycles += 6; {target_stmt} }}")
+                     if fall is not None:
+                         lines.append(_goto_or_return(fall, source_pc24=blk_pc24)
+                                      + " /* fall-through */")
+@@ -1606,7 +1691,8 @@ def emit_function(rom: bytes, bank: int, start: int,
+                     # balanced (PHK+PER setup was skipped above).
+                     insn = di_insn
+                     if getattr(insn, 'dispatch_entries', None):
+-                        from v2.codegen import _emit_dispatch
++                        from v2.codegen import _emit_dispatch, hw_data_charge_lines
++                        lines.extend(hw_data_charge_lines(insn))
+                         for ln in _emit_dispatch(insn):
+                             lines.append(ln)
+                         block_terminated = True
+@@ -1809,7 +1895,8 @@ def emit_function(rom: bytes, bank: int, start: int,
+                     # are caught at v2_regen via graph.unresolved_indirects.
+                     insn = di_insn
+                     if getattr(insn, 'dispatch_entries', None):
+-                        from v2.codegen import _emit_indirect_dispatch
++                        from v2.codegen import _emit_indirect_dispatch, hw_data_charge_lines
++                        lines.extend(hw_data_charge_lines(insn))
+                         for ln in _emit_indirect_dispatch(insn):
+                             lines.append(ln)
+                         # Pointer-sourced CALL form (PEA <ret>; JMP (ptr)) is
+@@ -1843,6 +1930,8 @@ def emit_function(rom: bytes, bank: int, start: int,
+                                     ret_key = DecodeKey(
+                                         (bank << 16) | ret_pc,
+                                         return_m, return_x, ())
++                                    from v2.codegen import hw_data_charge_lines
++                                    lines.extend(hw_data_charge_lines(insn))
+                                     lines.append(
+                                         f"{{ /* balanced pushed indirect "
+                                         f"{'long' if frame_size == 3 else 'near'} call */")
+@@ -1946,7 +2035,8 @@ def emit_function(rom: bytes, bank: int, start: int,
+                     # Emit a switch instead of the literal stack
+                     # push, otherwise the synthesized return address
+                     # leaks onto the simulated SNES stack.
+-                    from v2.codegen import _emit_indirect_dispatch
++                    from v2.codegen import _emit_indirect_dispatch, hw_data_charge_lines
++                    lines.extend(hw_data_charge_lines(di_insn))
+                     for ln in _emit_indirect_dispatch(di_insn):
+                         lines.append(ln)
+                     block_terminated = True
+@@ -1962,6 +2052,10 @@ def emit_function(rom: bytes, bank: int, start: int,
+                     # (abs,X) dispatches are ordinary calls: the selected
+                     # handler RTSes back to the next instruction.
+                     insn = di_insn
++                    if (getattr(insn, 'dispatch_runtime', False)
++                            or getattr(insn, 'dispatch_entries', None)):
++                        from v2.codegen import hw_data_charge_lines
++                        lines.extend(hw_data_charge_lines(insn))
+                     if getattr(insn, 'dispatch_runtime', False):
+                         # Runtime-pointer JSR (abs,X) (WRAM handler pointer,
+                         # not statically enumerable — SM enemy/PLM/eproj AI).
+@@ -1993,6 +2087,15 @@ def emit_function(rom: bytes, bank: int, start: int,
+                     # ReadReg, ALU, Read/Write, etc. — non-terminating.
+                     for ln in emit_op(op, getattr(di_insn, 'addr', None)):
+                         lines.append(ln)
++            # An MDMAEN store runs the DMA inside this instruction; check the
++            # frame deadline right after it instead of at the next block, so
++            # a frame ends at the first instruction boundary past it, as on
++            # hardware (two DMAs in one block once cut a frame 27 966 master
++            # clocks late). Only between two emitted instructions.
++            if (_writes_mdmaen(di_insn) and not block_terminated
++                    and ii + 1 < len(pairs) and (ii + 1) not in skip_emit_idx):
++                block_split_after.append(ii)
++                lines.append(_BUS_SPLIT_MARK)
+         # NLR with no terminator IR (block IR was pure-PullReg, like
+         # $01:A3CB's [PLA, PLA, fall-through]). The SKIP setter wasn't
+         # injected during the per-insn loop because there was no
+@@ -2088,6 +2191,9 @@ def emit_function(rom: bytes, bank: int, start: int,
+                     f"0x{fall_pc24:06x}u, _entry_s, _hrv, false); "
+                     f"/* truncated (no successor): interpret continuation, balanced */")
+         block_lines[key] = lines
++        block_splits[key] = block_split_after
++    from v2.codegen import set_current_insn as _set_current_insn
++    _set_current_insn(None)
+ 
+     # Compose the function source with labels per block.
+     src: List[str] = []
+@@ -2255,17 +2361,61 @@ def emit_function(rom: bytes, bank: int, start: int,
+         # Axis-2: charge this block's static 65816 CPU cycles as one constant
+         # add (recompiler/snes_cycles.py). Near-free. Runtime-only modifiers
+         # (D.l/page-cross/branch-taken) are charged dynamically in block_lines.
+-        # Axis-5: also charge the region-weighted MASTER clocks (CPU cycles x
+-        # code-region speed) into cpu->master_cycles, which paces the SPC700.
+-        _cyc_const = _block_cycle_const(block_per_insn_ir.get(key, []))
+-        if _cyc_const:
+-            src.append(f'    cpu->cycles += {_cyc_const};')
+-            _spd_expr, _spd_const = _block_speed(bank, key.pc)
+-            if _spd_const is not None:
+-                src.append(f'    cpu->master_cycles += {_cyc_const * _spd_const};')
+-            else:
+-                src.append(f'    cpu->master_cycles += {_cyc_const} * {_spd_expr};')
++        # Master clocks, bus-accurate (snes_cycles.py "Bus split"): the
++        # constant holds the opcode/operand fetches at the code-region speed
++        # and the internal cycles at 6; every data transfer is priced at its
++        # own address by the paced accessors in block_lines. An MDMAEN store
++        # splits the constant into segments (see _writes_mdmaen).
++        _pairs = block_per_insn_ir.get(key, [])
++        _skips = block_skip_idx.get(key, set())
++        _cuts = block_splits.get(key, [])
++        _spd_expr, _spd_const = _block_speed(bank, key.pc)
++        _segments = []
++        _seg_start = 0
++        for _end in [*_cuts, len(_pairs) - 1]:
++            _seg = _pairs[_seg_start:_end + 1]
++            _f = _i = 0
++            for _j, (_ins, _ops) in enumerate(_seg, start=_seg_start):
++                _ff, _ii = _insn_bus_split(_ins, elided_data=_j in _skips)
++                _f += _ff
++                _i += _ii
++            _next_pc24 = None
++            if _end + 1 < len(_pairs):
++                _nx = _pairs[_end + 1][0]
++                _next_pc24 = getattr(_nx, 'addr', None)
++            _segments.append((_block_cycle_const(_seg), _f, _i, _next_pc24))
++            _seg_start = _end + 1
++
++        def _segment_charge(seg, indent='    '):
++            out = []
++            cyc, f, i, _ = seg
++            if cyc:
++                out.append(f'{indent}cpu->cycles += {cyc};')
++            m_expr = _master_charge_expr(f, i, _spd_expr, _spd_const)
++            if m_expr is not None:
++                out.append(f'{indent}cpu->master_cycles += {m_expr};'
++                           f'  /* {f} fetch at code speed, {i} internal at 6 */')
++            return out
++
++        src.extend(_segment_charge(_segments[0]))
++        _seg_no = 0
+         for ln in block_lines[key]:
++            if ln == _BUS_SPLIT_MARK:
++                _seg_no += 1
++                _nx24 = _segments[_seg_no - 1][3]
++                if _nx24 is None:
++                    raise AssertionError(
++                        f'{func_name}: MDMAEN split without a next instruction')
++                src.append('    /* MDMAEN store: the DMA ran; end the frame here if due */')
++                src.append('    if (interp_bridge_lle_master_deadline_reached(cpu)) {')
++                src.append('      RecompStackPopYield();')
++                src.append(
++                    f'      return interp_bridge_lle_yield_unwind('
++                    f'cpu, {_transfer_target_expr(_nx24 & 0xFFFFFF, False)});')
++                src.append('    }')
++                src.append('    cpu->coprocessor_master_cycles = cpu->master_cycles;')
++                src.extend(_segment_charge(_segments[_seg_no]))
++                continue
+             # Inject a stack-auditor pop before any return so the shadow
+             # stack stays balanced. An LLE yield unwind is NOT a return: the
+             # bounce site resumes the interpreter mid-routine with pushed
+diff --git a/recompiler/v2/emitter_helpers.py b/recompiler/v2/emitter_helpers.py
+index 76d99e34..bd7b99e9 100644
+--- a/recompiler/v2/emitter_helpers.py
++++ b/recompiler/v2/emitter_helpers.py
+@@ -46,10 +46,13 @@ def runtime_code_speed(pc24: int):
+ # push) and the stack frame ends up shifted by one byte. Symptom would
+ # be an apparent off-by-one in subsequent PLA/PLB pulls.
+ 
++# The stack transfers are data cycles on hardware, so they go through the
++# paced accessors (bus time at the stack's address, cpu_state.h).
++
+ def push_byte(val_expr: str) -> List[str]:
+     """8-bit stack push: write at S, then decrement S."""
+     return [
+-        f"cpu_write8(cpu, 0x00, cpu->S, {val_expr});",
++        f"cpu_write8_paced(cpu, 0x00, cpu->S, {val_expr});",
+         "cpu->S = (uint16)(cpu->S - 1);",
+     ]
+ 
+@@ -59,7 +62,7 @@ def push_word(val_expr: str) -> List[str]:
+     After the push, the pushed word occupies S+1 (low) and S+2 (high)."""
+     return [
+         "cpu->S = (uint16)(cpu->S - 1);",
+-        f"cpu_write16(cpu, 0x00, cpu->S, {val_expr});",
++        f"cpu_write16_paced(cpu, 0x00, cpu->S, {val_expr});",
+         "cpu->S = (uint16)(cpu->S - 1);",
+     ]
+ 
+@@ -72,7 +75,7 @@ def pop_byte_assign(target_decl: str) -> List[str]:
+     """
+     return [
+         "cpu->S = (uint16)(cpu->S + 1);",
+-        f"{target_decl} = cpu_read8(cpu, 0x00, cpu->S);",
++        f"{target_decl} = cpu_read8_paced(cpu, 0x00, cpu->S);",
+     ]
+ 
+ 
+@@ -81,7 +84,7 @@ def pop_word_assign(target_decl: str) -> List[str]:
+     increment S again."""
+     return [
+         "cpu->S = (uint16)(cpu->S + 1);",
+-        f"{target_decl} = cpu_read16(cpu, 0x00, cpu->S);",
++        f"{target_decl} = cpu_read16_paced(cpu, 0x00, cpu->S);",
+         "cpu->S = (uint16)(cpu->S + 1);",
+     ]
+ 
+diff --git a/recompiler/v2/ir.py b/recompiler/v2/ir.py
+index ecc3e94b..dda5e3e2 100644
+--- a/recompiler/v2/ir.py
++++ b/recompiler/v2/ir.py
+@@ -116,6 +116,10 @@ class Read(IROp):
+     seg: SegRef
+     width: int               # 1 or 2 bytes
+     out: Value
++    # True when the bytes are instruction bytes (an operand read back from
++    # PB:PC+1, see emit_function `live_operand`): the CPU fetches them, so the
++    # block's fetch charge already covers them and the read is not paced.
++    fetch: bool = False
+ 
+ 
+ @dataclass(frozen=True)
+diff --git a/recompiler/v2/widths.py b/recompiler/v2/widths.py
+index 08107833..a0d5acda 100644
+--- a/recompiler/v2/widths.py
++++ b/recompiler/v2/widths.py
+@@ -194,3 +194,18 @@ def read_fn(width: int) -> str:
+ def write_fn(width: int) -> str:
+     """C function name for a width-bound memory write."""
+     return "cpu_write8" if width == 1 else "cpu_write16"
++
++
++# The paced forms (cpu_state.h) add the bus time of the transfer to
++# cpu->master_cycles. Generated code uses them for every data transfer the
++# instruction performs on hardware; the block constant covers only the
++# fetch and internal cycles (snes_cycles.py, "Bus split").
++
++def paced_read_fn(width: int) -> str:
++    """C function name for a width-bound, bus-priced memory read."""
++    return "cpu_read8_paced" if width == 1 else "cpu_read16_paced"
++
++
++def paced_write_fn(width: int) -> str:
++    """C function name for a width-bound, bus-priced memory write."""
++    return "cpu_write8_paced" if width == 1 else "cpu_write16_paced"
+diff --git a/runner/src/beam_frame_driver.c b/runner/src/beam_frame_driver.c
+index 894817da..def91cbd 100644
+--- a/runner/src/beam_frame_driver.c
++++ b/runner/src/beam_frame_driver.c
+@@ -50,9 +50,11 @@ static uint32_t read_vector(uint32_t addr) {
+   return (hi << 8) | lo;
+ }
+ 
++/* Native-mode vector locations (the frame driver runs native-mode games). */
++#define BFD_NMI_VECTOR 0x00FFEAu
++#define BFD_IRQ_VECTOR 0x00FFEEu
++
+ static uint32_t reset_vector(void) { return read_vector(0x00FFFCu); }
+-static uint32_t nmi_vector(void) { return read_vector(0x00FFEAu); }
+-static uint32_t irq_vector(void) { return read_vector(0x00FFEEu); }
+ 
+ static void update_resume_pc(void) {
+   uint32_t resume = interp_bridge_lle_resume_pc();
+@@ -124,13 +126,31 @@ static void advance_parked(uint64_t until) {
+   cart_sync_coprocessors(g_snes->cart, g_cpu.master_cycles);
+ }
+ 
+-static void run_interrupt(uint32_t vector, uint64_t deadline) {
++/* The hardware cost of taking an interrupt: 2 internal cycles, the pushes
++ * (PB, PCH, PCL, P native; PCH, PCL, P in emulation mode) and the two vector
++ * reads, each bus transfer at the speed of its address. That is 8 CPU cycles
++ * in native mode, as the interpreter (interp816 doInterrupt) and the hardware
++ * charge them. Called after the push, so the frame sits at S+1 and up. */
++static void charge_interrupt_entry(uint32_t vector_addr) {
++  const unsigned pushed = g_cpu.emulation ? 3u : 4u;
++  uint64_t master = 2u * 6u;
++  for (unsigned k = 1; k <= pushed; ++k)
++    master += cpu_bus_speed(0x00, (uint16)(g_cpu.S + k));
++  master += cpu_bus_speed((uint8)(vector_addr >> 16), (uint16)vector_addr);
++  master += cpu_bus_speed((uint8)(vector_addr >> 16), (uint16)(vector_addr + 1u));
++  g_cpu.cycles += 2u + pushed + 2u;
++  g_cpu.master_cycles += master;
++}
++
++static void run_interrupt(uint32_t vector_addr, uint64_t deadline) {
+   /* The beam keeps running through the handler, as on hardware. A held beam
+    * cannot satisfy a handler that polls it -- Doom's reads OPVCT to choose its
+    * split, then waits for H-blank -- and the handler spins to the step cap.
+    * The bridge yields at the instruction that latched the IRQ, so the handler
+    * already starts where the real CPU would take it. */
++  const uint32_t vector = read_vector(vector_addr);
+   cpu_push_interrupt_frame_at(&g_cpu, s_resume_pc);
++  charge_interrupt_entry(vector_addr);
+   interp_bridge_set_master_deadline(deadline);
+   (void)interp_bridge_run_interrupt(&g_cpu, vector);
+   /* A deadline left armed stays true for every AOT block prologue afterwards
+@@ -188,7 +208,7 @@ void snes_beam_frame_driver_run_frame(void) {
+     }
+     g_snes->inNmi = true;
+     s_wai_halted = false;
+-    run_interrupt(nmi_vector(), frame_end);
++    run_interrupt(BFD_NMI_VECTOR, frame_end);
+     g_snes->inNmi = false;
+   }
+ 
+@@ -224,7 +244,7 @@ void snes_beam_frame_driver_run_frame(void) {
+       break;
+     if (irq_wanted()) {
+       s_wai_halted = false;
+-      run_interrupt(irq_vector(), frame_end);
++      run_interrupt(BFD_IRQ_VECTOR, frame_end);
+       continue;
+     }
+     /* Pay the beam what it owes first: those clocks can latch the next
+diff --git a/runner/src/cpu_state.c b/runner/src/cpu_state.c
+index 7ca17cc2..6c041824 100644
+--- a/runner/src/cpu_state.c
++++ b/runner/src/cpu_state.c
+@@ -348,23 +348,11 @@ static inline void cpu_pace_cycles_word(uint16 addr) {
+ 
+ /* Master clocks for ONE bus access at a 24-bit address (region speed).
+  * Mirrors Recompiler/snes_cycles.py::region_speed exactly. The LLE
+- * (interp_bridge.c bridge_region_speed) and the AOT paced accessors below
+- * share this single C implementation so both tiers price transfers
+- * identically. */
++ * (interp_bridge.c bridge_region_speed) prices its transfers with it; the
++ * paced accessors of generated code use the same rule (cpu_bus_speed in
++ * cpu_state.h), so both tiers price transfers identically. */
+ uint32_t cpu_region_speed(uint32_t adr) {
+-    uint8_t bank = (uint8_t)(adr >> 16);
+-    uint16_t a = (uint16_t)adr;
+-    if (bank >= 0x40 && bank <= 0x7f) return 8;
+-    if (bank >= 0xc0) return g_memsel ? 6 : 8;
+-    if (a >= 0x8000) {
+-        if (bank <= 0x3f) return 8;
+-        return g_memsel ? 6 : 8;
+-    }
+-    if (a < 0x2000) return 8;
+-    if (a < 0x4000) return 6;
+-    if (a < 0x4200) return 12;
+-    if (a < 0x6000) return 6;
+-    return 8;
++    return cpu_bus_speed((uint8)(adr >> 16), (uint16)adr);
+ }
+ 
+ /* Optional debug — disabled in release. Set BUILD_CPU_HW_LOG=1 in the
+@@ -742,77 +730,8 @@ void cpu_write16(CpuState *cpu, uint8 bank, uint16 addr, uint16 v) {
+     cpu->open_bus = (uint8)(v >> 8);
+ }
+ 
+-/* ── Region-paced AOT bus (2026-08-31) ────────────────────────────────────
+- * The LLE charges master clocks PER BUS TRANSFER at the region speed
+- * (interp_bridge.c: master = Σ region_speed + internal×6). The AOT emitter's
+- * block const covers fetch+internal cycles only; every data/stack/pointer
+- * access in generated code calls these paced variants so the AOT master
+- * advance matches the LLE exactly. The plain cpu_read8/16 / cpu_write8/16
+- * stay UNPACED because the LLE's bridge shims call them inside their own
+- * per-transfer accounting (pacing there would double-count the interp path).
+- * The 16-bit forms charge both bytes at their own regions (they can straddle
+- * a region boundary, e.g. $00:1FFF->$00:2000). */
+-uint8_t cpu_read8_paced(CpuState *cpu, uint8_t bank, uint16_t addr) {
+-    uint32_t _sp = cpu_region_speed(((uint32_t)bank << 16) | addr);
+-    cpu->master_cycles += _sp;
+-    {
+-        static int _pl = -1;
+-        if (_pl < 0) _pl = getenv("SNESRECOMP_PACELOG") ? 1 : 0;
+-        if (_pl) {
+-            extern int snes_frame_counter;
+-            fprintf(stderr, "[pace] f=%d r8 b=$%02X a=$%04X sp=%u\n",
+-                    snes_frame_counter, bank, addr, _sp);
+-        }
+-    }
+-    return cpu_read8(cpu, bank, addr);
+-}
+-
+-uint16_t cpu_read16_paced(CpuState *cpu, uint8_t bank, uint16_t addr) {
+-    uint32_t _sp = cpu_region_speed(((uint32_t)bank << 16) | addr) +
+-        cpu_region_speed(((uint32_t)bank << 16) | (uint16_t)(addr + 1));
+-    cpu->master_cycles += _sp;
+-    {
+-        static int _pl = -1;
+-        if (_pl < 0) _pl = getenv("SNESRECOMP_PACELOG") ? 1 : 0;
+-        if (_pl) {
+-            extern int snes_frame_counter;
+-            fprintf(stderr, "[pace] f=%d r16 b=$%02X a=$%04X sp=%u\n",
+-                    snes_frame_counter, bank, addr, _sp);
+-        }
+-    }
+-    return cpu_read16(cpu, bank, addr);
+-}
+-
+-void cpu_write8_paced(CpuState *cpu, uint8_t bank, uint16_t addr, uint8_t v) {
+-    uint32_t _sp = cpu_region_speed(((uint32_t)bank << 16) | addr);
+-    cpu->master_cycles += _sp;
+-    {
+-        static int _pl = -1;
+-        if (_pl < 0) _pl = getenv("SNESRECOMP_PACELOG") ? 1 : 0;
+-        if (_pl) {
+-            extern int snes_frame_counter;
+-            fprintf(stderr, "[pace] f=%d w8 b=$%02X a=$%04X sp=%u\n",
+-                    snes_frame_counter, bank, addr, _sp);
+-        }
+-    }
+-    cpu_write8(cpu, bank, addr, v);
+-}
+-
+-void cpu_write16_paced(CpuState *cpu, uint8_t bank, uint16_t addr, uint16_t v) {
+-    uint32_t _sp = cpu_region_speed(((uint32_t)bank << 16) | addr) +
+-        cpu_region_speed(((uint32_t)bank << 16) | (uint16_t)(addr + 1));
+-    cpu->master_cycles += _sp;
+-    {
+-        static int _pl = -1;
+-        if (_pl < 0) _pl = getenv("SNESRECOMP_PACELOG") ? 1 : 0;
+-        if (_pl) {
+-            extern int snes_frame_counter;
+-            fprintf(stderr, "[pace] f=%d w16 b=$%02X a=$%04X sp=%u\n",
+-                    snes_frame_counter, bank, addr, _sp);
+-        }
+-    }
+-    cpu_write16(cpu, bank, addr, v);
+-}
++/* The region-paced accessors for generated code (cpu_read8_paced etc.) are
++ * static inline in cpu_state.h, next to g_memsel. */
+ 
+ /* ── PEI-trampoline dispatch helper (2026-05-24, narrow detector) ──────
+  *
+diff --git a/runner/src/cpu_state.h b/runner/src/cpu_state.h
+index a1e1802f..e494cd38 100644
+--- a/runner/src/cpu_state.h
++++ b/runner/src/cpu_state.h
+@@ -415,12 +415,9 @@ uint16 cpu_read16(CpuState *cpu, uint8 bank, uint16 addr);
+ void   cpu_write8 (CpuState *cpu, uint8 bank, uint16 addr, uint8  v);
+ void   cpu_write16(CpuState *cpu, uint8 bank, uint16 addr, uint16 v);
+ 
+-/* Region-paced AOT bus (2026-08-31): the AOT emitter charges block const
+- * cycles minus data transfers, and paces each data/stack/pointer access
+- * here at its region speed so master_cycles matches the LLE per-transfer
+- * model exactly. Only generated (AOT) code calls the _paced forms; the
+- * interpreter's bridge shims use the plain accessors (they account
+- * transfers themselves). */
++/* Master clocks of one bus transfer at a 24-bit address (region speed). The
++ * interpreter's bridge prices its transfers with it; generated code uses the
++ * inline cpu_bus_speed and the paced accessors declared after g_memsel. */
+ uint32_t  cpu_region_speed(uint32_t adr);
+ /* SNESRECOMP_WLOG_ADDR hook for direct-WRAM stores that bypass cpu_write8/16
+  * (DMA A-bus writes in snes_write, WMDATA $2180). wa = g_ram offset. */
+@@ -429,10 +426,6 @@ void wlog_addr_note_direct(uint32_t wa, uint8_t v, const char *via);
+  * by interp_bridge.c at load when that TU is linked, NULL otherwise. */
+ #include <stdio.h>
+ extern void (*g_interp_recent_dump_hook)(int n, FILE *out);
+-uint8  cpu_read8_paced (CpuState *cpu, uint8 bank, uint16 addr);
+-uint16 cpu_read16_paced(CpuState *cpu, uint8 bank, uint16 addr);
+-void   cpu_write8_paced (CpuState *cpu, uint8 bank, uint16 addr, uint8  v);
+-void   cpu_write16_paced(CpuState *cpu, uint8 bank, uint16 addr, uint16 v);
+ 
+ /* ── Interrupt-frame ABI (Option-1 cpu->S model) ────────────────────────── */
+ 
+@@ -516,6 +509,67 @@ void wlog_scope_exit(void);
+  * cpu_state.h) can see it. SlowROM games never set it and emit no reference. */
+ extern uint8_t g_memsel;
+ 
++/* ── Region-paced bus for generated code ─────────────────────────────────
++ * Generated (AOT) code prices time the way the interpreter does: every bus
++ * transfer at the speed of its address, every internal cycle at 6 master
++ * clocks (recompiler/snes_cycles.py, "Bus split"). A block's constant
++ * charges its opcode and operand fetches at the code speed and its internal
++ * cycles at 6; each data transfer (operand, indirect pointer, stack, vector)
++ * goes through the paced accessors below, which add the speed of the address
++ * they touch. The plain cpu_read8/16 and cpu_write8/16 stay unpaced: the
++ * interpreter's bridge shims call them inside their own per-transfer
++ * accounting, and generated bookkeeping (return-frame peeks, dispatch
++ * pointers already charged by cpu_bus_charge) must not be priced twice.
++ * Word forms price both bytes at their own address (a word can straddle a
++ * region boundary). Mirrors snes_cycles.py::region_speed and
++ * cpu_region_speed exactly. */
++static inline uint32_t cpu_bus_speed(uint8 bank, uint16 addr) {
++    if (bank >= 0x40 && bank <= 0x7f) return 8;
++    if (bank >= 0xc0) return g_memsel ? 6 : 8;
++    if (addr >= 0x8000) {
++        if (bank <= 0x3f) return 8;
++        return g_memsel ? 6 : 8;
++    }
++    if (addr < 0x2000) return 8;
++    if (addr < 0x4000) return 6;
++    if (addr < 0x4200) return 12;
++    if (addr < 0x6000) return 6;
++    return 8;
++}
++
++/* A word transfer is two bus cycles; the high byte is at addr + 1 within the
++ * bank (the same carry rule as cpu_read16/cpu_write16 for bank-local data). */
++static inline uint32_t cpu_bus_speed16(uint8 bank, uint16 addr) {
++    return cpu_bus_speed(bank, addr) + cpu_bus_speed(bank, (uint16)(addr + 1u));
++}
++
++/* Charge the bus time of a transfer the generated code models without
++ * performing it through a paced accessor (dispatch pointers, inlined call
++ * frames). */
++static inline void cpu_bus_charge(CpuState *cpu, uint8 bank, uint16 addr) {
++    cpu->master_cycles += cpu_bus_speed(bank, addr);
++}
++
++static inline uint8 cpu_read8_paced(CpuState *cpu, uint8 bank, uint16 addr) {
++    cpu->master_cycles += cpu_bus_speed(bank, addr);
++    return cpu_read8(cpu, bank, addr);
++}
++
++static inline uint16 cpu_read16_paced(CpuState *cpu, uint8 bank, uint16 addr) {
++    cpu->master_cycles += cpu_bus_speed16(bank, addr);
++    return cpu_read16(cpu, bank, addr);
++}
++
++static inline void cpu_write8_paced(CpuState *cpu, uint8 bank, uint16 addr, uint8 v) {
++    cpu->master_cycles += cpu_bus_speed(bank, addr);
++    cpu_write8(cpu, bank, addr, v);
++}
++
++static inline void cpu_write16_paced(CpuState *cpu, uint8 bank, uint16 addr, uint16 v) {
++    cpu->master_cycles += cpu_bus_speed16(bank, addr);
++    cpu_write16(cpu, bank, addr, v);
++}
++
+ /* Diagnostic — generated functions can call this to log entry. */
+ void cpu_dbg_funcname(const char *name);
+ 
+diff --git a/tests/cpu_diff/cpu_diff.c b/tests/cpu_diff/cpu_diff.c
+index 458ac330..76a32f4b 100644
+--- a/tests/cpu_diff/cpu_diff.c
++++ b/tests/cpu_diff/cpu_diff.c
+@@ -13,6 +13,18 @@
+  * host_return_valid=0 and subtract 2 from cpu->S after the call to recover the
+  * opcode's true effect on S (works for stack ops too: TXS sets S then RTS pops).
+  *
++ * Time: the interpreter also runs that RTS, and both sides are compared in CPU
++ * cycles and in master clocks. The interpreter's master clocks are priced as
++ * interp_bridge.c prices them: every bus transfer at the speed of its address,
++ * the remaining cycles at 6. The generated code must reach the same sum with
++ * its block constants (fetches at the code speed, internal cycles at 6), its
++ * paced data transfers and its dynamic extra cycles. Every test runs twice:
++ * code in slow bank $00 and in FastROM bank $80 with MEMSEL set, so a model
++ * that prices data or internal cycles at the code speed fails one of them.
++ *
++ * Sequences (OpTest.seq) are whole blocks and loops: the interpreter runs
++ * until it reaches the trailing RTS, then runs it.
++ *
+  * Build/run: tests/cpu_diff/run.ps1 (mingw gcc on Windows).
+  */
+ #include <stdio.h>
+@@ -65,15 +77,22 @@ void cpu_write16(CpuState *cpu, uint8 bank, uint16 addr, uint16 v) {
+     RAM[mapa(a >> 16, a)] = (uint8)v;
+     RAM[mapa((a + 1) >> 16, a + 1)] = (uint8)(v >> 8);
+ }
++/* The interpreter's bus: every transfer is priced at its address. */
++static uint64_t s_bus_master, s_bus_transfers;
+ static uint8_t i816_read(void *mem, uint32_t adr) {
++    s_bus_master += cpu_bus_speed((uint8)(adr >> 16), (uint16)adr);
++    s_bus_transfers++;
+     return ((uint8_t *)mem)[mapa(adr >> 16, adr)];
+ }
+ static void i816_write(void *mem, uint32_t adr, uint8_t v) {
++    s_bus_master += cpu_bus_speed((uint8)(adr >> 16), (uint16)adr);
++    s_bus_transfers++;
+     ((uint8_t *)mem)[mapa(adr >> 16, adr)] = v;
+ }
+ 
+ /* ── recomp runtime seam stubs (cpu_state.c / common_cpu_infra.c in prod) ── */
+ CpuState g_cpu;
++uint8_t g_memsel;
+ const char *g_last_recomp_func;
+ int snes_frame_counter = 0;
+ int g_recomp_stack_top = 0;
+@@ -81,6 +100,7 @@ uint16_t g_cpu_entry_s[256];
+ void RecompStackPush(const char *n) { (void)n; if (g_recomp_stack_top < 255) g_recomp_stack_top++; }
+ void RecompStackPushInterpreter(const char *n) { RecompStackPush(n); }
+ void RecompStackPop(void) { if (g_recomp_stack_top > 0) g_recomp_stack_top--; }
++void RecompStackPopYield(void) { RecompStackPop(); }
+ void WatchdogCheck(void) {}
+ int  cpu_resolve_ancestor_skip(uint16_t ret_s) { (void)ret_s; return -1; }
+ int  cpu_take_tailcall_return_context(uint16_t *e, uint8_t *h) { (void)e; (void)h; return 0; }
+@@ -130,6 +150,9 @@ typedef struct { uint16_t a, x, y, s, d; uint8_t db, C, Z, V, N, D, I; } St;
+ 
+ static int d_fail = 0, d_checks = 0;
+ 
++/* FastROM pass: code runs in bank $80 with MEMSEL set (fetches at 6). */
++static int s_fast;
++
+ static void run_one(const OpTest *op, const St *st, Interp816 *ip) {
+     /* restore both buses to the reference pattern, then drop the opcode bytes
+      * (identical in both) at $00:8000 — interp816 fetches them; the recomp has
+@@ -137,8 +160,12 @@ static void run_one(const OpTest *op, const St *st, Interp816 *ip) {
+     memcpy(&RAM[WRAM], REF, WSZ);
+     memcpy(&RAM2[WRAM], REF, WSZ);
+     if (op->far) { memcpy(&RAM[FAR], REFF, FSZ); memcpy(&RAM2[FAR], REFF, FSZ); }
+-    memcpy(&RAM[0x8000], op->code, (size_t)op->len);   /* $00:8000 (not WRAM-mirrored) */
+-    memcpy(&RAM2[0x8000], op->code, (size_t)op->len);
++    const uint8_t pb = s_fast ? 0x80 : 0x00;
++    const uint32_t code_at = ((uint32_t)pb << 16) | 0x8000u;  /* not WRAM-mirrored */
++    memcpy(&RAM[code_at], op->code, (size_t)op->len);
++    memcpy(&RAM2[code_at], op->code, (size_t)op->len);
++    RAM[code_at + (uint32_t)op->len] = RAM2[code_at + (uint32_t)op->len] = 0x60;  /* RTS */
++    g_memsel = (uint8_t)s_fast;
+ 
+     /* index-addressed ops: bound X/Y so base+index stays in WRAM (<$2000). */
+     uint16_t xv = op->idx ? (uint16_t)(st->x % 0xF00) : st->x;
+@@ -161,7 +188,7 @@ static void run_one(const OpTest *op, const St *st, Interp816 *ip) {
+     /* recomp side */
+     memset(&g_cpu, 0, sizeof g_cpu);
+     g_cpu.ram = RAM; g_cpu.A = st->a; g_cpu.X = xv; g_cpu.Y = yv;
+-    g_cpu.S = st->s; g_cpu.D = st->d; g_cpu.DB = st->db; g_cpu.PB = 0;
++    g_cpu.S = st->s; g_cpu.D = st->d; g_cpu.DB = st->db; g_cpu.PB = pb;
+     g_cpu.m_flag = op->m; g_cpu.x_flag = op->x; g_cpu.emulation = 0;
+     g_cpu._flag_C = st->C; g_cpu._flag_Z = st->Z; g_cpu._flag_V = st->V;
+     g_cpu._flag_N = st->N; g_cpu._flag_D = st->D; g_cpu._flag_I = st->I;
+@@ -170,12 +197,28 @@ static void run_one(const OpTest *op, const St *st, Interp816 *ip) {
+     op->fn(&g_cpu);
+     g_cpu.S = (uint16)(g_cpu.S - 2);  /* undo the RTS frame pop */
+ 
+-    /* interp816 side: same state, one opcode */
++    /* interp816 side: same state, the opcode (or the sequence up to its RTS) */
+     ip->a = st->a; ip->x = xv; ip->y = yv; ip->sp = st->s; ip->dp = st->d;
+-    ip->k = 0; ip->db = st->db; ip->pc = 0x8000; ip->e = false;
++    ip->k = pb; ip->db = st->db; ip->pc = 0x8000; ip->e = false;
+     ip->c = st->C; ip->z = st->Z; ip->v = st->V; ip->n = st->N;
+     ip->d = st->D; ip->i = st->I; ip->mf = op->m; ip->xf = op->x;
+-    interp816_runOpcode(ip);
++    s_bus_master = s_bus_transfers = 0;
++    uint64_t icycles = (uint64_t)interp816_runOpcode(ip);
++    for (int guard = 0; op->seq && ip->pc != (uint16_t)(0x8000 + op->len); guard++) {
++        if (guard > 100000) { printf("  RUNAWAY %s\n", op->name); break; }
++        icycles += (uint64_t)interp816_runOpcode(ip);
++    }
++    /* Registers are compared after the opcode or sequence; time includes the
++     * trailing RTS on both sides. Save what the RTS would disturb. */
++    uint16_t ia = ip->a, ix = ip->x, iy = ip->y, isp = ip->sp, idp = ip->dp;
++    uint8_t idb = ip->db;
++    bool ic = ip->c, iz = ip->z, iv = ip->v, in_ = ip->n, id = ip->d,
++         imf = ip->mf, ixf = ip->xf;
++    icycles += (uint64_t)interp816_runOpcode(ip);       /* the RTS */
++    const uint64_t imaster = s_bus_master + (icycles - s_bus_transfers) * 6u;
++    ip->a = ia; ip->x = ix; ip->y = iy; ip->sp = isp; ip->dp = idp; ip->db = idb;
++    ip->c = ic; ip->z = iz; ip->v = iv; ip->n = in_; ip->d = id;
++    ip->mf = imf; ip->xf = ixf;
+ 
+     /* diff registers + flags */
+     d_checks++;
+@@ -189,6 +232,8 @@ static void run_one(const OpTest *op, const St *st, Interp816 *ip) {
+     CK("V", g_cpu._flag_V, ip->v); CK("N", g_cpu._flag_N, ip->n);
+     CK("Df", g_cpu._flag_D, ip->d); CK("M", g_cpu.m_flag, ip->mf);
+     CK("Xf", g_cpu.x_flag, ip->xf);
++    CK("CYC", g_cpu.cycles, icycles);
++    CK("MASTER", g_cpu.master_cycles, imaster);
+     /* diff the memory window for store/RMW ops (skip $8000-2: the opcode bytes) */
+     if (op->wmem) {
+         uint32_t base = op->far ? FAR : WRAM, sz = op->far ? FSZ : WSZ;
+@@ -201,8 +246,8 @@ static void run_one(const OpTest *op, const St *st, Interp816 *ip) {
+     if (bad) {
+         d_fail++;
+         if (d_fail <= 40)
+-            printf("  DIVERGE %-16s in:A=%04X X=%04X Y=%04X D=%04X DB=%X C%d Z%d V%d N%d D%d | r/i:%s\n",
+-                   op->name, st->a, xv, yv, st->d, st->db,
++            printf("  DIVERGE %-16s %s in:A=%04X X=%04X Y=%04X D=%04X DB=%X C%d Z%d V%d N%d D%d | r/i:%s\n",
++                   op->name, s_fast ? "fast" : "slow", st->a, xv, yv, st->d, st->db,
+                    st->C, st->Z, st->V, st->N, st->D, msg);
+     }
+ }
+@@ -219,10 +264,12 @@ int main(void) {
+     memset(per_op_fail, 0, sizeof per_op_fail);
+ 
+     printf("=== 65816 codegen vs interp816 differential ===\n");
+-    printf("opcodes: %d  iters/op: %d\n\n", g_nops, ITERS);
++    printf("opcodes: %d  iters/op: %d x 2 (slow bank $00, FastROM bank $80)\n\n",
++           g_nops, ITERS);
+     for (int o = 0; o < g_nops; o++) {
+         int f0 = d_fail;
+-        for (int it = 0; it < ITERS; it++) {
++        for (int it = 0; it < 2 * ITERS; it++) {
++            s_fast = it & 1;
+             St st;
+             st.a = (uint16)rnd(); st.x = (uint16)rnd(); st.y = (uint16)rnd();
+             /* D bounded so dp/dp,X EAs (D+dp+X, bounded index) stay in WRAM. */
+@@ -238,7 +285,7 @@ int main(void) {
+     int diverging = 0;
+     for (int o = 0; o < g_nops && o < 4096; o++)
+         if (per_op_fail[o]) { diverging++;
+-            printf("  %-16s : %d/%d diverged\n", g_ops[o].name, per_op_fail[o], ITERS); }
++            printf("  %-16s : %d/%d diverged\n", g_ops[o].name, per_op_fail[o], 2 * ITERS); }
+ 
+     printf("\n==== %d checks, %d divergences across %d/%d opcodes ====\n",
+            d_checks, d_fail, diverging, g_nops);
+diff --git a/tests/cpu_diff/cpu_diff.h b/tests/cpu_diff/cpu_diff.h
+index b7a2b5af..2827db8d 100644
+--- a/tests/cpu_diff/cpu_diff.h
++++ b/tests/cpu_diff/cpu_diff.h
+@@ -6,7 +6,7 @@
+  * executes, plus the (m,x) width context both run under. */
+ typedef struct {
+     const char *name;
+-    uint8_t code[4];
++    uint8_t code[16];
+     int len;
+     RecompReturn (*fn)(CpuState *);
+     uint8_t m, x;
+@@ -18,6 +18,8 @@ typedef struct {
+                     *   3 = 16-bit ptr at D+dp+X ((dp,X)) */
+     uint8_t far;   /* 1 = long ($C0:FFF0-based): use the far window ($C0-$C1),
+                     * which exercises ROM-bank addressing + long,X bank-carry */
++    uint8_t seq;   /* 1 = a multi-instruction sequence (loops included): the
++                    * interpreter runs until it reaches the trailing RTS */
+ } OpTest;
+ 
+ extern const OpTest g_ops[];
+diff --git a/tests/cpu_diff/gen_ops.py b/tests/cpu_diff/gen_ops.py
+index 06d32575..d6f03871 100644
+--- a/tests/cpu_diff/gen_ops.py
++++ b/tests/cpu_diff/gen_ops.py
+@@ -7,8 +7,9 @@ RTS` at $00:8000 into a C function, exactly as a recompiled game would get it.
+ The harness (cpu_diff.c) then runs that function and one interp816 step from an
+ identical CPU state over many randomized inputs and diffs the result.
+ 
+-Writes gen_ops.c (functions + a g_ops[] table). Run from the engine worktree:
+-  python tests/cpu_diff/gen_ops.py
++Writes gen_ops.c (functions + a g_ops[] table), or the path given as the
++first argument. Run from the engine worktree:
++  python tests/cpu_diff/gen_ops.py [out.c]
+ """
+ import os, sys
+ ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+@@ -42,18 +43,19 @@ IMPLIED = [
+ ]
+ 
+ funcs = []      # emitted C source blocks
+-table = []      # (cname, codebytes, m, x, wmem)
++table = []      # (cname, codebytes, m, x, wmem, idx, ind, far, seq)
+ 
+ 
+-def emit(label, code, m, x, wmem=0, idx=0, ind=0, far=0):
++def emit(label, code, m, x, wmem=0, idx=0, ind=0, far=0, seq=0):
+     fn = f"op_{label}"
++    assert len(code) <= 16, label
+     rom = make_lorom_bank0({0x8000: bytes(code) + bytes([RTS])})
+     src = emit_function(rom, bank=0, start=0x8000, entry_m=m, entry_x=x,
+                         func_name=fn)
+     cname = f"{fn}_M{m}X{x}"
+     if cname not in [t[0] for t in table]:
+         funcs.append(src)
+-        table.append((cname, code, m, x, wmem, idx, ind, far))
++        table.append((cname, code, m, x, wmem, idx, ind, far, seq))
+ 
+ 
+ for label, op, _ in IMM_OPS:
+@@ -165,7 +167,38 @@ for label, op in IMPLIED:
+                  "inx", "iny", "dex", "dey", "xba"):
+         emit(f"{label}_m0", [op], 0, 0)
+ 
+-out = os.path.join(os.path.dirname(__file__), "gen_ops.c")
++# ── multi-instruction sequences: whole blocks and loops, compared with the
++# interpreter run to the trailing RTS (registers, memory, cycles and the
++# bus-priced master clocks of every block, taken branch and paced access) ──
++SEQ = [
++    # InitNewGame's clear loop ($C0BDCE shape): LDX #0; STZ $1A6E,X; INX;
++    # CPX #$0020; BNE. 16-bit index, every store a WRAM data cycle.
++    ("wram_clear_loop", [0xA2, 0x00, 0x00, 0x9E, 0x6E, 0x1A, 0xE8,
++                         0xE0, 0x20, 0x00, 0xD0, 0xF7], 1, 0, 1, 0, 0),
++    # Copy loop through WRAM: LDX #$10; LDA $0300,X; STA $0400,X; DEX; BPL.
++    ("wram_copy_loop", [0xA2, 0x10, 0xBD, 0x00, 0x03, 0x9D, 0x00, 0x04,
++                        0xCA, 0x10, 0xF7], 1, 1, 1, 0, 0),
++    # (dp),Y read loop: LDA ($10),Y; INY; BNE. The page cross depends on
++    # the planted pointer and Y.
++    ("indy_read_loop", [0xB1, 0x10, 0xC8, 0xD0, 0xFB], 1, 1, 0, 1, 1),
++    # [dp],Y read loop at 16-bit A: LDA [$10],Y; INY; INY; CPY #$40; BCC.
++    ("lindy_read_loop", [0xB7, 0x10, 0xC8, 0xC8, 0xC0, 0x40, 0x90, 0xF8],
++     0, 1, 0, 1, 2),
++    # Block move: LDA #$000F; LDX #$1000; LDY #$1100; MVN $00,$00 (16 bytes).
++    ("mvn_16_bytes", [0xA9, 0x0F, 0x00, 0xA2, 0x00, 0x10, 0xA0, 0x00, 0x11,
++                      0x54, 0x00, 0x00], 0, 0, 1, 0, 0),
++    # Stack shapes: PHP; PHA; PHX; PEA $1234; PLA; PLA; PLX; PLA; PLP.
++    ("stack_round_trip", [0x08, 0x48, 0xDA, 0xF4, 0x34, 0x12, 0x68, 0x68,
++                          0xFA, 0x68, 0x28], 1, 1, 1, 0, 0),
++    # RMW and BIT on WRAM: INC $40; ASL $0041; TSB $42; BIT $43; DEC $44.
++    ("rmw_mix", [0xE6, 0x40, 0x0E, 0x41, 0x00, 0x04, 0x42, 0x24, 0x43,
++                 0xC6, 0x44], 0, 1, 1, 0, 0),
++]
++for label, code, m, x, wmem, idx, ind in SEQ:
++    emit(label, code, m, x, wmem=wmem, idx=idx, ind=ind, seq=1)
++
++out = (sys.argv[1] if len(sys.argv) > 1
++       else os.path.join(os.path.dirname(__file__), "gen_ops.c"))
+ with open(out, "w", newline="\n") as f:
+     f.write('/* GENERATED by tests/cpu_diff/gen_ops.py — single-opcode recomp '
+             'functions + table. */\n')
+@@ -175,9 +208,9 @@ with open(out, "w", newline="\n") as f:
+         f.write(s)
+         f.write("\n")
+     f.write(f"\nconst OpTest g_ops[] = {{\n")
+-    for cname, code, m, x, wmem, idx, ind, far in table:
++    for cname, code, m, x, wmem, idx, ind, far, seq in table:
+         cb = ",".join(f"0x{b:02x}" for b in code)
+-        f.write(f'  {{"{cname}", {{{cb}}}, {len(code)}, {cname}, {m}, {x}, {wmem}, {idx}, {ind}, {far}}},\n')
++        f.write(f'  {{"{cname}", {{{cb}}}, {len(code)}, {cname}, {m}, {x}, {wmem}, {idx}, {ind}, {far}, {seq}}},\n')
+     f.write("};\n")
+     f.write(f"const int g_nops = {len(table)};\n")
+ print(f"wrote {out}: {len(table)} opcode variants")
+diff --git a/tests/frame_driver/beam_frame_driver_test.c b/tests/frame_driver/beam_frame_driver_test.c
+index bcc73d57..d2d41e46 100644
+--- a/tests/frame_driver/beam_frame_driver_test.c
++++ b/tests/frame_driver/beam_frame_driver_test.c
+@@ -18,6 +18,7 @@
+ #include "snes/snes.h"
+ 
+ CpuState g_cpu;
++uint8_t g_memsel;
+ Snes *g_snes;
+ Ppu *g_ppu;
+ bool g_fail;
+@@ -74,6 +75,9 @@ static int s_steps;
+ static bool s_poll_saw_flag;
+ static int s_nmis;
+ static uint32_t s_nmi_return;
++static uint32_t s_nmi_entry_pc;
++static uint64_t s_nmi_entry_master, s_nmi_entry_cycles;
++static uint64_t s_before_master, s_before_cycles;
+ 
+ void interp_bridge_set_master_deadline(uint64_t master_clock) { s_deadline = master_clock; }
+ uint32_t interp_bridge_lle_resume_pc(void) { return s_pc; }
+@@ -113,7 +117,9 @@ int interp_bridge_run_until_quiescent(CpuState *cpu, uint32_t entry_pc24) {
+ 
+ /* The handler acknowledges RDNMI first thing, as FF6's FieldNMI does. */
+ int interp_bridge_run_interrupt(CpuState *cpu, uint32_t entry_pc24) {
+-  (void)entry_pc24;
++  s_nmi_entry_pc = entry_pc24;
++  s_nmi_entry_master = cpu->master_cycles;
++  s_nmi_entry_cycles = cpu->cycles;
+   s_nmis++;
+   s_nmi_return = s_pc;
+   s_snes.rdnmiPending = false;
+@@ -134,6 +140,8 @@ static void run_nmi_frame(uint32_t park, bool rdnmi, bool nmi_enabled) {
+   s_snes.rdnmiPending = false;
+   s_park_at = park;
+   snes_beam_frame_driver_run_frame();
++  s_before_master = g_cpu.master_cycles;
++  s_before_cycles = g_cpu.cycles;
+ 
+   s_snes.nmiEnabled = nmi_enabled;
+   s_snes.rdnmiPending = rdnmi;
+@@ -206,6 +214,29 @@ static int test_rdnmi_poll_runs_before_nmi(void) {
+   return failures;
+ }
+ 
++/* Taking the NMI costs what the hardware (and the interpreter, interp816
++ * doInterrupt) charges: 2 internal cycles, four pushes and two vector reads,
++ * 8 CPU cycles, each bus transfer at the speed of its address. Here the stack
++ * is in WRAM and the vector in bank $00 ROM, both slow: 2*6 + 4*8 + 2*8. The
++ * frame driver once charged nothing for it, about 60 master clocks per NMI. */
++static int test_nmi_entry_is_charged(void) {
++  int failures = 0;
++  const uint16_t s_before = g_cpu.S;
++
++  run_nmi_frame(PLAIN_CODE, false, true);
++  failures += check(s_nmis == 1, "NMI delivered");
++  failures += check(s_nmi_entry_pc == 0x1500u, "the handler starts at the NMI vector");
++  failures += check(g_cpu.S == (uint16_t)(s_before - 4u), "the native interrupt frame is 4 bytes");
++  failures += check(s_nmi_entry_cycles - s_before_cycles == 8u,
++                    "interrupt entry: 8 CPU cycles");
++  failures += check(s_nmi_entry_master - s_before_master == 2u * 6u + 4u * 8u + 2u * 8u,
++                    "interrupt entry: 2 internal, 4 stack writes, 2 vector reads");
++  if (s_nmi_entry_master - s_before_master != 60u)
++    fprintf(stderr, "  entry charged %llu master clocks\n",
++            (unsigned long long)(s_nmi_entry_master - s_before_master));
++  return failures;
++}
++
+ /* HDMA over one rendered field. Channel 0 drives WH0 ($2126) and the observer
+  * records what each line was actually drawn with. */
+ #define HDMA_TABLE 0x7E0100u
+@@ -386,6 +417,7 @@ int main(void) {
+   write_program();
+ 
+   failures += test_rdnmi_poll_runs_before_nmi();
++  failures += test_nmi_entry_is_charged();
+   failures += test_hdma_steps_from_line_zero();
+   failures += test_hdma_armed_by_a_vblank_write();
+   failures += test_hdma_mid_field_enable_keeps_its_delay();
+diff --git a/tests/run_c_tests.sh b/tests/run_c_tests.sh
+index b0343f82..01a4e3fe 100644
+--- a/tests/run_c_tests.sh
++++ b/tests/run_c_tests.sh
+@@ -165,6 +165,16 @@ echo "=== beam frame driver ==="
+     -lm -o "$OUT/beam_frame_driver_test"
+ "$OUT/beam_frame_driver_test"
+ 
++echo "=== codegen vs interp816 (semantics, cycles, bus-priced master clocks) ==="
++"${PYTHON:-python3}" "$ROOT/tests/cpu_diff/gen_ops.py" "$OUT/cpu_diff_gen_ops.c"
++"$CC" -std=c11 -O1 -w \
++    -I "$ROOT/runner/src" -I "$ROOT/runner/src/snes" -I "$ROOT/tests/cpu_diff" \
++    "$ROOT/tests/cpu_diff/cpu_diff.c" \
++    "$OUT/cpu_diff_gen_ops.c" \
++    "$ROOT/runner/src/snes/interp816.c" \
++    -o "$OUT/cpu_diff"
++"$OUT/cpu_diff"
++
+ echo "=== fiber snapshot (rewindable execution position) ==="
+ # Darwin exposes the POSIX context API but marks it deprecated.
+ "$CC" $FIBER_PLATFORM_FLAGS -std=c11 -Wall -Wextra -Werror -O1 \
+diff --git a/tests/test_emitter_mask_shape.py b/tests/test_emitter_mask_shape.py
+index df5f0ebc..2d4c482e 100644
+--- a/tests/test_emitter_mask_shape.py
++++ b/tests/test_emitter_mask_shape.py
+@@ -194,18 +194,20 @@ def test_pushreg_a_m1_pushes_low_byte_only():
+ 
+ 
+ # ── Memory-access dispatch (Follow-up A) ────────────────────────────────
++# Data accesses of generated code go through the paced (bus-priced) forms;
++# the width dispatch is the same.
+ 
+ def test_read_8bit_uses_cpu_read8():
+     seg = SegRef(kind=SegKind.DIRECT, offset=0x10)
+     out = _join(_emit_read(Read(seg=seg, width=1, out=_v(1))))
+-    assert "cpu_read8(" in out, f"Read width=1 must use cpu_read8:\n{out}"
++    assert "cpu_read8_paced(" in out, f"Read width=1 must use cpu_read8_paced:\n{out}"
+     assert "cpu_read16" not in out, f"Read width=1 must NOT use cpu_read16:\n{out}"
+ 
+ 
+ def test_read_16bit_uses_cpu_read16():
+     seg = SegRef(kind=SegKind.DIRECT, offset=0x10)
+     out = _join(_emit_read(Read(seg=seg, width=2, out=_v(1))))
+-    assert "cpu_read16(" in out, f"Read width=2 must use cpu_read16:\n{out}"
++    assert "cpu_read16_paced(" in out, f"Read width=2 must use cpu_read16_paced:\n{out}"
+     # cpu_read8 may appear in DP-indirect address resolution but NOT
+     # for the actual data-byte read.
+ 
+@@ -213,40 +215,40 @@ def test_read_16bit_uses_cpu_read16():
+ def test_write_8bit_uses_cpu_write8():
+     seg = SegRef(kind=SegKind.DIRECT, offset=0x10)
+     out = _join(_emit_write(Write(seg=seg, src=_v(1), width=1)))
+-    assert "cpu_write8(" in out, f"Write width=1 must use cpu_write8:\n{out}"
++    assert "cpu_write8_paced(" in out, f"Write width=1 must use cpu_write8_paced:\n{out}"
+ 
+ 
+ def test_write_16bit_uses_cpu_write16():
+     seg = SegRef(kind=SegKind.DIRECT, offset=0x10)
+     out = _join(_emit_write(Write(seg=seg, src=_v(1), width=2)))
+-    assert "cpu_write16(" in out, f"Write width=2 must use cpu_write16:\n{out}"
++    assert "cpu_write16_paced(" in out, f"Write width=2 must use cpu_write16_paced:\n{out}"
+ 
+ 
+ def test_incmem_8bit_uses_8bit_dispatch():
+     seg = SegRef(kind=SegKind.DIRECT, offset=0x10)
+     out = _join(_emit_incmem(IncMem(seg=seg, width=1, delta=1)))
+-    assert "cpu_read8(" in out, f"IncMem width=1 must read 8-bit:\n{out}"
+-    assert "cpu_write8(" in out, f"IncMem width=1 must write 8-bit:\n{out}"
++    assert "cpu_read8_paced(" in out, f"IncMem width=1 must read 8-bit:\n{out}"
++    assert "cpu_write8_paced(" in out, f"IncMem width=1 must write 8-bit:\n{out}"
+ 
+ 
+ def test_incmem_16bit_uses_16bit_dispatch():
+     seg = SegRef(kind=SegKind.DIRECT, offset=0x10)
+     out = _join(_emit_incmem(IncMem(seg=seg, width=2, delta=-1)))
+-    assert "cpu_read16(" in out, f"IncMem width=2 must read 16-bit:\n{out}"
+-    assert "cpu_write16(" in out, f"IncMem width=2 must write 16-bit:\n{out}"
++    assert "cpu_read16_paced(" in out, f"IncMem width=2 must read 16-bit:\n{out}"
++    assert "cpu_write16_paced(" in out, f"IncMem width=2 must write 16-bit:\n{out}"
+ 
+ 
+ def test_bitsetmem_16bit_dispatch():
+     seg = SegRef(kind=SegKind.DIRECT, offset=0x10)
+     out = _join(_emit_bitsetmem(BitSetMem(seg=seg, width=2)))
+-    assert "cpu_read16(" in out and "cpu_write16(" in out, (
++    assert "cpu_read16_paced(" in out and "cpu_write16_paced(" in out, (
+         f"BitSetMem width=2 must use 16-bit read+write:\n{out}")
+ 
+ 
+ def test_bitclearmem_8bit_dispatch():
+     seg = SegRef(kind=SegKind.DIRECT, offset=0x10)
+     out = _join(_emit_bitclearmem(BitClearMem(seg=seg, width=1)))
+-    assert "cpu_read8(" in out and "cpu_write8(" in out, (
++    assert "cpu_read8_paced(" in out and "cpu_write8_paced(" in out, (
+         f"BitClearMem width=1 must use 8-bit read+write:\n{out}")
+ 
+ 
+diff --git a/tests/test_snes_cycles.py b/tests/test_snes_cycles.py
+index 89c2b2ea..c24c4613 100644
+--- a/tests/test_snes_cycles.py
++++ b/tests/test_snes_cycles.py
+@@ -252,6 +252,77 @@ def test_block_static_cycles():
+     assert const + 1 == 17
+ 
+ 
++def _split(op, m=1, x=1):
++    return (sc.fetch_cycles(op, m, x), sc.data_cycles(op, m, x),
++            sc.internal_cycles(op, m, x))
++
++
++def test_bus_split_follows_the_datasheet_bus_sequence():
++    # (fetch, data, internal) per the W65C816S cycle-by-cycle tables.
++    assert _split(0xA5) == (2, 1, 0)            # LDA dp
++    assert _split(0xA5, m=0) == (2, 2, 0)       # LDA dp, 16-bit
++    assert _split(0xB5) == (2, 1, 1)            # LDA dp,X: indexing IO
++    assert _split(0xAD) == (3, 1, 0)            # LDA abs
++    assert _split(0xBD, x=0) == (3, 1, 1)       # LDA abs,X, X=0: indexing IO
++    assert _split(0x9D) == (3, 1, 1)            # STA abs,X: always the IO
++    assert _split(0xAF) == (4, 1, 0)            # LDA long
++    assert _split(0xB2) == (2, 3, 0)            # LDA (dp): pointer + operand
++    assert _split(0xA1) == (2, 3, 1)            # LDA (dp,X)
++    assert _split(0xB1) == (2, 3, 0)            # LDA (dp),Y read
++    assert _split(0x91) == (2, 3, 1)            # STA (dp),Y
++    assert _split(0xB7) == (2, 4, 0)            # LDA [dp],Y: 24-bit pointer
++    assert _split(0xA3) == (2, 1, 1)            # LDA sr,S
++    assert _split(0xB3) == (2, 3, 2)            # LDA (sr,S),Y
++    assert _split(0x06) == (2, 2, 1)            # ASL dp: read, IO, write
++    assert _split(0x0E, m=0) == (3, 4, 1)       # ASL abs, 16-bit
++    assert _split(0x1E) == (3, 2, 2)            # ASL abs,X
++    assert _split(0xA9) == (2, 0, 0)            # LDA #imm: operand is fetched
++    assert _split(0xA9, m=0) == (3, 0, 0)
++    assert _split(0x20) == (3, 2, 1)            # JSR abs: push PCH, PCL
++    assert _split(0xFC) == (3, 4, 1)            # JSR (abs,X): push + pointer
++    assert _split(0x22) == (4, 3, 1)            # JSL: push PB, PCH, PCL
++    assert _split(0x60) == (1, 2, 3)            # RTS
++    assert _split(0x6B) == (1, 3, 2)            # RTL
++    assert _split(0x40) == (1, 4, 2)            # RTI native
++    assert _split(0x00) == (2, 6, 0)            # BRK native: 4 pushes, vector
++    assert _split(0x6C) == (3, 2, 0)            # JMP (abs)
++    assert _split(0x7C) == (3, 2, 1)            # JMP (abs,X)
++    assert _split(0xDC) == (3, 3, 0)            # JML [abs]
++    assert _split(0x48) == (1, 1, 1)            # PHA
++    assert _split(0x48, m=0) == (1, 2, 1)
++    assert _split(0x68) == (1, 1, 2)            # PLA
++    assert _split(0xFA, x=0) == (1, 2, 2)       # PLX, 16-bit
++    assert _split(0x0B) == (1, 2, 1)            # PHD
++    assert _split(0x2B) == (1, 2, 2)            # PLD
++    assert _split(0xF4) == (3, 2, 0)            # PEA
++    assert _split(0xD4) == (2, 4, 0)            # PEI
++    assert _split(0x62) == (3, 2, 1)            # PER
++    assert _split(0x54) == (3, 2, 2)            # MVN, per byte
++    assert _split(0xD0) == (2, 0, 0)            # BNE not taken
++    assert _split(0x80) == (2, 0, 1)            # BRA
++    assert _split(0x82) == (3, 0, 1)            # BRL
++    assert _split(0xEA) == (1, 0, 1)            # NOP
++    assert _split(0xEB) == (1, 0, 2)            # XBA
++    assert _split(0xC2) == (2, 0, 1)            # REP
++    assert _split(0xCB) == (1, 0, 2)            # WAI
++
++
++def test_bus_split_adds_up_for_every_opcode_and_width():
++    from snes65816 import opcode_table
++    for op in opcode_table():
++        for m in (0, 1):
++            for x in (0, 1):
++                f, d, i = _split(op, m, x)
++                assert f >= 1 and d >= 0 and i >= 0, (hex(op), m, x, f, d, i)
++                assert f + d + i == sc.instr_static_cycles(op, m, x), hex(op)
++
++
++def test_block_bus_split():
++    block = [(0x9E, 1, 0), (0xE8, 1, 0), (0xE0, 1, 0), (0xD0, 1, 0)]
++    assert sc.block_bus_split(block) == (9, 1, 2)   # STZ abs,X;INX;CPX#;BNE
++    assert sum(sc.block_bus_split(block)) == sc.block_static_cycles(block)[0]
++
++
+ def test_generated_header_matches_authority():
+     """The checked-in snes_cycles.h must be regenerated from the authority;
+     if this fails, run: python recompiler/snes_cycles.py --emit-c
+diff --git a/tests/v2/test_brk_rti.py b/tests/v2/test_brk_rti.py
+index 3da0e759..f863a9b4 100644
+--- a/tests/v2/test_brk_rti.py
++++ b/tests/v2/test_brk_rti.py
+@@ -51,8 +51,8 @@ def test_round_trip_is_compiled_and_falls_through():
+                         end=0x8007, func_name='Fill', brk_rti_sites={0x008002})
+     assert 'BRK to a bare RTI' in src
+     # the four bytes the interrupt pushes: PB, $8004 (past the signature), P
+-    assert 'cpu_write8(cpu, 0x00, (uint16)(_s - 1), 0x80);' in src
+-    assert 'cpu_write8(cpu, 0x00, (uint16)(_s - 2), 0x04);' in src
++    assert 'cpu_write8_paced(cpu, 0x00, (uint16)(_s - 1), 0x80);' in src
++    assert 'cpu_write8_paced(cpu, 0x00, (uint16)(_s - 2), 0x04);' in src
+     # ... and the code after it is compiled
+     assert 'cpu->D + 0x0010' in src
+     assert src.index('BRK to a bare RTI') < src.index('cpu->D + 0x0010')
+@@ -145,12 +145,19 @@ _MAIN = r'''
+ int interp816_opcode_hook(uint32_t addr) { (void)addr; return 0; }
+ 
+ static uint8 g_mem_ram[0x10000];
++/* The interpreter's time, priced as interp_bridge.c does: every bus
++ * transfer at the speed of its address, the remaining cycles at 6. */
++static uint64 g_bus_master, g_bus_transfers;
++static void bus_price(uint32_t adr) {
++  g_bus_master += cpu_bus_speed((uint8)(adr >> 16), (uint16)adr);
++  g_bus_transfers++;
++}
+ static uint8_t bus_read(void *m, uint32_t adr) {
+-  (void)m; adr &= 0xFFFF;
++  (void)m; bus_price(adr); adr &= 0xFFFF;
+   return adr >= 0x8000 ? g_rom[adr - 0x8000] : g_mem_ram[adr];
+ }
+ static void bus_write(void *m, uint32_t adr, uint8_t v) {
+-  (void)m; adr &= 0xFFFF;
++  (void)m; bus_price(adr); adr &= 0xFFFF;
+   if (adr < 0x8000) g_mem_ram[adr] = v;
+ }
+ 
+@@ -160,7 +167,7 @@ static const char *scenario;
+     __FILE__, __LINE__, scenario, #c); fails++; } } while (0)
+ 
+ typedef struct {
+-  uint8 p, pb; uint16 s; uint8 stack[4]; uint8 zp[2]; uint64 cycles;
++  uint8 p, pb; uint16 s; uint8 stack[4]; uint8 zp[2]; uint64 cycles, master;
+ } Outcome;
+ 
+ static void compiled(RecompReturn (*fn)(CpuState *), uint8 p, Outcome *o) {
+@@ -178,7 +185,7 @@ static void compiled(RecompReturn (*fn)(CpuState *), uint8 p, Outcome *o) {
+   memcpy(o->stack, &g_ram[0x01FA], 4);
+   memcpy(o->zp, &g_ram[0x40], 2);
+   o->cycles = cpu.cycles;
+-  CHECK(cpu.master_cycles == cpu.cycles * 8);  /* all of it in bank $00 */
++  o->master = cpu.master_cycles;
+   CHECK(g_other_exits == 0);
+ }
+ 
+@@ -192,6 +199,7 @@ static void interpreted(uint8 p, Outcome *o) {
+   cpu->dp = 0; cpu->db = 0;
+   interp816_setFlags(cpu, p);
+   uint64 cycles = 0;
++  g_bus_master = g_bus_transfers = 0;
+   cycles += (uint64)interp816_runOpcode(cpu);         /* BRK */
+   CHECK(cpu->k == 0 && cpu->pc == 0x9000);
+   CHECK(cpu->sp == 0x01F9);
+@@ -206,6 +214,7 @@ static void interpreted(uint8 p, Outcome *o) {
+   memcpy(o->stack, &g_mem_ram[0x01FA], 4);
+   memcpy(o->zp, &g_mem_ram[0x40], 2);
+   o->cycles = cycles;
++  o->master = g_bus_master + (cycles - g_bus_transfers) * 6u;
+   interp816_free(cpu);
+ }
+ 
+@@ -224,6 +233,12 @@ static void same(RecompReturn (*fn)(CpuState *), uint8 p) {
+   if (c.cycles != i.cycles)
+     fprintf(stderr, "  compiled %llu, interpreted %llu cycles\n",
+             (unsigned long long)c.cycles, (unsigned long long)i.cycles);
++  /* Bus-accurate time: the compiled round trip prices every transfer at
++   * its region, like the interpreter (bank $00 ROM and WRAM, all slow). */
++  CHECK(c.master == i.master);
++  if (c.master != i.master)
++    fprintf(stderr, "  compiled %llu, interpreted %llu master clocks\n",
++            (unsigned long long)c.master, (unsigned long long)i.master);
+ }
+ 
+ int main(void) {
+diff --git a/tests/v2/test_codegen_per_op_smoke.py b/tests/v2/test_codegen_per_op_smoke.py
+index e5b8e98a..72bbbd6e 100644
+--- a/tests/v2/test_codegen_per_op_smoke.py
++++ b/tests/v2/test_codegen_per_op_smoke.py
+@@ -368,7 +368,11 @@ def test_blockmove_mvn_increments():
+     assert "do {" in s
+     assert "while (cpu->A != 0xFFFF)" in s
+     assert "cpu->cycles += 7" in s
+-    assert "cpu->master_cycles += 7 * ((g_memsel && (cpu->PB & 0x80)) ? 6 : 8)" in s
++    # Each repeated byte: 3 fetches at the code speed, 2 internal cycles at 6;
++    # its read and write are paced at their own addresses.
++    assert "cpu->master_cycles += 3 * ((g_memsel && (cpu->PB & 0x80)) ? 6 : 8) + 2 * 6" in s
++    assert "cpu_read8_paced(cpu, _src_b, cpu->X)" in s
++    assert "cpu_write8_paced(cpu, _dst_b, cpu->Y, _b)" in s
+     assert "interp_bridge_lle_master_deadline_reached(cpu)" in s
+     assert "interp_bridge_lle_yield_unwind(cpu, (((uint32)cpu->PB << 16) | 0x8e7au))" in s
+     assert "cpu->X &= 0x00FFu" in s
+diff --git a/tests/v2/test_continuation_live_pb.py b/tests/v2/test_continuation_live_pb.py
+index ab549e44..a4229f32 100644
+--- a/tests/v2/test_continuation_live_pb.py
++++ b/tests/v2/test_continuation_live_pb.py
+@@ -20,10 +20,13 @@ def test_emitted_wait_and_deadline_continuations_keep_live_bank(tmp_path):
+                              func_name='Wait')
+     # Execute the actual entry guards; both paths return before the body.
+     entry = generated.split('  RecompReturn _pending_skip')[0] + '  assert(0); return 0;\n}\n'
+-    # Execute an actual generated charge, including the live FastROM condition.
+-    charge = re.search(r'cpu->master_cycles \+= (\d+) \* ([^;]+);', generated)
++    # Execute an actual generated charge, including the live FastROM condition:
++    # the block's fetches at the live code speed, its internal cycles at 6.
++    charge = re.search(r'cpu->master_cycles \+= (\d+) \* (\(\(g_memsel[^;]*?\) \? 6 : 8\))'
++                       r'(?: \+ (\d+))?;', generated)
+     assert charge
+-    cycles = int(charge[1])
++    fetch = int(charge[1])
++    internal = int(charge[3] or 0)
+     source = r'''
+ #include <assert.h>
+ #include <stdint.h>
+@@ -59,7 +62,7 @@ int main(void) {
+                 cpu.master_cycles = 0;
+                 charge(&cpu);
+                 const unsigned expected_speed = (bank == 0x80 && g_memsel) ? 6 : 8;
+-''' + f'                assert(cpu.master_cycles == {cycles} * expected_speed);\n' + r'''
++''' + f'                assert(cpu.master_cycles == {fetch} * expected_speed + {internal});\n' + r'''
+             }
+         }
+     }
+diff --git a/tests/v2/test_emit_cycle_charge.py b/tests/v2/test_emit_cycle_charge.py
+index 6d643d81..66d56b1a 100644
+--- a/tests/v2/test_emit_cycle_charge.py
++++ b/tests/v2/test_emit_cycle_charge.py
+@@ -1,6 +1,14 @@
+ """Axis-2 step C: the v2 emitter charges each block's static 65816 CPU
+ cycles as a per-block constant (recompiler/snes_cycles.py via
+-emit_function._block_cycle_const). Guards the cost-model -> emitter wiring."""
++emit_function._block_cycle_const). Guards the cost-model -> emitter wiring.
++
++Master clocks are bus-accurate (snes_cycles.py "Bus split"): the block
++constant holds the opcode/operand fetches at the code-region speed and the
++internal cycles at 6; every data transfer (operand, pointer, stack) goes
++through a paced accessor that adds the speed of its own address, and every
++runtime-only extra cycle is internal (6). This is how the interpreter prices
++time, so a block of generated code costs what the same instructions cost
++interpreted."""
+ import re
+ 
+ from _helpers import make_lorom_bank0  # noqa: E402
+@@ -10,24 +18,40 @@ from v2.emit_function import emit_function  # noqa: E402
+ # A standalone per-block static charge: `    cpu->cycles += N;` on its own
+ # line (the dynamic charges are `if (...) cpu->cycles += 1; /* ... */`).
+ _STATIC_CHARGE = re.compile(r'^\s*cpu->cycles \+= (\d+);\s*$', re.M)
++_SPEED = "((g_memsel && (cpu->PB & 0x80)) ? 6 : 8)"
++# The block's master constant: fetches x code speed (+ internal x 6).
++_MASTER_CHARGE = re.compile(
++    r'^\s*cpu->master_cycles \+= (\d+) \* \(\(g_memsel && \(cpu->PB & 0x80\)\) \? 6 : 8\)'
++    r'(?: \+ (\d+))?;', re.M)
++
++
++def _emit(code, m=1, x=1, **kw):
++    rom = make_lorom_bank0({0x8000: bytes(code)})
++    return emit_function(rom, bank=0, start=0x8000, entry_m=m, entry_x=x, **kw)
++
++
++def _body(src):
++    """The function body after its prologue (the prologue peeks the caller's
++    return frame with unpaced reads; that bookkeeping is not guest time)."""
++    return src[src.index('cpu_trace_block('):]
+ 
+ 
+ def test_linear_block_charges_static_cycles():
+     # LDA #$05 (2) ; STA $00 (dp, 3) ; RTS (6) -> one block, 11 static cycles
+     # (plus a runtime D.l!=0 dynamic charge for the dp store).
+-    rom = make_lorom_bank0({0x8000: bytes([0xA9, 0x05, 0x85, 0x00, 0x60])})
+-    src = emit_function(rom, bank=0, start=0x8000, entry_m=1, entry_x=1)
++    src = _emit([0xA9, 0x05, 0x85, 0x00, 0x60])
+     charges = _STATIC_CHARGE.findall(src)
+     assert charges == ['11'], f'expected one static block charge of 11, got {charges}'
+-    # dp dynamic present (Axis-5 reworded it to also charge master clocks).
+     assert "if (cpu->D & 0xFF) { cpu->cycles += 1;" in src
+-    # Axis-5: the static block charge is region-weighted into master_cycles.
+-    # The same bank-0 body can execute through its FastROM bank-80 mirror.
+-    charge = "cpu->master_cycles += 11 * ((g_memsel && (cpu->PB & 0x80)) ? 6 : 8);"
++    # Master: 5 fetches (2 + 2 + 1) at the live code speed, 3 internal (RTS)
++    # at 6. The STA operand and the two RTS pulls are data, paced as they run.
++    charge = f"cpu->master_cycles += 5 * {_SPEED} + 18;"
+     assert charge in src, src
+     assert src.index(
+         "cpu->coprocessor_master_cycles = cpu->master_cycles;"
+     ) < src.index(charge), src
++    assert "cpu_write8_paced(cpu, 0x00, (uint16)(cpu->D + 0x0000), _v2);" in src
++    assert src.count("cpu_read8_paced(cpu, 0x00, cpu->S)") == 2   # RTS pulls
+ 
+ 
+ def test_width_widens_static_charge():
+@@ -35,86 +59,149 @@ def test_width_widens_static_charge():
+     # (CLC/XCE/REP) live in the entry block; assert the 16-bit LDA path adds
+     # the m=0 cycle (base 2 + 1). We check the total contains a charge whose
+     # value reflects 16-bit accounting (>= the 8-bit equivalent).
+-    rom8 = make_lorom_bank0({0x8000: bytes([0xA9, 0x05, 0x60])})            # LDA# 8b ; RTS
+-    rom16 = make_lorom_bank0({0x8000: bytes([0xC2, 0x20, 0xA9, 0x34, 0x12, 0x60])})  # REP#$20; LDA#16b; RTS
+-    s8 = emit_function(rom8, bank=0, start=0x8000, entry_m=1, entry_x=1)
+-    s16 = emit_function(rom16, bank=0, start=0x8000, entry_m=1, entry_x=1)
++    s8 = _emit([0xA9, 0x05, 0x60])                      # LDA# 8b ; RTS
++    s16 = _emit([0xC2, 0x20, 0xA9, 0x34, 0x12, 0x60])   # REP#$20; LDA#16b; RTS
+     c8 = sum(int(x) for x in re.findall(r'cpu->cycles \+= (\d+);', s8))
+     c16 = sum(int(x) for x in re.findall(r'cpu->cycles \+= (\d+);', s16))
+     # 8b: LDA# 2 + RTS 6 = 8. 16b: REP 3 + LDA#(2+1) + RTS 6 = 12.
+     assert c8 == 8, f'8-bit total {c8} != 8'
+     assert c16 == 12, f'16-bit total {c16} != 12 (m=0 LDA should add 1)'
++    # The m=0 cycle of an immediate is its third operand byte: a fetch.
++    f8 = sum(int(m[0]) for m in _MASTER_CHARGE.findall(s8))
++    f16 = sum(int(m[0]) for m in _MASTER_CHARGE.findall(s16))
++    assert (f8, f16) == (3, 6), (f8, f16)
+ 
+ 
+ def test_dp_dynamic_charge_emitted():
+-    # LDA $00 (DP mode) ; RTS — the D.l!=0 charge is runtime-conditional.
+-    rom = make_lorom_bank0({0x8000: bytes([0xA5, 0x00, 0x60])})
+-    src = emit_function(rom, bank=0, start=0x8000, entry_m=1, entry_x=1)
+-    # The runtime D.l!=0 charge bumps both cycles and the region-weighted master.
+-    assert "if (cpu->D & 0xFF) { cpu->cycles += 1; cpu->master_cycles += ((g_memsel && (cpu->PB & 0x80)) ? 6 : 8); }" in src, src
++    # LDA $00 (DP mode) ; RTS: the D.l!=0 charge is runtime-conditional and
++    # an internal cycle: 6 master clocks whatever the code region.
++    src = _emit([0xA5, 0x00, 0x60])
++    assert "if (cpu->D & 0xFF) { cpu->cycles += 1; cpu->master_cycles += 6; }" in src, src
+ 
+ 
+ def test_abs_x_page_cross_dynamic_charge_emitted():
+     # LDA $1234,X (read) ; RTS — page-cross charge uses the static base $1234.
+-    rom = make_lorom_bank0({0x8000: bytes([0xBD, 0x34, 0x12, 0x60])})
+-    src = emit_function(rom, bank=0, start=0x8000, entry_m=1, entry_x=1)
++    src = _emit([0xBD, 0x34, 0x12, 0x60])
+     assert "0x1234 & 0xFF00" in src and "+ cpu->X) & 0xFF00)" in src, src
+-    assert "/* abs,X read page-cross */" in src
++    assert ("{ cpu->cycles += 1; cpu->master_cycles += 6; }"
++            "  /* abs,X read page-cross */") in src, src
+ 
+ 
+ def test_taken_branch_charges_one_cycle():
+-    # BNE fork — the taken edge must add +1 cycle (block const = not-taken base).
+-    rom = make_lorom_bank0({0x8000: bytes([
++    # BNE fork: the taken edge must add +1 cycle (block const = not-taken base),
++    # an internal cycle at 6 master clocks.
++    src = _emit([
+         0xD0, 0x02,  # BNE $8004
+         0xEA, 0x60,  # NOP; RTS
+         0xEA, 0x60,  # NOP; RTS (taken)
+-    ])})
+-    src = emit_function(rom, bank=0, start=0x8000, entry_m=1, entry_x=1)
+-    # Taken edge: +1 CPU cycle plus its region-weighted master charge, then goto.
++    ])
+     assert re.search(
+-        r'if \(.*\) \{ cpu->cycles \+= 1; cpu->master_cycles \+= [^;]+; goto ', src), src
++        r'if \(.*\) \{ cpu->cycles \+= 1; cpu->master_cycles \+= 6; goto ', src), src
+ 
+ 
+ def test_wide_index_read_folds_penalty_without_dynamic_double_count():
+-    rom = make_lorom_bank0({0x8000: bytes([0xBD,0x34,0x12,0x60])})
+-    src = emit_function(rom, bank=0, start=0x8000, entry_m=1, entry_x=0)
++    src = _emit([0xBD, 0x34, 0x12, 0x60], x=0)
+     assert _STATIC_CHARGE.findall(src) == ['11']  # LDA 5 + RTS 6
+     assert 'page-cross' not in src
++    # LDA abs,X at x=0: 3 fetches, 1 internal (the indexing cycle), 1 data.
++    assert f"cpu->master_cycles += 4 * {_SPEED} + 24;" in src, src
+ 
+ 
+ def test_store_abs_x_has_no_page_cross_charge():
+     # STA $1234,X (store) — stores pay a fixed cost (in the base), no cross add.
+-    rom = make_lorom_bank0({0x8000: bytes([0x9D, 0x34, 0x12, 0x60])})
+-    src = emit_function(rom, bank=0, start=0x8000, entry_m=1, entry_x=1)
++    src = _emit([0x9D, 0x34, 0x12, 0x60])
+     assert "page-cross" not in src, src
+ 
+ 
+ def test_every_block_with_insns_is_charged():
+     # BCS fork -> three blocks (entry, fall-through, taken), each non-empty,
+     # so each must carry a cpu->cycles charge.
+-    rom = make_lorom_bank0({0x8000: bytes([
++    src = _emit([
+         0xB0, 0x02,  # BCS $8004
+         0xEA, 0x60,  # NOP; RTS (fall-through)
+         0xEA, 0x60,  # NOP; RTS (taken)
+-    ])})
+-    src = emit_function(rom, bank=0, start=0x8000, entry_m=1, entry_x=1)
++    ])
+     charges = re.findall(r'cpu->cycles \+= (\d+);', src)
+     assert len(charges) >= 3, f'expected a charge per block (>=3), got {charges}'
+ 
+ 
+-def test_master_cycles_region_weighted_static_charge():
+-    # Axis-5 off-cue: each static block charge gets a paired master-clock charge
+-    # equal to (CPU cycles x live code-region speed). The same generated body
+-    # uses 8 in bank 0 and 6 in bank 80 with FastROM enabled.
+-    # LDA #$05 (2) ; RTS (6) = 8 CPU cycles.
+-    rom = make_lorom_bank0({0x8000: bytes([0xA9, 0x05, 0x60])})
+-    src = emit_function(rom, bank=0, start=0x8000, entry_m=1, entry_x=1)
++def test_master_constant_is_fetch_at_code_speed_plus_internal_at_6():
++    # LDA #$05 (2: 2 fetch) ; RTS (6: 1 fetch, 2 data, 3 internal).
++    src = _emit([0xA9, 0x05, 0x60])
+     assert "cpu->cycles += 8;" in src, src
+-    assert "cpu->master_cycles += 8 * ((g_memsel && (cpu->PB & 0x80)) ? 6 : 8);" in src, src
+-    # Every static cpu->cycles charge has exactly one master partner (no orphan).
+-    cyc = re.findall(r'^\s*cpu->cycles \+= (\d+);\s*$', src, re.M)
+-    mas = re.findall(r'^\s*cpu->master_cycles \+= (\d+) \* [^;]+;\s*$', src, re.M)
++    assert f"cpu->master_cycles += 3 * {_SPEED} + 18;" in src, src
++    # Every static cpu->cycles charge has exactly one master partner.
++    cyc = _STATIC_CHARGE.findall(src)
++    mas = _MASTER_CHARGE.findall(src)
+     assert len(cyc) == len(mas), f'static charge pairing mismatch: {cyc} vs {mas}'
+-    # The multiplier retains the static CPU-cycle count term by term.
+-    for c, m in zip(cyc, mas):
+-        assert int(m) == int(c)
++
++
++def test_wram_loop_block_prices_fetch_internal_and_data_apart():
++    # InitNewGame's clear loop shape ($C0BDCE): STZ $1A6E,X / INX / CPX #$0100
++    # / BNE, 16-bit index. 12 cycles: 9 fetches, 2 internal (STZ abs,X
++    # indexing, INX), 1 data (the store, paced at its WRAM address). The old
++    # constant charged all 12 at the code speed (FastROM 72 instead of 80).
++    src = _emit([0x9E, 0x6E, 0x1A, 0xE8, 0xE0, 0x00, 0x01, 0xD0, 0xF7, 0x60], x=0)
++    assert "cpu->cycles += 12;" in src, src
++    assert f"cpu->master_cycles += 9 * {_SPEED} + 12;" in src, src
++    assert "cpu_write8_paced(cpu, (uint8)(((((uint32)cpu->DB << 16) + (uint32)0x1a6e" in src
++
++
++def test_data_accesses_are_paced_and_bookkeeping_is_not():
++    # LDA $1234 ; PHA ; PLA ; JSR $9000 ; RTS
++    rom = make_lorom_bank0({0x8000: bytes([0xAD, 0x34, 0x12, 0x48, 0x68,
++                                           0x20, 0x00, 0x90, 0x60]),
++                            0x9000: bytes([0x60])})
++    src = emit_function(rom, bank=0, start=0x8000, entry_m=1, entry_x=1)
++    body = _body(src)
++    assert "cpu_read8_paced(cpu, cpu->DB, (uint16)(0x1234))" in body
++    assert "cpu_write8_paced(cpu, 0x00, cpu->S, (uint8)(cpu->A & 0xFF))" in body
++    assert body.count("cpu_write8_paced(cpu, 0x00, cpu->S, 0x80)") == 1   # JSR PCH
++    # No data access of the body bypasses the paced bus.
++    assert not re.search(r'\bcpu_(read|write)(8|16)\(', body), body
++    # The prologue's peek at the caller's return frame stays unpaced.
++    assert "_host_rpcl = cpu_read8(cpu, 0x00, (uint16)(_entry_s + 1u))" in src
++
++
++def test_indirect_long_pointer_is_read_once():
++    # LDA [$10],Y: the 24-bit pointer is read once (lo/hi word, then bank),
++    # not once for the bank and again for the address expression.
++    body = _body(_emit([0xB7, 0x10, 0x60]))
++    assert body.count("cpu_read16_paced(cpu, 0x00, (uint16)(cpu->D + 0x0010))") == 1
++    assert body.count("cpu_read8_paced(cpu, 0x00, (uint16)((uint16)(cpu->D + 0x0010) + 2))") == 1
++    assert "(((uint32)_ib1 << 16) | (uint32)_ip1) + (uint32)cpu->Y" in body
++
++
++def test_dp_indirect_y_read_page_cross_is_charged_at_index_width_8():
++    src8 = _emit([0xB1, 0x10, 0x60], x=1)       # LDA ($10),Y
++    assert ("if ((_ip1 & 0xFF00) != ((uint16)(_ip1 + cpu->Y) & 0xFF00)) "
++            "{ cpu->cycles += 1; cpu->master_cycles += 6; }") in src8, src8
++    # At index width 16 the indexing cycle is always taken: static, no check.
++    src16 = _emit([0xB1, 0x10, 0x60], x=0)
++    assert "(dp),Y read page-cross" not in src16
++    # A store pays the indexing cycle in its base.
++    assert "(dp),Y read page-cross" not in _emit([0x91, 0x10, 0x60], x=1)
++
++
++def test_mdmaen_store_ends_the_charge_segment():
++    # STA $420B ; NOP ; RTS: after the DMA the frame deadline is checked and
++    # the rest of the block is charged only if the block goes on.
++    src = _emit([0x8D, 0x0B, 0x42, 0xEA, 0x60])
++    store = src.index("cpu_write8_paced(cpu, cpu->DB, (uint16)(0x420b)")
++    check = src.index("/* MDMAEN store: the DMA ran; end the frame here if due */")
++    assert store < check
++    tail = src[check:]
++    assert "return interp_bridge_lle_yield_unwind(cpu, (((uint32)cpu->PB << 16) | 0x8003u));" in tail
++    # Two segments: STA (4 cycles: 3 fetch, 1 data) and NOP + RTS (8 cycles).
++    assert _STATIC_CHARGE.findall(src) == ['4', '8'], _STATIC_CHARGE.findall(src)
++    assert f"cpu->master_cycles += 3 * {_SPEED};" in src[:check]
++    assert f"cpu->master_cycles += 2 * {_SPEED} + 24;" in tail
++
++
++def test_mdmaen_long_and_word_stores_split_too():
++    # sta f:$00420B (long) and a 16-bit sta $420A (writes $420A and $420B).
++    assert "MDMAEN store" in _emit([0x8F, 0x0B, 0x42, 0x00, 0xEA, 0x60])
++    assert "MDMAEN store" in _emit([0x8D, 0x0A, 0x42, 0xEA, 0x60], m=0)
++    # An 8-bit store to $420A and a long store into WRAM do not split.
++    assert "MDMAEN store" not in _emit([0x8D, 0x0A, 0x42, 0xEA, 0x60], m=1)
++    assert "MDMAEN store" not in _emit([0x8F, 0x0B, 0x42, 0x7E, 0xEA, 0x60])
+diff --git a/tests/v2/test_indexed_addressing_bank_carry.py b/tests/v2/test_indexed_addressing_bank_carry.py
+index e4bf9bf6..fd47d1cb 100644
+--- a/tests/v2/test_indexed_addressing_bank_carry.py
++++ b/tests/v2/test_indexed_addressing_bank_carry.py
+@@ -47,9 +47,9 @@ def test_long_x_write_emits_24bit_effective_with_bank_carry():
+     # Must emit a 24-bit effective with the bank carry.
+     assert '(uint8)(' in src and ' >> 16' in src, src
+     assert '0x7e2000' in src or '0x7E2000' in src, src
+-    # The cpu_write16 call should reference the carried bank, not 0x7e
++    # The (paced) word write should reference the carried bank, not 0x7e
+     # directly.
+-    assert 'cpu_write16(cpu, (uint8)' in src, src
++    assert 'cpu_write16_paced(cpu, (uint8)' in src, src
+ 
+ 
+ def test_abs_x_write_emits_24bit_effective_with_bank_carry():
+@@ -69,10 +69,10 @@ def test_abs_x_write_emits_24bit_effective_with_bank_carry():
+     src = emit_function(rom, bank=0, start=0x8000, entry_m=1, entry_x=1)
+ 
+     # The broken DB-truncate form must be gone.
+-    assert 'cpu_write16(cpu, cpu->DB, (uint16)(0xc800 + cpu->X)' not in src, src
++    assert 'cpu_write16_paced(cpu, cpu->DB, (uint16)(0xc800 + cpu->X)' not in src, src
+     # 24-bit effective with carry-bearing bank.
+     assert 'cpu->DB' in src and '<< 16' in src, src
+-    assert 'cpu_write16(cpu, (uint8)' in src, src
++    assert 'cpu_write16_paced(cpu, (uint8)' in src, src
+ 
+ 
+ def test_non_indexed_abs_keeps_cheap_form():
+@@ -89,7 +89,7 @@ def test_non_indexed_abs_keeps_cheap_form():
+     src = emit_function(rom, bank=0, start=0x8000, entry_m=1, entry_x=1)
+ 
+     # Non-indexed ABS uses the simple form.
+-    assert 'cpu_write8(cpu, cpu->DB, (uint16)(0xc800)' in src, src
++    assert 'cpu_write8_paced(cpu, cpu->DB, (uint16)(0xc800)' in src, src
+     # Should NOT carry a 24-bit shift here (no index = no carry possible).
+     assert 'cpu->DB << 16' not in src, src
+ 
+@@ -109,8 +109,8 @@ def test_long_x_read_emits_24bit_effective_with_bank_carry():
+     })
+     src = emit_function(rom, bank=0, start=0x8000, entry_m=1, entry_x=1)
+ 
+-    assert 'cpu_read16(cpu, 0x7e, (uint16)(0x2000 + cpu->X)' not in src, src
+-    assert 'cpu_read16(cpu, (uint8)' in src, src
++    assert 'cpu_read16_paced(cpu, 0x7e, (uint16)(0x2000 + cpu->X)' not in src, src
++    assert 'cpu_read16_paced(cpu, (uint8)' in src, src
+ 
+ 
+ def test_dp_indirect_long_y_read_carries_pointer_bank():
+@@ -131,7 +131,8 @@ def test_dp_indirect_long_y_read_carries_pointer_bank():
+     src = emit_function(rom, bank=0, start=0x8000, entry_m=1, entry_x=1)
+ 
+     # Both bank and offset must derive from one 24-bit pointer-plus-Y
+-    # expression; a bare pointer-bank argument is the pre-fix form.
+-    assert 'cpu_read8(cpu, cpu_read8(cpu, 0x00' not in src, src
+-    assert 'cpu_read8(cpu, (uint8)' in src, src
+-    assert 'cpu->Y' in src and '<< 16' in src and '| (uint32)cpu_read16' in src, src
++    # expression; a bare pointer-bank argument is the pre-fix form. The
++    # pointer is read once into temporaries (lo/hi word, then bank).
++    assert 'cpu_read8_paced(cpu, _ib' not in src, src
++    assert 'cpu_read8_paced(cpu, (uint8)' in src, src
++    assert 'cpu->Y' in src and '<< 16' in src and '| (uint32)_ip' in src, src
+diff --git a/tests/v2/test_jsl_live_pb.py b/tests/v2/test_jsl_live_pb.py
+index 380c3d39..1da8a52c 100644
+--- a/tests/v2/test_jsl_live_pb.py
++++ b/tests/v2/test_jsl_live_pb.py
+@@ -20,10 +20,11 @@ def test_jsl_frame_preserves_live_program_bank_through_rom_mirrors(tmp_path):
+ #include <assert.h>
+ #include <stdint.h>
+ typedef uint16_t uint16;
+-typedef struct { uint16 S; uint8_t PB, host_return_valid; } CpuState;
++typedef struct { uint16 S; uint8_t PB, host_return_valid; uint64_t master_cycles; } CpuState;
+ static uint8_t ram[65536];
+-static void cpu_write8(CpuState *cpu, unsigned bank, uint16 address, uint8_t value) {
+-  (void)cpu; assert(bank == 0); ram[address] = value;
++/* The frame bytes are data transfers: paced at the stack's speed (WRAM). */
++static void cpu_write8_paced(CpuState *cpu, unsigned bank, uint16 address, uint8_t value) {
++  assert(bank == 0); ram[address] = value; cpu->master_cycles += 8;
+ }
+ static void generated(CpuState *cpu) {
+ ''' + frame + '''
+@@ -32,9 +33,10 @@ int main(void) {
+   /* Same generated $0B:A100 body, two valid execution banks. */
+   const uint8_t banks[] = {0x0b, 0x8b};
+   for (unsigned i = 0; i < 2; ++i) {
+-    CpuState cpu = {0x1fff, banks[i], 0};
++    CpuState cpu = {0x1fff, banks[i], 0, 0};
+     generated(&cpu);
+     assert(cpu.S == 0x1ffc && cpu.host_return_valid == 3);
++    assert(cpu.master_cycles == 3 * 8);  /* three paced stack writes */
+     /* W65C816S JSL bus sequence: PBR, PCH, PCL; return is PC+3. */
+     assert(ram[0x1fff] == banks[i]);
+     assert(ram[0x1ffe] == 0xa1 && ram[0x1ffd] == 0x03);
+diff --git a/tests/v2/test_nlr_idiom.py b/tests/v2/test_nlr_idiom.py
+index 37911292..b0d194a2 100644
+--- a/tests/v2/test_nlr_idiom.py
++++ b/tests/v2/test_nlr_idiom.py
+@@ -132,7 +132,7 @@ def test_single_pla_before_rts_keeps_literal_hardware_semantics():
+     assert "RECOMP_RETURN_SKIP_1" not in src, (
+         f"single PLA should not use a synthetic SKIP constant; src=\n{src}"
+     )
+-    assert "cpu_read8(cpu, 0x00, cpu->S);" in src, (
++    assert "cpu_read8_paced(cpu, 0x00, cpu->S);" in src, (
+         f"literal PLA pop missing for non-NLR shape; src=\n{src}"
+     )
+ 
+diff --git a/tests/v2/test_short_call_live_pb.py b/tests/v2/test_short_call_live_pb.py
+index 6714f052..be69d9de 100644
+--- a/tests/v2/test_short_call_live_pb.py
++++ b/tests/v2/test_short_call_live_pb.py
+@@ -51,6 +51,11 @@ static uint8 ram[65536];
+ static void cpu_write8(CpuState *cpu, uint8 bank, uint16 addr, uint8 value) {
+     (void)cpu; assert(bank == 0); ram[addr] = value;
+ }
++/* A direct JSR pushes its frame through the paced bus; the dispatch forms
++ * charge the instruction's transfers apart and write the frame unpaced. */
++static void cpu_write8_paced(CpuState *cpu, uint8 bank, uint16 addr, uint8 value) {
++    cpu_write8(cpu, bank, addr, value);
++}
+ static uint16 cpu_read16(CpuState *cpu, uint8 bank, uint16 addr) {
+     assert(bank == cpu->PB && addr == 0x8100); return 0x9000;
+ }
+-- 
+2.56.0.windows.3
+
