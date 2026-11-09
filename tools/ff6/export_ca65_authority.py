@@ -125,29 +125,94 @@ def statement(text):
     return text.strip()
 
 
-OP_ALIASES = set()          # names defined as `op_n <mnemonic>, N` (inx2, asl4, nop3 ...)
+OP_ALIASES = set()          # statements that emit instructions (inx2, asl4, ldaflg, clrflg ...)
+DATA_ALIASES = set()        # statements that emit data (bg_pos ...)
+OP_WRAPPERS = set()         # macros whose first parameter is the operation they emit (opflg, op_pos)
 OP_ALIAS_DEF = re.compile(r'^\.define\s+(\w+)\s+op_n\s+(\w+)\s*,', re.I)
+WRAPPED_ALIAS_DEF = re.compile(r'^\.define\s+(\w+)\s+(\w+)\s+(\.?\w+)', re.I)
+MAC_DEF = re.compile(r'^\s*\.mac(?:ro)?\s+(\w+)\s*(.*)$', re.I)
+MAC_END = re.compile(r'^\s*\.endmac(?:ro)?\b', re.I)
+CONTROL = re.compile(r'^\.(if\w*|else\w*|endif|local|assert|warning|error|out|set)\b', re.I)
+
+
+def macro_files(root):
+    """Macro sources: src/common/*.inc and every *.mac under src (e.g. menu/menu.mac)."""
+    src = Path(root) / "src"
+    return sorted(set((src / "common").glob("*.inc")) | set(src.rglob("*.mac")))
 
 
 def load_op_aliases(root):
-    """Names of `.define x op_n <mnemonic>, N` aliases from src/common (macros whose body is just `op`)."""
-    found = set()
-    for p in (Path(root) / "src" / "common").glob("*.inc"):
-        for line in p.read_text(encoding="utf-8", errors="replace").splitlines():
-            m = OP_ALIAS_DEF.match(line)
-            if m and m.group(2).lower() in MNEMONICS:
-                found.add(m.group(1).lower())
-    return found
+    """Fill OP_ALIASES, DATA_ALIASES and OP_WRAPPERS from the macro sources.
+
+    - `.define x op_n <mnemonic>, N` (inx2, asl4, nop3 ...): code.
+    - A `.mac` whose first parameter is `op` or `prefix` emits that operation (opflg, op_pos,
+      make_bitmask, array_op): a statement using it is classified by its first argument.
+    - `.define x <wrapper> <op>` (ldaflg = opflg lda #, bg_pos = op_pos .addr): code or data
+      by <op>.
+    - A `.mac` whose body statements (assembler control lines aside) are all code (clrflg):
+      code; all data (window_pos): data. Repeated until nothing changes, since macros use
+      each other.
+    Returns the code aliases (also kept in OP_ALIASES)."""
+    OP_ALIASES.clear()
+    DATA_ALIASES.clear()
+    OP_WRAPPERS.clear()
+    macros, defines = {}, []
+    for p in macro_files(root):
+        lines = p.read_text(encoding="utf-8", errors="replace").splitlines()
+        i = 0
+        while i < len(lines):
+            m = MAC_DEF.match(lines[i])
+            if m:
+                params = [x.strip().lower() for x in m.group(2).split(";", 1)[0].split(",") if x.strip()]
+                body = []
+                i += 1
+                while i < len(lines) and not MAC_END.match(lines[i]):
+                    body.append(lines[i])
+                    i += 1
+                macros[m.group(1).lower()] = (params, body)
+            else:
+                defines.append(lines[i])
+            i += 1
+    OP_WRAPPERS.update(n for n, (params, _) in macros.items() if params and params[0] in ("op", "prefix"))
+    for line in defines:
+        m = OP_ALIAS_DEF.match(line)
+        if m and m.group(2).lower() in MNEMONICS:
+            OP_ALIASES.add(m.group(1).lower())
+            continue
+        m = WRAPPED_ALIAS_DEF.match(line)
+        if m and m.group(2).lower() in OP_WRAPPERS:
+            op = m.group(3).lower()
+            if op in MNEMONICS:
+                OP_ALIASES.add(m.group(1).lower())
+            elif op in DATA_DIRS:
+                DATA_ALIASES.add(m.group(1).lower())
+    changed = True
+    while changed:
+        changed = False
+        for name, (_, body) in macros.items():
+            if name in OP_ALIASES or name in DATA_ALIASES or name in OP_WRAPPERS:
+                continue
+            stmts = [statement(b) for b in body]
+            kinds = {text_kind(s) for s in stmts if s and not CONTROL.match(s)}
+            if kinds == {"code"}:
+                OP_ALIASES.add(name)
+                changed = True
+            elif kinds == {"data"}:
+                DATA_ALIASES.add(name)
+                changed = True
+    return set(OP_ALIASES)
 
 
 def text_kind(text):
-    word = statement(text).split(None, 1)
-    if not word:
+    words = statement(text).split(None, 2)
+    if not words:
         return "other"
-    w = word[0].lower()
+    w = words[0].lower()
+    if w in OP_WRAPPERS and len(words) > 1:
+        w = words[1].rstrip(",").lower()      # the operation passed to the wrapper
     if w in MNEMONICS or w in OP_ALIASES:
         return "code"
-    if w in DATA_DIRS:
+    if w in DATA_DIRS or w in DATA_ALIASES:
         return "data"
     return "other"
 
@@ -205,8 +270,7 @@ def enclosing_spans(spans, segs):
 
 def build(dbg, srcs, rom):
     segs, spans = dbg["segs"], dbg["spans"]
-    OP_ALIASES.clear()
-    OP_ALIASES.update(load_op_aliases(srcs.root))
+    load_op_aliases(srcs.root)
     find_enclosing = enclosing_spans(spans, segs)
     by_span = {}
     for lid, (fid, ln, lt, sp) in dbg["lines"].items():

@@ -79,7 +79,9 @@ fi
 ROM=$(cygpath -m "${SNESRECOMP_ROM:-$WS/rom/Final Fantasy III (USA).sfc}")
 INI="$W/cosim.ini"
 sed 's/^EnableAudio = 1/EnableAudio = 0/' validation/regress.ini > "$INI"
-EXE_A=$(cygpath -m "$GR/build-cosim/FinalFantasyViSNESRecomp.exe")
+# A_BUILD=<dir> runs A from another co-sim build (e.g. one with SNESRECOMP_ENABLE_TRACE=ON);
+# A2 always comes from build-cosim.
+EXE_A=$(cygpath -m "${A_BUILD:-$GR/build-cosim}/FinalFantasyViSNESRecomp.exe")
 EXE_B=$(cygpath -m "$W/ref-build/ff6_cosim_ref.exe")
 A="$EXE_A --no-launcher --rom '$ROM' --config '$(cygpath -m "$INI")'"
 B="$EXE_B '$ROM'"

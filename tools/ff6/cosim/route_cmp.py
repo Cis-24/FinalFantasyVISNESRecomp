@@ -19,7 +19,8 @@ differences is logged as TRANSIENT when it ends within --grace checkpoints; othe
 run halts with a report (differing ranges with both values, CPU of both sides).
 
   python route_cmp.py <snes_cosim dir> --a-cmd CMD --b-cmd CMD [--a-env K=V ...]
-         [--b-env K=V ...] --max N [--grace G] [--dump-dir DIR]
+         [--b-env K=V ...] --max N [--grace G] [--dump-dir DIR] [--side-logs DIR]
+         [--watch ADDR,... --watch-range LO-HI]
 
 Exit code 0 when no live divergence outlasts the grace, 1 when the run halts on one.
 """
@@ -80,6 +81,9 @@ def main():
                     help="comma list of WRAM offsets printed for A and B at every checkpoint "
                     "of --watch-range, with both CPUs (diagnostics)")
     ap.add_argument("--watch-range", default="", help="LO-HI checkpoints for --watch")
+    ap.add_argument("--side-logs", default="",
+                    help="directory for the stdout/stderr of A and B (stderr_A.txt, "
+                    "stderr_B.txt) instead of this process's output")
     args = ap.parse_args()
     watch = [int(x, 0) for x in args.watch.split(",") if x]
     w_lo, w_hi = (int(x) for x in args.watch_range.split("-")) if args.watch_range else (0, -1)
@@ -89,8 +93,24 @@ def main():
 
     os.makedirs(args.dump_dir, exist_ok=True)
     path = {s: os.path.join(args.dump_dir, f"route_cmp_{s}.bin") for s in "AB"}
+    real_popen = sc.subprocess.Popen
+
+    def popen_to(name):
+        def popen(*pargs, **kw):
+            out = open(os.path.join(args.side_logs, f"stderr_{name}.txt"), "wb")
+            kw["stderr"] = out
+            kw["stdout"] = out
+            return real_popen(*pargs, **kw)
+        return popen
+
+    if args.side_logs:
+        os.makedirs(args.side_logs, exist_ok=True)
+        sc.subprocess.Popen = popen_to("A")
     a = sc.Side("A", 4500, args.a_cmd, 1, 0, args.a_env)
+    if args.side_logs:
+        sc.subprocess.Popen = popen_to("B")
     b = sc.Side("B", 4501, args.b_cmd, 1, 0, args.b_env)
+    sc.subprocess.Popen = real_popen
     a.connect()
     b.connect()
     print(f"connected: A:4500 B:4501, WRAM with the dead-stack rule "

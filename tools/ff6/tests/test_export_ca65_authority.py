@@ -94,6 +94,53 @@ class ExportTest(unittest.TestCase):
         _, rep = self.run_export()
         self.assertTrue(any("length 4" in c for c in rep["conflicts"]))
 
+    def test_macro_aliases(self):
+        # The bitmask and position macros of the ff6 sources: a wrapper takes the operation as
+        # its first parameter, aliases fix it, clrflg is all code. ldaflg at C2/4600 (the
+        # wound handler of SetStatusTbl) was unclassified before, so the dispatch dropped it.
+        common = self.tmp / "src/common"
+        common.mkdir(parents=True)
+        (common / "bitmask.inc").write_text("""
+.mac make_bitmask prefix, base_val, namespace, b1, b2
+        @val .set 0
+        prefix @val | base_val
+.endmac
+.mac opflg op, namespace, flags
+        make_bitmask op, 0, namespace, flags
+.endmac
+.define ldaflg opflg lda #,
+.define peaflg opflg pea,
+.mac clrflg namespace, flags
+        .if .asize = 8
+                opflg and #$ff^, namespace, {flags}
+        .else
+                opflg and #$ffff^, namespace, {flags}
+        .endif
+.endmac
+.define inx2 op_n inx, 2
+""")
+        (self.tmp / "src/menu").mkdir()
+        (self.tmp / "src/menu/menu.mac").write_text("""
+.mac op_pos op, screen, xy_pos
+        _op_pos op, screen, xy_pos
+.endmac
+.define ldx_pos op_pos ldx #,
+.define bg_pos op_pos .addr,
+.mac window_pos screen, xy_pos
+        bg_pos screen, xy_pos
+        .byte 1, 2
+.endmac
+""")
+        ex.load_op_aliases(self.tmp)
+        for text in ("@4600:  ldaflg  STATUS12, {PETRIFY, CONDEMNED}", "peaflg STATUS12, {POISON}",
+                     "clrflg STATUS34, {RERAISE}", "@9435:  ldx_pos BG3A, {9, 11}",
+                     "opflg lda #, NS, {A}", "inx2", "lda #$12"):
+            self.assertEqual(ex.text_kind(text), "code", text)
+        self.assertEqual(ex.text_kind("bg_pos BG1A, {1, 2}"), "data")
+        self.assertEqual(ex.text_kind("window_pos BG1A, {1, 2}"), "data")
+        self.assertEqual(ex.text_kind("make_bitmask op, 0, namespace, flags"), "other")
+        self.assertEqual(ex.text_kind("Tbl:    .word $0102"), "data")
+
     def test_opcode_table(self):
         for op, n in {0xA9: "M", 0xA2: "X", 0x22: "4", 0x60: "1", 0xD0: "2", 0x82: "3", 0xBF: "4"}.items():
             self.assertEqual(ex.OPLEN[op], n)

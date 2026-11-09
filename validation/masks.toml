@@ -591,23 +591,9 @@ tags   = ["b_victory", "b_msg1", "b_msg2", "b_msg3"]
 
 [[mask]]
 file   = "wram"
-start  = 0x3a57
-end    = 0x3a57
-reason = """Zugstatus (siehe $3200)."""
-tags   = ["b_victory", "b_msg1", "b_msg2", "b_msg3"]
-
-[[mask]]
-file   = "wram"
 start  = 0x3aad
 end    = 0x3aaf
 reason = """Zugstatus (siehe $3200), nur Bit 7 je Figur verschieden."""
-tags   = ["b_victory", "b_msg1", "b_msg2", "b_msg3"]
-
-[[mask]]
-file   = "wram"
-start  = 0x3ef1
-end    = 0x3ef1
-reason = """Zugstatus (siehe $3200)."""
 tags   = ["b_victory", "b_msg1", "b_msg2", "b_msg3"]
 
 [[mask]]
@@ -868,22 +854,8 @@ tags   = ["m04", "m07", "m09"]
 
 [[mask]]
 file   = "wram"
-start  = 0x3a57
-end    = 0x3a57
-reason = """Stand der periodischen Statuspruefung beim Tod der Wachen. Die Route setzt beide Wachen per poke auf 1 HP; ob die Umlaufpruefung ($3A91, notes/battle-ram.txt:896) sie vor dem toedlichen Treffer erreicht (Near Fatal = Status 2 Bit 1 in $3EF1/$3EF3, common/const.inc STATUS2; $3AA1.7 in $3AAD/$3AAF, notes/battle-ram.txt:921; $3A57), haengt an der Zahl der BattleLoop-Durchlaeufe, also am Lag."""
-tags   = ["victory", "msg1", "msg2", "msg3"]
-
-[[mask]]
-file   = "wram"
 start  = 0x3aad
 end    = 0x3aaf
-reason = """Stand der periodischen Statuspruefung beim Tod der Wachen. Die Route setzt beide Wachen per poke auf 1 HP; ob die Umlaufpruefung ($3A91, notes/battle-ram.txt:896) sie vor dem toedlichen Treffer erreicht (Near Fatal = Status 2 Bit 1 in $3EF1/$3EF3, common/const.inc STATUS2; $3AA1.7 in $3AAD/$3AAF, notes/battle-ram.txt:921; $3A57), haengt an der Zahl der BattleLoop-Durchlaeufe, also am Lag."""
-tags   = ["victory", "msg1", "msg2", "msg3"]
-
-[[mask]]
-file   = "wram"
-start  = 0x3ef1
-end    = 0x3ef3
 reason = """Stand der periodischen Statuspruefung beim Tod der Wachen. Die Route setzt beide Wachen per poke auf 1 HP; ob die Umlaufpruefung ($3A91, notes/battle-ram.txt:896) sie vor dem toedlichen Treffer erreicht (Near Fatal = Status 2 Bit 1 in $3EF1/$3EF3, common/const.inc STATUS2; $3AA1.7 in $3AAD/$3AAF, notes/battle-ram.txt:921; $3A57), haengt an der Zahl der BattleLoop-Durchlaeufe, also am Lag."""
 tags   = ["victory", "msg1", "msg2", "msg3"]
 
@@ -1590,22 +1562,8 @@ tags   = ["c04", "c07"]
 
 [[mask]]
 file   = "wram"
-start  = 0x3a57
-end    = 0x3a57
-reason = """Stand der periodischen Statuspruefung beim Tod der Wachen. Die Route setzt beide Wachen per poke auf 1 HP; ob die Umlaufpruefung ($3A91, notes/battle-ram.txt:896) sie vor dem toedlichen Treffer erreicht (Near Fatal = Status 2 Bit 1 in $3EF1/$3EF3, common/const.inc STATUS2; $3AA1.7 in $3AAD/$3AAF, notes/battle-ram.txt:921; $3A57), haengt an der Zahl der BattleLoop-Durchlaeufe, also am Lag."""
-tags   = ["c_victory", "c_msg1", "c_msg2", "c_msg3"]
-
-[[mask]]
-file   = "wram"
 start  = 0x3aad
 end    = 0x3aaf
-reason = """Stand der periodischen Statuspruefung beim Tod der Wachen. Die Route setzt beide Wachen per poke auf 1 HP; ob die Umlaufpruefung ($3A91, notes/battle-ram.txt:896) sie vor dem toedlichen Treffer erreicht (Near Fatal = Status 2 Bit 1 in $3EF1/$3EF3, common/const.inc STATUS2; $3AA1.7 in $3AAD/$3AAF, notes/battle-ram.txt:921; $3A57), haengt an der Zahl der BattleLoop-Durchlaeufe, also am Lag."""
-tags   = ["c_victory", "c_msg1", "c_msg2", "c_msg3"]
-
-[[mask]]
-file   = "wram"
-start  = 0x3ef1
-end    = 0x3ef3
 reason = """Stand der periodischen Statuspruefung beim Tod der Wachen. Die Route setzt beide Wachen per poke auf 1 HP; ob die Umlaufpruefung ($3A91, notes/battle-ram.txt:896) sie vor dem toedlichen Treffer erreicht (Near Fatal = Status 2 Bit 1 in $3EF1/$3EF3, common/const.inc STATUS2; $3AA1.7 in $3AAD/$3AAF, notes/battle-ram.txt:921; $3A57), haengt an der Zahl der BattleLoop-Durchlaeufe, also am Lag."""
 tags   = ["c_victory", "c_msg1", "c_msg2", "c_msg3"]
 
