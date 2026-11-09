@@ -91,12 +91,38 @@ static void CosimApuLog(void)
     }
     frame++;
 }
+
+/* Co-sim input: with FF6_COSIM_INPUT_LOG=<file>, write the joypad 1 mask that the next
+ * frame runs with, one line "frame hexmask" whenever it differs from the previous frame's;
+ * frame = frames run before it, counted from reset. The reference replays the file
+ * (FF6_REF_INPUT_FILE, ref_driver_ff6.patch), so a route script on A drives both sides
+ * with the same input per frame (tools/ff6/cosim/cosim.sh route). */
+static void CosimInputLog(void)
+{
+    static int init;
+    static FILE *f;
+    static unsigned long long frame;
+    static unsigned previous;
+    if (!init) {
+        const char *path = getenv("FF6_COSIM_INPUT_LOG");
+        init = 1;
+        if (path && path[0] && !(f = fopen(path, "w")))
+            fprintf(stderr, "[inputlog] cannot write '%s'\n", path);
+    }
+    if (f && g_snes && g_snes->input1_currentState != previous) {
+        previous = g_snes->input1_currentState;
+        fprintf(f, "%llu %03x\n", frame, previous);
+        fflush(f);   /* the coordinator terminates A without a flush */
+    }
+    frame++;
+}
 #endif
 
 void GameRunOneFrame(void)
 {
 #ifdef SNES_COSIM
     CosimApuLog();
+    CosimInputLog();
 #endif
     snes_beam_frame_driver_run_frame();
 }

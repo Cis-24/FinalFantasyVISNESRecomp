@@ -12,7 +12,9 @@ set(RUNSNES ${GR}/snesrecomp/runner/src)
 # (git apply, MSYS2 has no patch). It aligns the reference with the beam frame driver: frame
 # cut at the vblank edge (V=225) before the NMI, master clocks per bus transfer by region
 # (snes_cycles.h, MEMSEL from $420D), internal cycles at 6, DRAM refresh 40 per 1364, and the
-# $420B DMA time through snes_set_master_clock_charge_hook.
+# $420B DMA time through snes_set_master_clock_charge_hook, the RDNMI poll window of snesrecomp
+# patch 0003 (a poll parked at the frame start reads the flag before the NMI).
+# FF6_REF_INPUT_FILE replays the A side's joypad 1 log per frame (cosim.sh route).
 set(PATCHED ${CMAKE_BINARY_DIR}/patched)
 add_custom_command(
     OUTPUT ${PATCHED}/ref_driver.c
