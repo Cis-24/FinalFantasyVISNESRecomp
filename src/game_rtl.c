@@ -116,6 +116,59 @@ static void CosimInputLog(void)
     }
     frame++;
 }
+
+/* Co-sim port log: with FF6_COSIM_PORT_LOG=<file> and FF6_COSIM_PORT_LOG_FRAMES=lo-hi, write
+ * every CPU access to $2140-$2143 in frames lo..hi (frames run before, as above) as
+ * "f=frame m=master spc=portClock W|R p=port v=value". Writes are logged when the
+ * runtime hands them over (before it schedules them at their guest SPC cycle), reads
+ * after the SPC sync, so m is the time the runtime uses for the access. The reference
+ * writes the same lines (FF6_REF_PORT_LOG, ref_driver_ff6.patch). */
+#include "common_rtl.h"
+static FILE *s_port_log;
+static unsigned long long s_port_lo, s_port_hi, s_port_frame;
+
+static void CosimPortLine(char kind, uint16 reg, uint8 value)
+{
+    if (!s_port_log || s_port_frame < s_port_lo || s_port_frame > s_port_hi) return;
+    fprintf(s_port_log, "f=%llu m=%llu spc=%llu %c p=%u v=%02x\n", s_port_frame,
+            (unsigned long long)g_cpu.master_cycles,
+            (unsigned long long)g_snes->apu->portClock, kind, (unsigned)(reg & 3), value);
+}
+
+static int CosimPortWrite(uint16 reg, uint8 value)
+{
+    CosimPortLine('W', reg, value);
+    return 0;   /* observe only */
+}
+
+static int CosimPortRead(uint16 reg, uint8 *value)
+{
+    CosimPortLine('R', reg, *value);
+    return 0;
+}
+
+static void CosimPortLogFrame(void)
+{
+    static int init;
+    if (!init) {
+        const char *path = getenv("FF6_COSIM_PORT_LOG");
+        const char *range = getenv("FF6_COSIM_PORT_LOG_FRAMES");
+        init = 1;
+        if (path && path[0] && range &&
+            sscanf(range, "%llu-%llu", &s_port_lo, &s_port_hi) == 2) {
+            s_port_log = fopen(path, "w");
+            if (s_port_log) {
+                RtlAddApuPortObserver(CosimPortWrite);
+                RtlAddApuPortReadObserver(CosimPortRead);
+            } else {
+                fprintf(stderr, "[portlog] cannot write '%s'\n", path);
+            }
+        }
+    } else {
+        s_port_frame++;
+    }
+    if (s_port_log) fflush(s_port_log);   /* the coordinator terminates A without a flush */
+}
 #endif
 
 void GameRunOneFrame(void)
@@ -123,6 +176,7 @@ void GameRunOneFrame(void)
 #ifdef SNES_COSIM
     CosimApuLog();
     CosimInputLog();
+    CosimPortLogFrame();
 #endif
     snes_beam_frame_driver_run_frame();
 }

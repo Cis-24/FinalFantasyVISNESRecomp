@@ -78,27 +78,40 @@
  /* The ref advances the APU in its own frame loop (accurate rate), so the
   * runner's per-touch catch-up accumulator is a no-op here. */
  void rtl_accumulate_apu_catchup(void) {}
-@@ -90,6 +145,8 @@ void dsp_shadow_verify_echo(const int16_t *l, const int16_t *r, const int8_t *co
+@@ -87,10 +142,18 @@ void dsp_shadow_verify_echo(const int16_t *l, const int16_t *r, const int8_t *co
+     (void)l;(void)r;(void)co;(void)idx;(void)sL;(void)sR;
+ }
+ 
++static void ref_port_sync(uint32_t adr, unsigned speed);   /* FF6 variant, below */
++static void ref_port_log(char kind, uint32_t adr, unsigned speed, uint8_t v);
++
  /* ── interp816 memory bus = the runner's self-contained SNES bus ─────────── */
  static uint8_t bus_read(void *mem, uint32_t adr) {
      (void)mem;
++    unsigned speed = snes_region_speed(adr, s_memsel);
 +    s_bus_cycles++;
-+    s_bus_master += (uint64_t)snes_region_speed(adr, s_memsel);
++    s_bus_master += (uint64_t)speed;
++    ref_port_sync(adr, speed);                      /* FF6 variant */
      uint8_t value = snes_read(g_snes, adr);
++    ref_port_log('R', adr, speed, value);           /* FF6 variant */
      uint16_t reg = (uint16_t)adr;
      uint8_t bank = (uint8_t)(adr >> 16);
-@@ -114,6 +171,10 @@ static void bus_write(void *mem, uint32_t adr, uint8_t v) {
+     bool hardware_bank = bank < 0x40 || (bank >= 0x80 && bank < 0xc0);
+@@ -114,6 +177,13 @@ static void bus_write(void *mem, uint32_t adr, uint8_t v) {
      if ((bank < 0x40 || (bank >= 0x80 && bank < 0xc0)) &&
          (uint16_t)adr == 0x4016)
          s_joy_strobe_writes++;
++    unsigned speed = snes_region_speed(adr, s_memsel);
 +    s_bus_cycles++;
-+    s_bus_master += (uint64_t)snes_region_speed(adr, s_memsel);
++    s_bus_master += (uint64_t)speed;
 +    if ((bank < 0x40 || (bank >= 0x80 && bank < 0xc0)) && (uint16_t)adr == 0x420d)
 +        s_memsel = v & 1;
++    ref_port_sync(adr, speed);                      /* FF6 variant */
++    ref_port_log('W', adr, speed, v);               /* FF6 variant */
      snes_write(g_snes, adr, v);
  }
  
-@@ -303,9 +364,51 @@ static bool add_input_event(const char *text) {
+@@ -303,9 +373,51 @@ static bool add_input_event(const char *text) {
      return true;
  }
  
@@ -150,7 +163,29 @@
      for (uint32_t i = 0; i < s_input_event_count; i++) {
          InputEvent *event = &s_input_events[i];
          if (s_frames >= event->start &&
-@@ -357,6 +460,9 @@ static void handle_pos_stuff(Snes *snes) {
+@@ -326,13 +438,18 @@ static void handle_pos_stuff(Snes *snes) {
+         snes->autoJoyTimer =
+             snes->autoJoyTimer <= 2 ? 0 : (uint16_t)(snes->autoJoyTimer - 2);
+ 
+-    /* H/V timer IRQ */
++    /* H/V timer IRQ. FF6 variant: on line VTIME, like the beam frame driver (snes.c
++     * snes_next_irq_master: line vTimer at H = 4 * hTimer, or H = 0 without the H timer)
++     * and snes9x (ppu.cpp S9xUpdateIRQPositions: line VTIME, 10 master clocks into it for
++     * a V-only IRQ). This driver fired on line VTIME + 1, a V-only IRQ at H = 1024: about
++     * 2388 master clocks late, which moved FF6's field IRQ from the CPU part of a song
++     * transfer handshake into its poll and changed the transfer rate. */
+     if (snes->vIrqEnabled && snes->hIrqEnabled) {
+-        if (snes->vPos == (snes->vTimer + 1) && snes->hPos == (4 * snes->hTimer)) {
++        if (snes->vPos == snes->vTimer && snes->hPos == (4 * snes->hTimer)) {
+             snes->inIrq = true; cpu->irqWanted = true;
+         }
+     } else if (snes->vIrqEnabled && !snes->hIrqEnabled) {
+-        if (snes->vPos == (snes->vTimer + 1) && snes->hPos == 1024) {
++        if (snes->vPos == snes->vTimer && snes->hPos == 0) {
+             snes->inIrq = true; cpu->irqWanted = true;
+         }
+     } else if (!snes->vIrqEnabled && snes->hIrqEnabled) {
+@@ -357,6 +474,9 @@ static void handle_pos_stuff(Snes *snes) {
              snes->inNmi = true;
              if (snes->nmiEnabled) cpu->nmiWanted = true;   /* deliver NMI */
              if (snes->autoJoyRead) snes->autoJoyTimer = 4224;
@@ -160,25 +195,82 @@
          }
      } else if (snes->hPos == 1024) {
          if (!snes->inVblank) dma_doHdma(snes->dma);
-@@ -366,10 +472,52 @@ static void handle_pos_stuff(Snes *snes) {
+@@ -366,10 +486,109 @@ static void handle_pos_stuff(Snes *snes) {
      if (snes->hPos == 1364) {
          snes->hPos = 0;
          snes->vPos++;
 -        if (snes->vPos == 262) { snes->vPos = 0; s_frames++; }
 +        if (snes->vPos == 262) snes->vPos = 0;
-     }
- }
- 
-+/* FF6 variant: advance guest time (beam walk + accurate APU) by `master` clocks. */
-+static void ref_advance(uint64_t master) {
++    }
++}
++
++/* FF6 variant: advance the SPC alone by `master` clocks. */
++static void ref_apu_advance(uint64_t master) {
 +    Snes *snes = g_snes;
-+    g_ref_master_cycles += master;
-+    for (uint64_t i = 0; i < master; i += 2) handle_pos_stuff(snes);
 +    if (s_apu_like_a < 0) s_apu_like_a = getenv("FF6_REF_APU_LIKE_A") != NULL;
 +    if (s_apu_like_a && !s_spc_started) return;   /* SPC stands still until the first write */
 +    /* accurate APU: advance the real SPC at the true rate */
 +    snes->apuCatchupCycles += (double)master * kApuCyclesPerMaster;
 +    snes_catchupApu(snes);
++}
++
++/* FF6 variant: advance guest time (beam walk + accurate APU) by `master` clocks. */
++static void ref_advance(uint64_t master) {
++    Snes *snes = g_snes;
++    g_ref_master_cycles += master;
++    for (uint64_t i = 0; i < master; i += 2) handle_pos_stuff(snes);
++    ref_apu_advance(master);
++}
++
++/* FF6 variant: APU port accesses at their bus cycle. snes9x runs the SPC up to the CPU clock
++ * at the start of a port access, after the opcode's earlier fetches, transfers and internal
++ * cycles (apu.cpp S9xAPUReadPort/S9xAPUWritePort, getset.h). This driver advanced the SPC
++ * only after the whole opcode, so a port read saw the SPC as of the opcode start and a port
++ * write (latched at once, RtlApuWrite) reached it there. Now, before an access to
++ * $2140-$217F the SPC catches up to the opcode start plus the bus transfers before this one
++ * (s_apu_given); the rest of the opcode follows after it. Internal cycles that precede a
++ * transfer inside an opcode (indexed modes) are not placed; FF6 reaches the ports with
++ * absolute addressing only (sound_main.asm). FF6_REF_PORT_AT_OPCODE=1 restores the old
++ * timing (diagnostic). */
++static uint64_t s_apu_given;       /* master clocks of the current opcode the SPC already has */
++static int      s_port_at_opcode = -1;
++
++static void ref_port_sync(uint32_t adr, unsigned speed) {
++    uint8_t bank = (uint8_t)(adr >> 16);
++    if (!(bank < 0x40 || (bank >= 0x80 && bank < 0xc0)) || (adr & 0xFFC0u) != 0x2140u)
++        return;
++    if (s_port_at_opcode < 0) s_port_at_opcode = getenv("FF6_REF_PORT_AT_OPCODE") != NULL;
++    if (s_port_at_opcode) return;
++    uint64_t at = s_bus_master - speed;            /* start of this transfer */
++    if (at > s_apu_given) {
++        ref_apu_advance(at - s_apu_given);
++        s_apu_given = at;
+     }
+ }
+ 
++/* FF6 variant, diagnostic: FF6_REF_PORT_LOG=<file> with FF6_REF_PORT_LOG_FRAMES=lo-hi writes
++ * every CPU access to $2140-$2143 in frames lo..hi (frame = cuts so far) as
++ * "f=frame m=master spc=portClock W|R p=port v=value", m = the start of the transfer, the
++ * same line as src/game_rtl.c (FF6_COSIM_PORT_LOG). */
++static void ref_port_log(char kind, uint32_t adr, unsigned speed, uint8_t v) {
++    static int init;
++    static FILE *f;
++    static unsigned long long lo, hi;
++    uint8_t bank = (uint8_t)(adr >> 16);
++    if (!(bank < 0x40 || (bank >= 0x80 && bank < 0xc0)) || (adr & 0xFFC0u) != 0x2140u)
++        return;
++    if (!init) {
++        const char *path = getenv("FF6_REF_PORT_LOG");
++        const char *range = getenv("FF6_REF_PORT_LOG_FRAMES");
++        init = 1;
++        if (path && path[0] && range && sscanf(range, "%llu-%llu", &lo, &hi) == 2)
++            f = fopen(path, "w");
++    }
++    if (!f || s_frames < lo || s_frames > hi) return;
++    fprintf(f, "f=%llu m=%llu spc=%llu %c p=%u v=%02x\n", (unsigned long long)s_frames,
++            (unsigned long long)(g_ref_master_cycles + s_bus_master - speed),
++            (unsigned long long)g_snes->apu->portClock, kind, (unsigned)(adr & 3), v);
++    fflush(f);
 +}
 +
 +/* FF6 variant: a $420B DMA's guest time (snes.c charges it before the transfer).
@@ -214,7 +306,7 @@
  /* ── one guest frame: interp opcodes interleaved with H/V + accurate APU ─── */
  static bool run_one_frame(void) {
      Snes *snes = g_snes;
-@@ -377,23 +525,78 @@ static bool run_one_frame(void) {
+@@ -377,23 +596,84 @@ static bool run_one_frame(void) {
      uint64_t target = s_frames + 1;
      /* Guard against a runaway (spin with no vPos progress): cap opcodes/frame. */
      long guard = 20000000;
@@ -296,11 +388,17 @@
 +        s_refresh_phase -= lines * 1364u;
 +        master += 40u * lines;
 +        s_bus_cycles = 0; s_bus_master = 0; s_dma_master = 0;
-+        ref_advance(master);
++        {   /* FF6 variant: the SPC already has s_apu_given of this opcode (port accesses). */
++            uint64_t apu_rest = master > s_apu_given ? master - s_apu_given : 0;
++            s_apu_given = 0;
++            g_ref_master_cycles += master;
++            for (uint64_t i = 0; i < master; i += 2) handle_pos_stuff(snes);
++            ref_apu_advance(apu_rest);
++        }
      }
      return guard > 0;
  }
-@@ -445,6 +648,7 @@ int main(int argc, char **argv) {
+@@ -445,6 +725,7 @@ int main(int argc, char **argv) {
      if (!data) { fprintf(stderr, "ref: cannot read ROM '%s'\n", rom); return 1; }
  
      g_snes = snes_init(g_ram);
@@ -308,7 +406,7 @@
      cart_set_master_clock_source(g_snes->cart, &g_ref_master_cycles);
      g_ppu = g_snes->ppu;
      if (!snes_loadRom(g_snes, data, (int)size)) { fprintf(stderr, "ref: loadRom failed\n"); return 1; }
-@@ -455,6 +659,7 @@ int main(int argc, char **argv) {
+@@ -455,6 +736,7 @@ int main(int argc, char **argv) {
      /* interp816 drives the bus; reset reads the reset vector via bus_read. */
      g_ref_cpu = interp816_init(NULL, bus_read, bus_write);
      interp816_reset(g_ref_cpu);
@@ -316,7 +414,7 @@
  
      fprintf(stderr, "ref: interp816 + runner devices, headless attract\n");
      if (!standalone_frames)
-@@ -466,6 +671,22 @@ int main(int argc, char **argv) {
+@@ -466,6 +748,22 @@ int main(int argc, char **argv) {
                      (unsigned long long)s_frames);
              return 1;
          }
@@ -339,7 +437,7 @@
          collect_logic_stats();
          collect_video_stats();
          /* Deterministic audio consumer: drain one frame's worth so the DSP ring
-@@ -506,6 +727,11 @@ int main(int argc, char **argv) {
+@@ -506,6 +804,11 @@ int main(int argc, char **argv) {
              cosim_frame();
          }
      }

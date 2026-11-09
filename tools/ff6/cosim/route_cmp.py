@@ -10,7 +10,9 @@ and each differing offset is classified:
   beam  $0630-$0632: after its work the field loop latches the beam and stores the H and V
         counters and the highest V of the last 256 frames (field/reset.asm, a CPU load
         gauge). No code reads them for a decision; they show where in the frame the work
-        ended. The V difference A minus B is counted per checkpoint.
+        ended. The V difference A minus B is counted per checkpoint. Also their copy at
+        $F230-$F232: PushMode7Vars (world/init.asm) saves $0520-$0BFF to $7EF120 when the
+        world module starts and PopMode7Vars copies it back.
   live  everything else.
 A checkpoint with dead or beam differences only counts as equal. A run of checkpoints with live
 differences is logged as TRANSIENT when it ends within --grace checkpoints; otherwise the
@@ -27,7 +29,7 @@ import sys
 import time
 
 STACK_LO, STACK_HI = 0x1508, 0x15FF
-BEAM = range(0x0630, 0x0633)
+BEAM = set(range(0x0630, 0x0633)) | set(range(0xF230, 0xF233))
 
 
 def ranges(offs, gap=4):

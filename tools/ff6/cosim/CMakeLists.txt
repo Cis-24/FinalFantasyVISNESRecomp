@@ -13,7 +13,9 @@ set(RUNSNES ${GR}/snesrecomp/runner/src)
 # cut at the vblank edge (V=225) before the NMI, master clocks per bus transfer by region
 # (snes_cycles.h, MEMSEL from $420D), internal cycles at 6, DRAM refresh 40 per 1364, and the
 # $420B DMA time through snes_set_master_clock_charge_hook, the RDNMI poll window of snesrecomp
-# patch 0003 (a poll parked at the frame start reads the flag before the NMI).
+# patch 0003 (a poll parked at the frame start reads the flag before the NMI), APU port
+# accesses at the start of their bus transfer (as snes9x), and the H/V timer IRQ on line VTIME
+# (the driver fired it one line late).
 # FF6_REF_INPUT_FILE replays the A side's joypad 1 log per frame (cosim.sh route).
 set(PATCHED ${CMAKE_BINARY_DIR}/patched)
 add_custom_command(
