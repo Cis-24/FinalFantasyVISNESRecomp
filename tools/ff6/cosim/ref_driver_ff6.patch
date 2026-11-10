@@ -1,3 +1,5 @@
+diff --git a/ref_driver.c b/ref_driver.c
+index b3aa831..e95f13f 100644
 --- a/ref_driver.c
 +++ b/ref_driver.c
 @@ -33,6 +33,7 @@
@@ -111,7 +113,7 @@
      snes_write(g_snes, adr, v);
  }
  
-@@ -303,9 +373,51 @@ static bool add_input_event(const char *text) {
+@@ -303,9 +373,90 @@ static bool add_input_event(const char *text) {
      return true;
  }
  
@@ -156,14 +158,53 @@
 +    return true;
 +}
 +
++/* FF6 variant: FF6_REF_POKE_FILE=<file> replays the WRAM writes of the A side's route script
++ * (src/game_rtl.c, FF6_COSIM_POKE_LOG): one line "frame addr hexbytes" per run of changed
++ * bytes, in frame order; the bytes are written before that frame runs (frames run before it,
++ * counted from reset), where the A host applies poke, pokefor and forcepoke. */
++static int      s_pk_file = -1;
++static FILE    *s_pk_f;
++
++static void poke_file_apply(void) {
++    static bool have;
++    static unsigned long long frame;
++    static unsigned addr;
++    static char hex[2 * 0x20000 + 2];
++    if (s_pk_file < 0) {
++        const char *path = getenv("FF6_REF_POKE_FILE");
++        s_pk_file = path && path[0];
++        if (s_pk_file) {
++            s_pk_f = fopen(path, "r");
++            if (!s_pk_f) {
++                fprintf(stderr, "ref: cannot read FF6_REF_POKE_FILE '%s'\n", path);
++                exit(1);
++            }
++            have = fscanf(s_pk_f, "%llu %x %262145s", &frame, &addr, hex) == 3;
++        }
++    }
++    if (!s_pk_file) return;
++    while (have && frame <= s_frames) {
++        if (frame < s_frames)
++            fprintf(stderr, "ref: poke for frame %llu applied late at %llu\n", frame,
++                    (unsigned long long)s_frames);
++        for (size_t i = 0; hex[2 * i] && hex[2 * i + 1] && addr + i < sizeof g_ram; i++) {
++            unsigned byte = 0;
++            sscanf(hex + 2 * i, "%2x", &byte);
++            g_ram[addr + i] = (uint8_t)byte;
++        }
++        have = fscanf(s_pk_f, "%llu %x %262145s", &frame, &addr, hex) == 3;
++    }
++}
++
  static void apply_frame_input(void) {
      static uint16_t previous;
      uint16_t input = 0;
++    poke_file_apply();   /* FF6 variant */
 +    if (!input_file_mask(&input))   /* FF6 variant */
      for (uint32_t i = 0; i < s_input_event_count; i++) {
          InputEvent *event = &s_input_events[i];
          if (s_frames >= event->start &&
-@@ -326,13 +438,18 @@ static void handle_pos_stuff(Snes *snes) {
+@@ -326,13 +477,18 @@ static void handle_pos_stuff(Snes *snes) {
          snes->autoJoyTimer =
              snes->autoJoyTimer <= 2 ? 0 : (uint16_t)(snes->autoJoyTimer - 2);
  
@@ -185,7 +226,7 @@
              snes->inIrq = true; cpu->irqWanted = true;
          }
      } else if (!snes->vIrqEnabled && snes->hIrqEnabled) {
-@@ -357,6 +474,9 @@ static void handle_pos_stuff(Snes *snes) {
+@@ -357,6 +513,9 @@ static void handle_pos_stuff(Snes *snes) {
              snes->inNmi = true;
              if (snes->nmiEnabled) cpu->nmiWanted = true;   /* deliver NMI */
              if (snes->autoJoyRead) snes->autoJoyTimer = 4224;
@@ -195,7 +236,7 @@
          }
      } else if (snes->hPos == 1024) {
          if (!snes->inVblank) dma_doHdma(snes->dma);
-@@ -366,10 +486,109 @@ static void handle_pos_stuff(Snes *snes) {
+@@ -366,10 +525,109 @@ static void handle_pos_stuff(Snes *snes) {
      if (snes->hPos == 1364) {
          snes->hPos = 0;
          snes->vPos++;
@@ -306,7 +347,7 @@
  /* ── one guest frame: interp opcodes interleaved with H/V + accurate APU ─── */
  static bool run_one_frame(void) {
      Snes *snes = g_snes;
-@@ -377,23 +596,84 @@ static bool run_one_frame(void) {
+@@ -377,23 +635,84 @@ static bool run_one_frame(void) {
      uint64_t target = s_frames + 1;
      /* Guard against a runaway (spin with no vPos progress): cap opcodes/frame. */
      long guard = 20000000;
@@ -398,7 +439,7 @@
      }
      return guard > 0;
  }
-@@ -445,6 +725,7 @@ int main(int argc, char **argv) {
+@@ -445,6 +764,7 @@ int main(int argc, char **argv) {
      if (!data) { fprintf(stderr, "ref: cannot read ROM '%s'\n", rom); return 1; }
  
      g_snes = snes_init(g_ram);
@@ -406,7 +447,7 @@
      cart_set_master_clock_source(g_snes->cart, &g_ref_master_cycles);
      g_ppu = g_snes->ppu;
      if (!snes_loadRom(g_snes, data, (int)size)) { fprintf(stderr, "ref: loadRom failed\n"); return 1; }
-@@ -455,6 +736,7 @@ int main(int argc, char **argv) {
+@@ -455,6 +775,7 @@ int main(int argc, char **argv) {
      /* interp816 drives the bus; reset reads the reset vector via bus_read. */
      g_ref_cpu = interp816_init(NULL, bus_read, bus_write);
      interp816_reset(g_ref_cpu);
@@ -414,7 +455,7 @@
  
      fprintf(stderr, "ref: interp816 + runner devices, headless attract\n");
      if (!standalone_frames)
-@@ -466,6 +748,22 @@ int main(int argc, char **argv) {
+@@ -466,6 +787,22 @@ int main(int argc, char **argv) {
                      (unsigned long long)s_frames);
              return 1;
          }
@@ -437,7 +478,7 @@
          collect_logic_stats();
          collect_video_stats();
          /* Deterministic audio consumer: drain one frame's worth so the DSP ring
-@@ -506,6 +804,11 @@ int main(int argc, char **argv) {
+@@ -506,6 +843,11 @@ int main(int argc, char **argv) {
              cosim_frame();
          }
      }

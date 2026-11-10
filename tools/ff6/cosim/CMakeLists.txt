@@ -16,7 +16,8 @@ set(RUNSNES ${GR}/snesrecomp/runner/src)
 # patch 0003 (a poll parked at the frame start reads the flag before the NMI), APU port
 # accesses at the start of their bus transfer (as snes9x), and the H/V timer IRQ on line VTIME
 # (the driver fired it one line late).
-# FF6_REF_INPUT_FILE replays the A side's joypad 1 log per frame (cosim.sh route).
+# FF6_REF_INPUT_FILE replays the A side's joypad 1 log per frame, FF6_REF_POKE_FILE the WRAM
+# writes of its route script (cosim.sh route).
 set(PATCHED ${CMAKE_BINARY_DIR}/patched)
 add_custom_command(
     OUTPUT ${PATCHED}/ref_driver.c

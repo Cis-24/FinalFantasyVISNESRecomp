@@ -117,13 +117,59 @@ static void CosimInputLog(void)
     frame++;
 }
 
+/* Co-sim pokes: with FF6_COSIM_POKE_LOG=<file>, write every WRAM byte that changed between
+ * the end of the previous frame (the state the co-sim checkpoint sees) and the start of this
+ * one, as runs "frame addr hexbytes" (frame as above, addr a WRAM offset). Between frames only
+ * the host writes WRAM: the route script's poke, pokefor and forcepoke
+ * (desktop/host_main.c TickScript, ApplyScriptForcePokes). The reference writes the same
+ * bytes before the same frame (FF6_REF_POKE_FILE, ref_driver_ff6.patch), so a route that sets
+ * up its scene by poke runs the same course on both sides. */
+#include <string.h>
+#include "common_rtl.h"
+static FILE *s_poke_log;
+static uint8 *s_poke_prev;
+static unsigned long long s_poke_frame;
+
+static void CosimPokeLogBegin(void)
+{
+    static int init;
+    if (!init) {
+        const char *path = getenv("FF6_COSIM_POKE_LOG");
+        init = 1;
+        if (path && path[0]) {
+            s_poke_log = fopen(path, "w");
+            s_poke_prev = s_poke_log ? (uint8 *)malloc(sizeof g_ram) : NULL;
+            if (!s_poke_prev) {
+                fprintf(stderr, "[pokelog] cannot write '%s'\n", path);
+                if (s_poke_log) fclose(s_poke_log);
+                s_poke_log = NULL;
+            }
+        }
+    } else if (s_poke_log) {
+        for (uint32 a = 0; a < sizeof g_ram; a++) {
+            if (g_ram[a] == s_poke_prev[a]) continue;
+            uint32 end = a;
+            while (end < sizeof g_ram && g_ram[end] != s_poke_prev[end]) end++;
+            fprintf(s_poke_log, "%llu %05X ", s_poke_frame, (unsigned)a);
+            for (; a < end; a++) fprintf(s_poke_log, "%02X", g_ram[a]);
+            fputc('\n', s_poke_log);
+        }
+        fflush(s_poke_log);   /* the coordinator terminates A without a flush */
+    }
+    s_poke_frame++;
+}
+
+static void CosimPokeLogEnd(void)
+{
+    if (s_poke_log) memcpy(s_poke_prev, g_ram, sizeof g_ram);
+}
+
 /* Co-sim port log: with FF6_COSIM_PORT_LOG=<file> and FF6_COSIM_PORT_LOG_FRAMES=lo-hi, write
  * every CPU access to $2140-$2143 in frames lo..hi (frames run before, as above) as
  * "f=frame m=master spc=portClock W|R p=port v=value". Writes are logged when the
  * runtime hands them over (before it schedules them at their guest SPC cycle), reads
  * after the SPC sync, so m is the time the runtime uses for the access. The reference
  * writes the same lines (FF6_REF_PORT_LOG, ref_driver_ff6.patch). */
-#include "common_rtl.h"
 static FILE *s_port_log;
 static unsigned long long s_port_lo, s_port_hi, s_port_frame;
 
@@ -176,9 +222,13 @@ void GameRunOneFrame(void)
 #ifdef SNES_COSIM
     CosimApuLog();
     CosimInputLog();
+    CosimPokeLogBegin();
     CosimPortLogFrame();
 #endif
     snes_beam_frame_driver_run_frame();
+#ifdef SNES_COSIM
+    CosimPokeLogEnd();
+#endif
 }
 
 void GameDrawPpuFrame(void)

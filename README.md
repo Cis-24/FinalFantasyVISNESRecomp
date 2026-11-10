@@ -39,11 +39,13 @@ explained differences from the reference are masked in
 
 Battles depend on lag frames (ATB and random numbers), so they are compared
 against the reference per scene, with the timing dependent values masked.
-Exact equality in battle is the current work: a co-simulation runs the
+Exact equality in battle comes from a co-simulation: it runs the
 recompiled build and the framework's reference interpreter side by side
-and compares their state after every frame. For this the generated code
-charges every memory access at the speed of its address, as the
-interpreter does, so both sides keep the same CPU timing.
+with the same input and the same route script writes, and compares their
+memory after every frame. For this the generated code charges every memory
+access at the speed of its address, as the interpreter does, so both sides
+keep the same CPU timing. The three battle routes run through it without a
+lasting difference.
 
 ## ROM identity
 

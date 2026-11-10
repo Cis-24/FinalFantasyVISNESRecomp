@@ -21,13 +21,16 @@
 # environment (the diagnostic modes of ref_driver_ff6.patch), COSIM_ARGS="..." adds coordinator
 # options (e.g. "--compare cpu,ram --transient-grace 30").
 # route: A-vs-B with the input of a route script. A plays the script; B replays A's joypad 1
-# mask per frame. Pass 1 runs the script on A against A2 (gate 1 over the route) and logs A's
-# mask whenever it changes (FF6_COSIM_INPUT_LOG, src/game_rtl.c) to WS/work/cosim/input_<r>.txt;
-# pass 2 runs the script on A again against B, which replays that file (FF6_REF_INPUT_FILE),
-# and compares WRAM with route_cmp.py: differences in the dead stack (at or below S) count as
-# equal, live ones as transient up to GRACE checkpoints (default 120). The script copy
-# (WS/work/cosim/route_<r>.txt) drops poke and dump lines: the pokes only align a route with
-# snes9x and B cannot replay them, and A and A2 would write their dumps into one directory.
+# mask and A's script WRAM writes per frame. Pass 1 runs the script on A against A2 (gate 1
+# over the route) and logs A's mask whenever it changes (FF6_COSIM_INPUT_LOG, src/game_rtl.c)
+# to WS/work/cosim/input_<r>.txt and every WRAM byte the host writes between two frames (the
+# script's poke, pokefor and forcepoke; FF6_COSIM_POKE_LOG) to WS/work/cosim/pokes_<r>.txt;
+# pass 2 runs the script on A again against B, which replays both files (FF6_REF_INPUT_FILE,
+# FF6_REF_POKE_FILE), and compares WRAM with route_cmp.py: differences in the dead stack (at
+# or below S) count as equal, live ones as transient up to GRACE checkpoints (default 120).
+# The script copy (WS/work/cosim/route_<r>.txt) drops dump lines (A and A2 would write their
+# dumps into one directory); the pokes stay, so the battle routes set up their scene and run
+# the course of the regression route.
 # MAX defaults to the frame of the script's quit in pass 1 minus 2 (A exits at quit).
 # COSIM_A_ENV and COSIM_B_ENV apply to pass 2, ROUTE_CMP_ARGS="..." adds route_cmp.py options
 # (e.g. "--watch 0x131E,0x47 --watch-range 3640-3700"), ROUTE_REUSE_INPUT=1 skips pass 1 when
@@ -114,36 +117,39 @@ summary() {
 
 if [ "$mode" = route ]; then
   r=$(basename "$RT" .txt)
-  RC="$W/route_$r.txt"; IN="$W/input_$r.txt"
+  RC="$W/route_$r.txt"; IN="$W/input_$r.txt"; PK="$W/pokes_$r.txt"
   LOG1="$LOGS/cosim_route1_$r.txt"; LOG="$LOGS/cosim_route_$r.txt"
-  grep -v -E '^[[:space:]]*(poke|pokefor|dump)([[:space:]]|$)' "$RT" > "$RC"
+  grep -v -E '^[[:space:]]*dump([[:space:]]|$)' "$RT" > "$RC"
   SCR="--script '$(cygpath -m "$RC")'"
-  if [ "${ROUTE_REUSE_INPUT:-0}" = 1 ] && [ -s "$IN" ] && [ -s "$LOG1" ]; then
+  if [ "${ROUTE_REUSE_INPUT:-0}" = 1 ] && [ -s "$IN" ] && [ -f "$PK" ] && [ -s "$LOG1" ]; then
     echo "pass 1 reused (ROUTE_REUSE_INPUT=1)"
   else
-    rm -f "$IN"
-    # Pass 1: A and A2 play the script, A logs its input. A exits at the script's quit (or
-    # an until timeout), which ends the coordinator with FATAL; a divergence before that
-    # means the scripted run is not deterministic.
+    rm -f "$IN" "$PK"
+    # Pass 1: A and A2 play the script, A logs its input and the script's WRAM writes. A
+    # exits at the script's quit (or an until timeout), which ends the coordinator with
+    # FATAL; a divergence before that means the scripted run is not deterministic.
     $COORD --a-cmd "$A $SCR" --b-cmd "$A2 $SCR" "${AAENV[@]}" \
-      --a-env "FF6_COSIM_INPUT_LOG=$(cygpath -m "$IN")" --stride 1 --max 1000000 > "$LOG1" 2>&1
+      --a-env "FF6_COSIM_INPUT_LOG=$(cygpath -m "$IN")" \
+      --a-env "FF6_COSIM_POKE_LOG=$(cygpath -m "$PK")" --stride 1 --max 1000000 > "$LOG1" 2>&1
     stop_cosim
   fi
   END=$(grep -m1 -E -o 'script f=[0-9]+ (quit|until [0-9A-F]+ timed out)' "$LOG1")
   QF=$(echo "$END" | grep -o -E 'f=[0-9]+' | cut -c3-)
   echo "pass 1 (A vs A2): ${END:-no script end} | $(grep -c . "$IN" 2>/dev/null) input changes" \
-       "| log=work/logs/cosim_route1_$r.txt"
+       "| $(grep -c . "$PK" 2>/dev/null) poke runs | log=work/logs/cosim_route1_$r.txt"
   summary "$LOG1" | grep -v FATAL
-  if grep -q 'FIRST DIVERGENCE' "$LOG1" || [ -z "$QF" ] || [ ! -s "$IN" ]; then
+  if grep -q 'FIRST DIVERGENCE' "$LOG1" || [ -z "$QF" ] || [ ! -s "$IN" ] || [ ! -f "$PK" ]; then
     echo "route $r: pass 1 FAIL"; exit 1
   fi
   MAX=${MAX:-$((QF - 2))}
-  # Pass 2: A plays the script, B replays A's input; WRAM with the dead-stack rule of
-  # route_cmp.py, live differences up to GRACE checkpoints count as transient.
+  # Pass 2: A plays the script, B replays A's input and script writes; WRAM with the
+  # dead-stack rule of route_cmp.py, live differences up to GRACE checkpoints count as
+  # transient.
   cd "$W"; rm -rf "$RUN"; mkdir -p "$RUN"; cd "$RUN"
   python "$(cygpath -m "$GR/tools/ff6/cosim/route_cmp.py")" \
     "$(cygpath -m "$GR/snesrecomp/tools")" --a-cmd "$A $SCR" --b-cmd "$B" "${AENV[@]}" \
-    --b-env "FF6_REF_INPUT_FILE=$(cygpath -m "$IN")" "${BENV[@]}" --max "$MAX" \
+    --b-env "FF6_REF_INPUT_FILE=$(cygpath -m "$IN")" \
+    --b-env "FF6_REF_POKE_FILE=$(cygpath -m "$PK")" "${BENV[@]}" --max "$MAX" \
     --grace "${GRACE:-120}" ${ROUTE_CMP_ARGS:-} > "$LOG" 2>&1
   rc=$?
   stop_cosim
