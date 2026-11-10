@@ -19,9 +19,10 @@ branch `ff6/patches`. The branch is not in the upstream repository but in the fo
 | `0011-fix-read-the-mode-2-offset-per-tile-rows-at-bg3vofs-.patch` | `a76eb19a0d9dd2da14a1451f7fc1c4dd771c2ed5` (0010) | `a77cd7eae8fbb46d2e39f019444cb1ddee777a37` | `f4b54b3d9f8aeb7ba76549f85f7ce57907bc5797` |
 | `0012-fix-keep-a-jmp-abs-x-dispatch-local-while-its-path-h.patch` | `a77cd7eae8fbb46d2e39f019444cb1ddee777a37` (0011) | `7b570a032de317772c0cf518d305fe27aed3c611` | `91c7d8f498a585e786886ba3ff01d90387773180` |
 | `0013-fix-run-the-spc-from-reset-and-end-the-first-frame-a.patch` | `7b570a032de317772c0cf518d305fe27aed3c611` (0012) | `7cd67ca3f5be61e3c4c846af346fd43ba62325f1` | `e75a4984667ce31d73b04d2292c7f3b00d361ed1` |
-| `0014-fix-price-generated-code-per-bus-transfer-like-the-i.patch` | `7cd67ca3f5be61e3c4c846af346fd43ba62325f1` (0013) | `ddf6aebd6dabd2e79abd74d348e9f32338d0520d` (branch `ff6/patches`) | `cae6778d5c0a2c213477f0b4c25948f90422144c` |
+| `0014-fix-price-generated-code-per-bus-transfer-like-the-i.patch` | `7cd67ca3f5be61e3c4c846af346fd43ba62325f1` (0013) | `ddf6aebd6dabd2e79abd74d348e9f32338d0520d` | `cae6778d5c0a2c213477f0b4c25948f90422144c` |
+| `0015-fix-set-i-and-clear-d-on-interrupt-entry-report-disp.patch` | `ddf6aebd6dabd2e79abd74d348e9f32338d0520d` (0014) | `6a4a988fad7dcd046635afd9f28766c635703ccd` (branch `ff6/patches`) | `70cdac16a53def28bbe94a01973004f5a1436ff8` |
 
-The pin is the commit of 0014.
+The pin is the commit of 0015.
 
 0001: The DSP register mirror starts with the power-on values of snes9x 1.63
 (`initial_regs`), so that FF6 boots frame-identical to the snes9x reference. Background and
@@ -102,6 +103,18 @@ cost 6 instead of 8 master clocks and the co-sim A ran up to 12 900 CPU cycles a
 bus-accurate reference. Background and verification: `docs/STATUS.md`, section "Pin session
 11-08 (bus-accurate AOT pricing)".
 
+0015: The frame drivers set I and clear D after pushing the interrupt frame, as the 65816 and
+interp816 `doInterrupt` do; before, an NMI or IRQ handler ran with the interrupted code's flags
+(FF6's `CutsceneNMI` pushed P = `$A1` where the reference pushed `$A5`). A dispatch value missing
+from a generated switch is recorded in every build: an always-on per-site table, one
+`[dispatch-oob]` stderr line on the first hit per site and a `dispatch_oob` section in the
+post-mortem JSON. Without `SNESRECOMP_TRACE` the default arm's call was an empty inline, and a
+call-form dispatch skipped its handler silently (FF6's wound handler `$C24600`). The trace build's
+frame history is sized by `SNESRECOMP_FRAME_HISTORY_SIZE` (CMake cache variable, default 6000
+frames); at 6000 the Windows trace build had a 2.23 GB image and did not start. Background and
+verification: `docs/STATUS.md`, section "Pin session 11-10 (interrupt flags, dispatch misses,
+trace image)".
+
 ## Rebuilding in a fresh clone
 
 Normally `git submodule update --init` is enough, because the fork contains the pin commit.
@@ -110,9 +123,9 @@ patches (cwd = repository root; point the submodule at the upstream repository f
 
 ```bash
 git -C snesrecomp switch -c ff6/patches 147b55e252dcb3e7680a99c7c2f50e7183891844
-git -C snesrecomp am ../patches/snesrecomp/0001-*.patch ../patches/snesrecomp/0002-*.patch ../patches/snesrecomp/0003-*.patch ../patches/snesrecomp/0004-*.patch ../patches/snesrecomp/0005-*.patch ../patches/snesrecomp/0006-*.patch ../patches/snesrecomp/0007-*.patch ../patches/snesrecomp/0008-*.patch ../patches/snesrecomp/0009-*.patch ../patches/snesrecomp/0010-*.patch ../patches/snesrecomp/0011-*.patch ../patches/snesrecomp/0012-*.patch ../patches/snesrecomp/0013-*.patch ../patches/snesrecomp/0014-*.patch
+git -C snesrecomp am ../patches/snesrecomp/0001-*.patch ../patches/snesrecomp/0002-*.patch ../patches/snesrecomp/0003-*.patch ../patches/snesrecomp/0004-*.patch ../patches/snesrecomp/0005-*.patch ../patches/snesrecomp/0006-*.patch ../patches/snesrecomp/0007-*.patch ../patches/snesrecomp/0008-*.patch ../patches/snesrecomp/0009-*.patch ../patches/snesrecomp/0010-*.patch ../patches/snesrecomp/0011-*.patch ../patches/snesrecomp/0012-*.patch ../patches/snesrecomp/0013-*.patch ../patches/snesrecomp/0014-*.patch ../patches/snesrecomp/0015-*.patch
 git -C snesrecomp rev-parse HEAD^{tree}
 ```
 
 The commit hashes differ (committer and date); the tree is what counts. It must be
-`cae6778d5c0a2c213477f0b4c25948f90422144c` (intermediate states: see the table).
+`70cdac16a53def28bbe94a01973004f5a1436ff8` (intermediate states: see the table).

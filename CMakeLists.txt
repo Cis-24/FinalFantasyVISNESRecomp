@@ -34,6 +34,13 @@ endif()
 # Must precede the include: runner.cmake reads it to add the loader sources.
 set(SNESRECOMP_ENABLE_MODS ON CACHE BOOL
     "Mod package loader + trusted plugins (required for every title)" FORCE)
+# Trace builds only (-DSNESRECOMP_ENABLE_TRACE=ON): the debug server keeps its
+# frame history in static storage, about 200 KB per frame. At the framework
+# default of 6000 frames the image grew to 2.23 GB, past the 2 GB limit of
+# Windows, and the exe did not start. 1200 frames (20 s) keep it near 1.3 GB.
+# Must precede the include.
+set(SNESRECOMP_FRAME_HISTORY_SIZE 1200 CACHE STRING
+    "Trace build: frames in the debug server's frame history (empty = 6000)")
 include(${SNESRECOMP_ROOT}/runner/runner.cmake)
 
 add_executable(FinalFantasyViSNESRecomp

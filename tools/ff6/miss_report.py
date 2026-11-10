@@ -10,8 +10,14 @@ M/X, Grund, Treffer) und eine Zusammenfassung. Ziele in WRAM (7E/7F) gehoeren zu
 Allowlist (RAM-Code laeuft im Interpreter) und werden nur gezaehlt. ROM-Misses aus
 validation/miss_allowlist.toml (Ziel + M/X, je mit Begruendung) werden getrennt gelistet.
 Exit 1, solange nicht geduldete ROM-Misses uebrig sind.
+
+With --log <stderr log of the run>: also lists the skipped dispatches the runtime reports
+there, one line per site on its first hit: `[dispatch-oob]` (a dispatch value missing from
+a generated switch, always on since snesrecomp patch 0015) and `[unresolved-abandon]` (an
+unresolved transfer abandoned without its handler). They are not in the coverage captures,
+because no interpreter transfer happens. Each one also makes the exit code 1.
 """
-import argparse, glob, json, os, shutil, subprocess, sys, tomllib
+import argparse, glob, json, os, re, shutil, subprocess, sys, tomllib
 
 GR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 INGEST = os.path.join(GR, "snesrecomp", "tools", "tier2_ingest.py")
@@ -37,6 +43,20 @@ def load_symbols():
     return {(int(x["bank"]) << 16) | int(x["addr"], 16): x["name"] for x in funcs}
 
 
+SKIP_RE = re.compile(r"^\[(dispatch-oob|unresolved-abandon)\] first hit site=\$([0-9A-Fa-f]{6})"
+                     r"(?: value=\$([0-9A-Fa-f]{1,6}))? frame=(-?\d+)")
+
+
+def skipped_dispatches(lines):
+    """(kind, site, value or None, frame) for each first-hit line of the runtime's stderr."""
+    out = []
+    for line in lines:
+        m = SKIP_RE.match(line)
+        if m:
+            out.append((m[1], int(m[2], 16), int(m[3], 16) if m[3] else None, int(m[4])))
+    return out
+
+
 def ensure_captures(run_dir, capture_dir):
     # Capture-Name endet auf _s<Nummer>; ohne die Ziffer passen auch Dump-Tags (back_south.info.json)
     found = sorted(glob.glob(os.path.join(run_dir, "*_s[0-9]*.json")))
@@ -59,6 +79,7 @@ def main():
     ap.add_argument("run_dir")
     ap.add_argument("--top", type=int, default=25)
     ap.add_argument("--capture-dir")
+    ap.add_argument("--log", help="stderr log of the run: list skipped dispatches")
     a = ap.parse_args()
     run_dir = os.path.abspath(a.run_dir)
     caps = ensure_captures(run_dir, a.capture_dir)
@@ -100,7 +121,15 @@ def main():
         print(f"  {x['target_pc24']} {syms.get(t, '?'):<28} {x['entry_mx']} "
               f"E{x['emulation']} {x['site_kind']:<8} hits={x['observed_hits']} "
               f"von {x['site_pc24']}")
-    sys.exit(1 if rom else 0)
+    skipped = []
+    if a.log:
+        with open(a.log, encoding="utf-8", errors="replace") as f:
+            skipped = skipped_dispatches(f)
+        print(f"Skipped dispatches (run log): {len(skipped)}")
+        for kind, site, value, frame in skipped:
+            val = f" value=${value:06X}" if value is not None else ""
+            print(f"  {kind} site=${site:06X}{val} first frame {frame}")
+    sys.exit(1 if rom or skipped else 0)
 
 
 if __name__ == "__main__":

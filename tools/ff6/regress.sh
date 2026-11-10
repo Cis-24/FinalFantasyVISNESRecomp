@@ -89,11 +89,14 @@ for r in "${ROUTES[@]}"; do
   else
     row "$r" Lauf FAIL "rc=$rc, Log work/logs/regress_$r.log"; continue
   fi
-  trip=$(grep -ciE 'tripwire|stack_drift|offrails|off-rails' "$LOG")
+  # dispatch-oob: a dispatch value missing from a generated switch (always on since
+  # snesrecomp patch 0015); unresolved-abandon: an unresolved transfer whose handler
+  # was skipped. Both print one line per site on its first hit.
+  trip=$(grep -ciE 'tripwire|stack_drift|offrails|off-rails|\[dispatch-oob\]|\[unresolved-abandon\]' "$LOG")
   [ "$trip" = 0 ] && row "$r" Tripwires PASS "0 Meldungen" || row "$r" Tripwires FAIL "$trip Meldungen im Log"
 
   cp "$R"/finalfantasyvi/*.json* "$R"/ 2>/dev/null
-  python tools/ff6/miss_report.py "$R" --top 10 > "$MISS" 2>&1
+  python tools/ff6/miss_report.py "$R" --top 10 --log "$LOG" > "$MISS" 2>&1
   mrc=$?
   [ $mrc = 0 ] && row "$r" Miss-Report PASS "$(grep -o 'ROM-Misses [0-9]*' "$MISS")" \
                || row "$r" Miss-Report FAIL "rc=$mrc, work/logs/regress_${r}_miss.txt"
