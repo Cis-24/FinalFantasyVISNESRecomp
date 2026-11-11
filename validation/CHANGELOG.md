@@ -6,6 +6,7 @@ entry here (PLAN 5.3). The expectations are written with
 
 ## 2026-11-11: New route r17_battle_spells2, expectation `r17_battle_spells2.toml` added, existing expectations unchanged
 - `validation/routes/r17_battle_spells2.txt`: Terra casts the magic list entries 28 to 53 that r16 does not (Berserk lands on her and ends a battle through her own attack, Warp leaves the battle), in three battles. Co-sim A vs B: no lasting divergence over 56722 checkpoints. It reaches 60 further dispatch targets (466 to 526 of 1079, `docs/battle_dispatch_coverage.md`). No snes9x reference (animation lengths differ through the reference's lag frames), so the comparison is SKIP.
+- The route showed one ROM miss, `BattleEnd_01` (`C24897`, `goto_gap` from `C247F8`, the `CheckBattleEnd` table, reached by Warp); it is now a hand-maintained entry with `emit = true` in `symbols_overrides.toml`. `src/gen` is `ff9d9afb422b0846`; `regress.sh --full --update` rewrote the other expectations without a diff, 701 PASS, 0 FAIL, 0 ROM misses (log `work/logs/r17_full_update2.txt`).
 - A wait of 30 frames precedes each battle start. Without it the co-sim diverges for good at the start of the second battle (see docs/STATUS.md, "r17 battle start phase").
 - No other expectation changed.
 
