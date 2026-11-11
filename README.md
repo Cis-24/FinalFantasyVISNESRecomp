@@ -28,12 +28,14 @@ Work in progress; not yet playable from start to finish.
   player commands (Fight, Magic, Summon, Item, Steal, SwdTech, Throw, Tools,
   Blitz, Sketch, Slot, Dance; Lore, X-Magic, Morph, Revert, Runic, Capture,
   Jump, Control, Mimic, GP Rain, Rage, Row, Def) run through to the victory
-  and back to the field.
+  and back to the field. Further battle routes cover different battle types,
+  monster AI and most of the spells.
 
 Validated routes (`validation/routes`): boot to title, new game to Narshe,
 field walk, menu tour, first battle, battle commands (two routes), field
-modes, doors, menu scrolling. Each route replays fixed input and compares
-memory, video memory and the frame buffer at checkpoints. Known and
+modes, doors, menu scrolling, battle types, monster AI, spells (two
+routes). Each route replays fixed input and compares memory, video memory
+and the frame buffer at checkpoints. Known and
 explained differences from the reference are masked in
 `validation/masks.toml`, each with a reason.
 
@@ -44,8 +46,8 @@ recompiled build and the framework's reference interpreter side by side
 with the same input and the same route script writes, and compares their
 memory after every frame. For this the generated code charges every memory
 access at the speed of its address, as the interpreter does, so both sides
-keep the same CPU timing. The three battle routes run through it without a
-lasting difference.
+keep the same CPU timing. The battle routes run through it without a lasting
+difference.
 
 ## ROM identity
 
