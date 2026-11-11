@@ -4,6 +4,11 @@ Every change to `validation/expected/*.toml` (events, dump hashes) needs a justi
 entry here (PLAN 5.3). The expectations are written with
 `bash tools/ff6/regress.sh --quick --update` and checked without `--update`.
 
+## 2026-11-11: New route r14_battle_types, expectation `r14_battle_types.toml` added, existing expectations unchanged
+- `validation/routes/r14_battle_types.txt`: three battles with the battle type forced to back, pincer and side attack, plus Osmose (MP damage path of `ApplyDmg`). It reaches the dispatch targets `C21350` (`ApplyDmgTbl`), `C1149A`, `C114D7` and `C11533` (`CalcMonsterPosTbl`) that r05, r06 and r13 never take. Co-sim A vs B: no lasting divergence over 15037 checkpoints.
+- The route showed one ROM miss, `GoToNextMenuState` (`C15A4A`, M1X0, `call_gap` from `C15D92`); it is now a hand-maintained entry with `emit = true` in `symbols_overrides.toml`. `src/gen` is `a81e03fe981b3e31`; all other expectations stayed byte-identical (`regress.sh --full --update` rewrote them without a diff).
+- `regress.sh --full`: 658 PASS, 0 FAIL, 0 ROM misses in all 11 routes (log `work/logs/r14_full_update2.txt`).
+
 ## 2026-11-10: Pin change snesrecomp `6a4a988fad7d` (interrupt flags, dispatch misses, trace image), no expectation changed
 - Pin `ddf6aebd6dab` → `6a4a988fad7d` (patch 0015), docs/STATUS.md "Pin session 11-10 (interrupt flags, dispatch misses, trace image)": the frame drivers set I and clear D after pushing the interrupt frame; a dispatch value missing from a generated switch is recorded and printed in every build (`[dispatch-oob]`); the trace build's frame history is configurable.
 - All events, dump hashes and `interpreted` counts of the 10 expectations unchanged; `validation/expected` untouched. The interrupt handlers run in the interpreter either way and restore P with their RTI, so the new flags can only show in stack residue below S (the `php` of `CutsceneNMI` now pushes `$A5` instead of `$A1`, as the reference does). The dead stack below S is masked at the title, cutscene, field, menu and shop dumps; no other dump changed. No route prints a `[dispatch-oob]` or `[unresolved-abandon]` line. 0 ROM misses, tolerated misses and WRAM allowlists unchanged; all reference comparisons against snes9x green.

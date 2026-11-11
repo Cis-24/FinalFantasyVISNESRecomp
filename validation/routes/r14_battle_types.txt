@@ -1,0 +1,213 @@
+# r14: battle types and the MP damage path (PLAN phase 8). Three battles against the two Narshe guards, entered
+# like r06 and r13 (prefix until $106A == 21, event at $7E:1FF7). The battle type ($201F, chosen at random in
+# battle/init_2.asm ChooseBattleType) is forced per battle with a forcepoke: back attack (1), pincer attack (2),
+# side attack (3), which reaches the CalcMonsterPos targets and the type dependent InitTarget handlers that r05,
+# r06 and r13 never take. In the first battle Terra casts Osmose (spell $29 added to her list), which takes the
+# MP damage branch of ApplyDmg. Then the guards go to 1 HP and Wedge and Vicks (Fight) end the battle. Each battle
+# is followed by the victory messages and the return to the field (message count differs: 3, 1, 3 because of
+# level ups). Guard ATB is held at 0 and $BE is set before every confirming A, as in r06 and r13.
+# Generated with work/routes/r14_gen.py (not versioned).
+until 0019 == 09 6000
+wait 60
+press a 2
+until 0082 == 12 8000
+until 00D3 == 01 4000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 0019 == 02 3000
+wait 120
+press a 2
+until 0082 == 13 20000
+until 00D3 == 01 1500
+press a 2
+until16 00E5 == 0000 3000
+until 00E7 == CA 100
+wait 60
+until 106A == 21 60
+# Party: HP/MP 999. Terra: Fight, Magic. Wedge and Vicks: Fight. Terra also knows Osmose ($29 in her spell list).
+poke 1609 E703E703E703E703
+poke 1614 000000020101
+poke 161E 00
+poke 180F E703E703E703E703
+poke 181A 000000010101
+poke 1834 E703E703E703E703
+poke 183F 000000010101
+poke 1A97 FF
+# Battle back: forced battle type 1
+poke 1FF7 4D013F96FE
+poke 05F4 F71F7E
+poke 0594 0000CA
+poke 05C7 01
+poke 00E5 F71F7E0300
+until 8233 == 3F 300
+forcepoke 201F 01
+poke 021B 00030A00
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE EE
+poke 3C00 88138813
+poke 3C28 88138813
+forcepoke 3224 00000000
+dump back_start
+press down 2
+until 890F == 01 60
+press a 2
+until 7BC2 == 0E 300
+press down 2
+wait 20
+press down 2
+wait 20
+press down 2
+wait 20
+press down 2
+wait 20
+wait 20
+press a 2
+until 7BC2 == 38 300
+poke 00BE 19
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 11
+dump back_osmose
+poke 3C00 01000100
+poke 3C28 01000100
+press a 2
+until 7BC2 == 38 300
+poke 00BE 29
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 21
+press a 2
+until 7BC2 == 38 300
+poke 00BE 39
+press a 2
+until 628D == 01 3000
+dump back_victory
+until E9F5 != 00 600
+wait 8
+dump back_msg1
+press a 2
+until E9F5 == 00 600
+until E9F5 != 00 600
+wait 8
+dump back_msg2
+press a 2
+until E9F5 == 00 600
+until E9F5 != 00 600
+wait 8
+dump back_msg3
+press a 2
+until E9F5 == 00 600
+until16 1501 == 0182 1200
+until 0082 == 13 3000
+until16 00E5 == 0000 600
+until 00E7 == CA 100
+wait 60
+until 106A == 21 60
+dump back_after
+# Battle pincer: forced battle type 2
+poke 1FF7 4D013F96FE
+poke 05F4 F71F7E
+poke 0594 0000CA
+poke 05C7 01
+poke 00E5 F71F7E0300
+until 8233 == 3F 300
+forcepoke 201F 02
+poke 021B 00030A00
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE EE
+poke 3C00 01000100
+poke 3C28 01000100
+forcepoke 3224 00000000
+dump pincer_start
+press a 2
+until 7BC2 == 38 300
+poke 00BE 49
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 41
+press a 2
+until 7BC2 == 38 300
+poke 00BE 59
+press a 2
+until 628D == 01 3000
+dump pincer_victory
+until E9F5 != 00 600
+wait 8
+dump pincer_msg1
+press a 2
+until E9F5 == 00 600
+until16 1501 == 0182 1200
+until 0082 == 13 3000
+until16 00E5 == 0000 600
+until 00E7 == CA 100
+wait 60
+until 106A == 21 60
+dump pincer_after
+# Battle side: forced battle type 3
+poke 1FF7 4D013F96FE
+poke 05F4 F71F7E
+poke 0594 0000CA
+poke 05C7 01
+poke 00E5 F71F7E0300
+until 8233 == 3F 300
+forcepoke 201F 03
+poke 021B 00030A00
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE EE
+poke 3C00 01000100
+poke 3C28 01000100
+forcepoke 3224 00000000
+dump side_start
+press a 2
+until 7BC2 == 38 300
+poke 00BE 69
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 61
+press a 2
+until 7BC2 == 38 300
+poke 00BE 79
+press a 2
+until 628D == 01 3000
+dump side_victory
+until E9F5 != 00 600
+wait 8
+dump side_msg1
+press a 2
+until E9F5 == 00 600
+until E9F5 != 00 600
+wait 8
+dump side_msg2
+press a 2
+until E9F5 == 00 600
+until E9F5 != 00 600
+wait 8
+dump side_msg3
+press a 2
+until E9F5 == 00 600
+until16 1501 == 0182 1200
+until 0082 == 13 3000
+until16 00E5 == 0000 600
+until 00E7 == CA 100
+wait 60
+until 106A == 21 60
+dump side_after
+quit

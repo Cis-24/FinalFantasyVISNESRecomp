@@ -8892,7 +8892,10 @@ emit = false
 name = "GoToNextMenuState"
 addr = "5a4a"
 bank = 0xc1
-emit = false
+emit = true
+entry_m = 1
+entry_x = 0
+note = "Battle menu state advance, reached from C15D92 in r14 (call_gap miss)"
 
 [[func]]
 name = "main_window_open"
