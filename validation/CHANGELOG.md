@@ -4,6 +4,11 @@ Every change to `validation/expected/*.toml` (events, dump hashes) needs a justi
 entry here (PLAN 5.3). The expectations are written with
 `bash tools/ff6/regress.sh --quick --update` and checked without `--update`.
 
+## 2026-11-11: New route r17_battle_spells2, expectation `r17_battle_spells2.toml` added, existing expectations unchanged
+- `validation/routes/r17_battle_spells2.txt`: Terra casts the magic list entries 28 to 53 that r16 does not (Berserk lands on her and ends a battle through her own attack, Warp leaves the battle), in three battles. Co-sim A vs B: no lasting divergence over 56722 checkpoints. It reaches 60 further dispatch targets (466 to 526 of 1079, `docs/battle_dispatch_coverage.md`). No snes9x reference (animation lengths differ through the reference's lag frames), so the comparison is SKIP.
+- A wait of 30 frames precedes each battle start. Without it the co-sim diverges for good at the start of the second battle (see docs/STATUS.md, "r17 battle start phase").
+- No other expectation changed.
+
 ## 2026-11-11: New route r16_battle_spells, expectation `r16_battle_spells.toml` added, existing expectations unchanged
 - `validation/routes/r16_battle_spells.txt`: Terra casts the first 28 spells of the magic list in two battles against the Narshe guards. Co-sim A vs B: no lasting divergence over 52540 checkpoints. It reaches 37 dispatch targets that r05 to r15 never run (spell animation and effect handlers, see `docs/battle_dispatch_coverage.md`). No snes9x reference: the animations differ in length between the reference (lag frames) and the recomp, so the comparison is SKIP and the route is checked against the expectation and the co-sim only.
 - The route showed one ROM miss, `MoveAnimDownRight` (`C1F3EF`, `goto_gap` from `C1F39F`); it is now a hand-maintained entry with `emit = true` in `symbols_overrides.toml` (function boundary for a JMP landing, as in r13). `src/gen` is `b0a1bf3ca911a070`; `regress.sh --full --update` rewrote the other expectations without a diff. `regress.sh --full`: 698 PASS, 0 FAIL, 0 ROM misses (log `work/logs/r16_full_update2.txt`).

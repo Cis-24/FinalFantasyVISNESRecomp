@@ -16614,7 +16614,10 @@ note = "Miss-Promotion, 1523 Treffer"
 name = "BattleEnd_01"
 addr = "4897"
 bank = 0xc2
-emit = false
+emit = true
+entry_m = 1
+entry_x = 1
+note = "Landing by JMP from the CheckBattleEnd table dispatch (C247F8); function boundary instead of a miss entry (r17, Warp)"
 
 [[func]]
 name = "BattleEnd_04"
