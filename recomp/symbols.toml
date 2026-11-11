@@ -13830,7 +13830,10 @@ note = "Landung per JMP aus der MoveAnimTbl-Dispatch (C1F39F, anim_cmd.asm:9738)
 name = "MoveAnimDownRight"
 addr = "f3ef"
 bank = 0xc1
-emit = false
+emit = true
+entry_m = 1
+entry_x = 0
+note = "Landing by JMP from the animation move dispatch (C1F39F); function boundary instead of a miss entry (r16)"
 
 [[func]]
 name = "MoveAnimLeft"

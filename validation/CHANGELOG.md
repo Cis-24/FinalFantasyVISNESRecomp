@@ -4,6 +4,11 @@ Every change to `validation/expected/*.toml` (events, dump hashes) needs a justi
 entry here (PLAN 5.3). The expectations are written with
 `bash tools/ff6/regress.sh --quick --update` and checked without `--update`.
 
+## 2026-11-11: New route r16_battle_spells, expectation `r16_battle_spells.toml` added, existing expectations unchanged
+- `validation/routes/r16_battle_spells.txt`: Terra casts the first 28 spells of the magic list in two battles against the Narshe guards. Co-sim A vs B: no lasting divergence over 52540 checkpoints. It reaches 37 dispatch targets that r05 to r15 never run (spell animation and effect handlers, see `docs/battle_dispatch_coverage.md`). No snes9x reference: the animations differ in length between the reference (lag frames) and the recomp, so the comparison is SKIP and the route is checked against the expectation and the co-sim only.
+- The route showed one ROM miss, `MoveAnimDownRight` (`C1F3EF`, `goto_gap` from `C1F39F`); it is now a hand-maintained entry with `emit = true` in `symbols_overrides.toml` (function boundary for a JMP landing, as in r13). `src/gen` is `b0a1bf3ca911a070`; `regress.sh --full --update` rewrote the other expectations without a diff. `regress.sh --full`: 698 PASS, 0 FAIL, 0 ROM misses (log `work/logs/r16_full_update2.txt`).
+- No other expectation changed.
+
 ## 2026-11-11: New route r15_battle_ai, expectation `r15_battle_ai.toml` added, existing expectations unchanged
 - `validation/routes/r15_battle_ai.txt`: two battles (Narshe guards, Magitek armor) in which the monsters act from their AI scripts. Co-sim A vs B: no lasting divergence over 15938 checkpoints. It reaches 4 dispatch targets that r05 to r14 never run (`AICondTbl`, `DoNextAICmd` and two more, see `docs/battle_dispatch_coverage.md`). No snes9x reference (the monsters' random choices depend on the frame timing, which the reference's lag frames change), so the comparison is SKIP and the route is checked against the expectation and the co-sim only.
 - No other expectation changed.
