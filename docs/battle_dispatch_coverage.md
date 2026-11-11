@@ -2,9 +2,11 @@
 
 Measured with the reference interpreter of the co-sim (B) replaying the input and poke logs of r05, r06, r13 and r14,
 with a temporary counter at the dispatch site and target PCs (work copy of the driver, not versioned). Sites and
-targets come from the authority export (`dispatches` with a site in banks C1 and C2: 72 sites, 1187 distinct
-targets). A target counts as reached when its first instruction ran at least once in any of the four routes.
-Result: 489 of 1187 targets reached, 698 not. 15 sites never ran at all.
+targets come from the authority export (`dispatches` with a site in banks C1 and C2: 72 sites, 1187 site and target
+pairs, 1079 distinct target addresses). A target counts as reached when its first instruction ran at least once in any of the four routes.
+Result over r05, r06, r13 and r14: 489 of 1187 pairs reached (425 of 1079 distinct addresses), 698 pairs not. 15 sites never ran at all.
+
+Update after r15 (monsters act, guards and a Magitek armor): 429 of 1079 distinct addresses, i.e. +4 (`AICondTbl`, `DoNextAICmd`, one more in `C2367D` and one in `ExecGfxCmd`). Most monsters need a route of their own because their scripts, animations and damage differ, so the remaining gap shrinks slowly per route; the party was kept alive by choosing weak formations (a strong one wiped the party in four rounds).
 
 The unreached targets are resolved and generated like all others, but no run has exercised them. The large groups are
 spell and attack animation scripts (`magic_code00`, `set_magic_code`, `ExecAnimType`, `ExecEventAnimCmd`), the target

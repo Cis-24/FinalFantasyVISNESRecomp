@@ -1,0 +1,240 @@
+# r15: monster AI (PLAN phase 8). Two battles in which the monsters are not held back and act from their AI scripts,
+# entered like r06, r13 and r14 (event at $7E:1FF7): the two Narshe guards (event battle group 1), then a Magitek armor
+# (group $0F, a monster with battle switch and command conditions in its script). The battle type is forced to normal
+# ($201F). In each battle the party fights for eight menus with the monsters at 5000 HP, then the monsters drop to
+# 1 HP and one more Fight ends it; victory messages and the return to the field follow (three messages for the guards,
+# one for the armor). Reaches AI script and dispatch sites that r05 to r14 never run (docs/battle_dispatch_coverage.md).
+# $BE is set before every confirming A as in r06 and r13.
+# Generated with work/routes/r15m_gen.py (not versioned).
+until 0019 == 09 6000
+wait 60
+press a 2
+until 0082 == 12 8000
+until 00D3 == 01 4000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 0019 == 02 3000
+wait 120
+press a 2
+until 0082 == 13 20000
+until 00D3 == 01 1500
+press a 2
+until16 00E5 == 0000 3000
+until 00E7 == CA 100
+wait 60
+until 106A == 21 60
+# Party: HP/MP 999. Terra: Fight, Magic. Wedge and Vicks: Fight. Terra also knows Osmose ($29 in her spell list).
+poke 1609 E703E703E703E703
+poke 1614 000000020101
+poke 161E 00
+poke 180F E703E703E703E703
+poke 181A 000000010101
+poke 1834 E703E703E703E703
+poke 183F 000000010101
+poke 1A97 FF
+# Battle guards: event battle group $01, the monsters act
+poke 1FF7 4D013F96FE
+poke 05F4 F71F7E
+poke 0594 0000CA
+poke 05C7 01
+poke 00E5 F71F7E0300
+until 8233 == 3F 300
+forcepoke 201F 00
+poke 021B 00030A00
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE EE
+poke 3C00 88138813
+poke 3C02 88138813
+poke 3C28 88138813
+poke 3C2A 8813
+dump guards_start
+press a 2
+until 7BC2 == 38 300
+poke 00BE 19
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 11
+press a 2
+until 7BC2 == 38 300
+poke 00BE 29
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 21
+press a 2
+until 7BC2 == 38 300
+poke 00BE 39
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 31
+press a 2
+until 7BC2 == 38 300
+poke 00BE 49
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 41
+press a 2
+until 7BC2 == 38 300
+poke 00BE 59
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 51
+press a 2
+until 7BC2 == 38 300
+poke 00BE 69
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 61
+press a 2
+until 7BC2 == 38 300
+poke 00BE 79
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 71
+press a 2
+until 7BC2 == 38 300
+poke 00BE 89
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 81
+dump guards_mid
+poke 3C00 0100
+poke 3C02 0100
+press a 2
+until 7BC2 == 38 300
+poke 00BE 99
+press a 2
+until 628D == 01 3000
+dump guards_victory
+until E9F5 != 00 600
+wait 8
+dump guards_msg1
+press a 2
+until E9F5 == 00 600
+until E9F5 != 00 600
+wait 8
+dump guards_msg2
+press a 2
+until E9F5 == 00 600
+until E9F5 != 00 600
+wait 8
+dump guards_msg3
+press a 2
+until E9F5 == 00 600
+until16 1501 == 0182 1200
+until 0082 == 13 3000
+until16 00E5 == 0000 600
+until 00E7 == CA 100
+wait 60
+until 106A == 21 60
+dump guards_after
+# Battle tekarmor: event battle group $0F, the monsters act
+poke 1FF7 4D0F3F96FE
+poke 05F4 F71F7E
+poke 0594 0000CA
+poke 05C7 01
+poke 00E5 F71F7E0300
+until 8233 == 3F 300
+forcepoke 201F 00
+poke 021B 00030A00
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE EE
+poke 3C04 88138813
+poke 3C2C 88138813
+dump tekarmor_start
+press a 2
+until 7BC2 == 38 300
+poke 00BE A9
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE A1
+press a 2
+until 7BC2 == 38 300
+poke 00BE B9
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE B1
+press a 2
+until 7BC2 == 38 300
+poke 00BE C9
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE C1
+press a 2
+until 7BC2 == 38 300
+poke 00BE D9
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE D1
+press a 2
+until 7BC2 == 38 300
+poke 00BE E9
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE E1
+press a 2
+until 7BC2 == 38 300
+poke 00BE F9
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE F1
+press a 2
+until 7BC2 == 38 300
+poke 00BE 109
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 101
+press a 2
+until 7BC2 == 38 300
+poke 00BE 119
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 111
+dump tekarmor_mid
+poke 3C04 0100
+press a 2
+until 7BC2 == 38 300
+poke 00BE 129
+press a 2
+until 628D == 01 3000
+dump tekarmor_victory
+until E9F5 != 00 600
+wait 8
+dump tekarmor_msg1
+press a 2
+until16 1501 == 0182 1200
+until 0082 == 13 3000
+until16 00E5 == 0000 600
+until 00E7 == CA 100
+wait 60
+until 106A == 21 60
+dump tekarmor_after
+quit

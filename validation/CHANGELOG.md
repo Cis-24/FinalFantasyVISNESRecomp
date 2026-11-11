@@ -4,6 +4,10 @@ Every change to `validation/expected/*.toml` (events, dump hashes) needs a justi
 entry here (PLAN 5.3). The expectations are written with
 `bash tools/ff6/regress.sh --quick --update` and checked without `--update`.
 
+## 2026-11-11: New route r15_battle_ai, expectation `r15_battle_ai.toml` added, existing expectations unchanged
+- `validation/routes/r15_battle_ai.txt`: two battles (Narshe guards, Magitek armor) in which the monsters act from their AI scripts. Co-sim A vs B: no lasting divergence over 15938 checkpoints. It reaches 4 dispatch targets that r05 to r14 never run (`AICondTbl`, `DoNextAICmd` and two more, see `docs/battle_dispatch_coverage.md`). No snes9x reference (the monsters' random choices depend on the frame timing, which the reference's lag frames change), so the comparison is SKIP and the route is checked against the expectation and the co-sim only.
+- No other expectation changed.
+
 ## 2026-11-11: New route r14_battle_types, expectation `r14_battle_types.toml` added, existing expectations unchanged
 - `validation/routes/r14_battle_types.txt`: three battles with the battle type forced to back, pincer and side attack, plus Osmose (MP damage path of `ApplyDmg`). It reaches the dispatch targets `C21350` (`ApplyDmgTbl`), `C1149A`, `C114D7` and `C11533` (`CalcMonsterPosTbl`) that r05, r06 and r13 never take. Co-sim A vs B: no lasting divergence over 15037 checkpoints.
 - The route showed one ROM miss, `GoToNextMenuState` (`C15A4A`, M1X0, `call_gap` from `C15D92`); it is now a hand-maintained entry with `emit = true` in `symbols_overrides.toml`. `src/gen` is `a81e03fe981b3e31`; all other expectations stayed byte-identical (`regress.sh --full --update` rewrote them without a diff).

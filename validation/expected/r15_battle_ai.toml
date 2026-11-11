@@ -1,0 +1,211 @@
+# Erwartung fuer Route r15_battle_ai (tools/ff6/regress.sh, regress_check.py --update).
+# Hashes: SHA-256 der Dumps, maskierte Bytes (validation/masks.toml) auf 0.
+# Aenderung nur mit begruendetem Eintrag in validation/CHANGELOG.md.
+events = [
+  "f=3442 until 00019 ok after 3442 frames",
+  "f=6542 until 00082 ok after 3037 frames",
+  "f=8554 until 000D3 ok after 2012 frames",
+  "f=8664 until 000D3 ok after 107 frames",
+  "f=8926 until 000D3 ok after 259 frames",
+  "f=9208 until 000D3 ok after 279 frames",
+  "f=9295 until 000D3 ok after 84 frames",
+  "f=9546 until 000D3 ok after 248 frames",
+  "f=9808 until 000D3 ok after 259 frames",
+  "f=10930 until 00019 ok after 1119 frames",
+  "f=11085 until 00082 ok after 32 frames",
+  "f=11482 until 000D3 ok after 397 frames",
+  "f=11623 until 000E5 ok after 138 frames",
+  "f=11623 until 000E7 ok after 0 frames",
+  "f=11702 until 0106A ok after 19 frames",
+  "f=11730 until 08233 ok after 2 frames",
+  "f=11763 until 07BCB ok after 29 frames",
+  "f=11996 until 07BC2 ok after 233 frames",
+  "f=12006 dump guards_start ok",
+  "f=12009 until 07BC2 ok after 0 frames",
+  "f=12026 until 07BCB ok after 12 frames",
+  "f=12055 until 07BC2 ok after 29 frames",
+  "f=12060 until 07BC2 ok after 0 frames",
+  "f=12077 until 07BCB ok after 12 frames",
+  "f=12098 until 07BC2 ok after 21 frames",
+  "f=12103 until 07BC2 ok after 0 frames",
+  "f=12120 until 07BCB ok after 12 frames",
+  "f=12611 until 07BC2 ok after 491 frames",
+  "f=12616 until 07BC2 ok after 0 frames",
+  "f=12633 until 07BCB ok after 12 frames",
+  "f=12681 until 07BC2 ok after 48 frames",
+  "f=12686 until 07BC2 ok after 0 frames",
+  "f=12703 until 07BCB ok after 12 frames",
+  "f=12768 until 07BC2 ok after 65 frames",
+  "f=12773 until 07BC2 ok after 0 frames",
+  "f=12795 until 07BCB ok after 17 frames",
+  "f=13200 until 07BC2 ok after 405 frames",
+  "f=13205 until 07BC2 ok after 0 frames",
+  "f=13222 until 07BCB ok after 12 frames",
+  "f=13271 until 07BC2 ok after 49 frames",
+  "f=13276 until 07BC2 ok after 0 frames",
+  "f=13293 until 07BCB ok after 12 frames",
+  "f=13373 until 07BC2 ok after 80 frames",
+  "f=13375 dump guards_mid ok",
+  "f=13382 until 07BC2 ok after 0 frames",
+  "f=13668 until 0628D ok after 281 frames",
+  "f=13668 dump guards_victory ok",
+  "f=13744 until 0E9F5 ok after 76 frames",
+  "f=13752 dump guards_msg1 ok",
+  "f=13773 until 0E9F5 ok after 18 frames",
+  "f=13774 until 0E9F5 ok after 1 frames",
+  "f=13782 dump guards_msg2 ok",
+  "f=13803 until 0E9F5 ok after 18 frames",
+  "f=13804 until 0E9F5 ok after 1 frames",
+  "f=13812 dump guards_msg3 ok",
+  "f=13833 until 0E9F5 ok after 18 frames",
+  "f=13922 until 01501 ok after 89 frames",
+  "f=13922 until 00082 ok after 0 frames",
+  "f=13970 until 000E5 ok after 48 frames",
+  "f=13970 until 000E7 ok after 0 frames",
+  "f=14034 until 0106A ok after 4 frames",
+  "f=14034 dump guards_after ok",
+  "f=14046 until 08233 ok after 2 frames",
+  "f=14079 until 07BCB ok after 29 frames",
+  "f=14233 until 07BC2 ok after 154 frames",
+  "f=14239 dump tekarmor_start ok",
+  "f=14242 until 07BC2 ok after 0 frames",
+  "f=14259 until 07BCB ok after 12 frames",
+  "f=14288 until 07BC2 ok after 29 frames",
+  "f=14293 until 07BC2 ok after 0 frames",
+  "f=14314 until 07BCB ok after 16 frames",
+  "f=14335 until 07BC2 ok after 21 frames",
+  "f=14340 until 07BC2 ok after 0 frames",
+  "f=14357 until 07BCB ok after 12 frames",
+  "f=14795 until 07BC2 ok after 438 frames",
+  "f=14800 until 07BC2 ok after 0 frames",
+  "f=14817 until 07BCB ok after 12 frames",
+  "f=14926 until 07BC2 ok after 109 frames",
+  "f=14931 until 07BC2 ok after 0 frames",
+  "f=14948 until 07BCB ok after 12 frames",
+  "f=14988 until 07BC2 ok after 40 frames",
+  "f=14993 until 07BC2 ok after 0 frames",
+  "f=15011 until 07BCB ok after 13 frames",
+  "f=15345 until 07BC2 ok after 334 frames",
+  "f=15350 until 07BC2 ok after 0 frames",
+  "f=15365 until 07BCB ok after 12 frames",
+  "f=15501 until 07BC2 ok after 136 frames",
+  "f=15504 until 07BC2 ok after 0 frames",
+  "f=15519 until 07BCB ok after 12 frames",
+  "f=15581 until 07BC2 ok after 62 frames",
+  "f=15581 dump tekarmor_mid ok",
+  "f=15586 until 07BC2 ok after 0 frames",
+  "f=15726 until 0628D ok after 137 frames",
+  "f=15726 dump tekarmor_victory ok",
+  "f=15802 until 0E9F5 ok after 76 frames",
+  "f=15810 dump tekarmor_msg1 ok",
+  "f=15836 until 01501 ok after 23 frames",
+  "f=15836 until 00082 ok after 0 frames",
+  "f=15876 until 000E5 ok after 40 frames",
+  "f=15876 until 000E7 ok after 0 frames",
+  "f=15940 until 0106A ok after 4 frames",
+  "f=15940 dump tekarmor_after ok",
+  "f=15940 quit",
+]
+
+[miss]  # nur gemeldet, nicht entscheidend
+discoveries = 265
+rom = 0
+allowlist = 4
+wram = 261
+interpreted = 156204115
+
+[dump.guards_after]
+wram = "26747b7e5b811138bddac7787d7a7ccc1acfdeea9785ccf9366f3cc0b88f1124"
+vram = "b9ac2781ea36d8e98373024d43b57059f234fa794ae93794888b6b22846fa339"
+cgram = "8d89ace6a6d415a90be8dbb250cc98bef41328dcd5d164570c4fe5bcfc5423a3"
+oam = "beabc7a077c0a6c2a4840eb8c651abdf77611f31ec161f4706aa0e7790328835"
+sram = "6afbcf1ee326d0e1f163feeee2c49e5deb17bcf7d29ebb7a15b8c4433752cc7a"
+fb = "e10b0b48c6f1536bc54ea50c5f573bcd3fb7bee17a9893f1c998d00ccd4d0c29"
+
+[dump.guards_mid]
+wram = "c2713378e65f24498ca7de6ab7233da2217a4f67ec10f7d57b4614c4ddf56354"
+vram = "e1433497a0946e465f9a8240c423233daef7242b607ce015801082c6799d0b0a"
+cgram = "6f713a5202d7bf0e79fd8a38dfa0029595ce6b5ed2974c229ff8e8cf26cab258"
+oam = "e09b44476ab3d5c9702cb593bdd2ea62665a23b431610cdef9063080abcbe1da"
+sram = "6afbcf1ee326d0e1f163feeee2c49e5deb17bcf7d29ebb7a15b8c4433752cc7a"
+fb = "cfd4c8c21d6b2f165e033e7dd029ec923d196f097633c9b0f30fdceee5ca04a6"
+
+[dump.guards_msg1]
+wram = "5be93b1ec144a3e15a8be2be8c79502789fc6c4375d6eabff66c2135a41dfcc7"
+vram = "1e6791d5369fe2a0b85a62376ac256eaefa5af35ff458e3c2cb282b4dc5e2d00"
+cgram = "459a63ce5bf9b1c02e5f59cdc1536394b24bd2ad1cedf51e441cbd40e991e739"
+oam = "356eef751a00a5a3cb83821a2aa78622cc8098f13b9386e8a0deb52062ebbf24"
+sram = "6afbcf1ee326d0e1f163feeee2c49e5deb17bcf7d29ebb7a15b8c4433752cc7a"
+fb = "afc036ee60a07aa00f5d04b44cdfd342a22fdae598b5cb8e4705c09c6a7995be"
+
+[dump.guards_msg2]
+wram = "1b83dbdb15cf09834308c689b96099e7f57d54f5a641ca830aae10b5b65ac779"
+vram = "477dde9a04485737ce0d10ae076f458127abb0a2e64d40548c353ead72426425"
+cgram = "459a63ce5bf9b1c02e5f59cdc1536394b24bd2ad1cedf51e441cbd40e991e739"
+oam = "454e396c78de949c12738598b28175cb337ceb9d2059464a10ffd65c3a8423fe"
+sram = "6afbcf1ee326d0e1f163feeee2c49e5deb17bcf7d29ebb7a15b8c4433752cc7a"
+fb = "35a879e2a622f38a1d81d87bc1cdf04f04f34b5a6fb0140ce2efd306481740db"
+
+[dump.guards_msg3]
+wram = "04d386219af06b2aa3975fc633cf6de88ec824781d957dd2d8cc1cf5722a50ec"
+vram = "d566b69b501ae5b5686a62472366a57efd06a108a526b53a9db16baffd0bee69"
+cgram = "459a63ce5bf9b1c02e5f59cdc1536394b24bd2ad1cedf51e441cbd40e991e739"
+oam = "2a0b39e67ba771185f7b61e2e30090829db8649fcc11ce255a9638c846fa4a53"
+sram = "6afbcf1ee326d0e1f163feeee2c49e5deb17bcf7d29ebb7a15b8c4433752cc7a"
+fb = "ff28557812ec4fe139596a66d54407d64643bda3390bc1447a39408ead674d54"
+
+[dump.guards_start]
+wram = "b9ddb676fc1c3bccf6a791127a60f8462ba4263256df510bb38698673d5c7897"
+vram = "3a69581df8cab4b5e1798e2c73e7680de5d23cf75eb38546195821f9adfc5a09"
+cgram = "78fc93f0494cfcd45fef74b5353d288032ef12b3d684057a72298d5cbf1fa531"
+oam = "fe9b872f6b47822c4209062e2af8d02502326bc876b96f765a46906611c1c322"
+sram = "6afbcf1ee326d0e1f163feeee2c49e5deb17bcf7d29ebb7a15b8c4433752cc7a"
+fb = "b1b52a21fef825465fca9ca0a557af8f64e0dbd21a95f83dde7a9ac26ae2e02f"
+
+[dump.guards_victory]
+wram = "825c3403111a8196c74c412bd976ee9e07a523e32fd6de6d4a7cc755ec33a1a4"
+vram = "fb24d0978cbfbdb60a65171e2bba326114bc7e36b60bdcb6dbc51174dcba2d9f"
+cgram = "459a63ce5bf9b1c02e5f59cdc1536394b24bd2ad1cedf51e441cbd40e991e739"
+oam = "9be914caf0b1466ec984f43f23f729950f7fec0f3555198ce5f2b1e5205c3656"
+sram = "6afbcf1ee326d0e1f163feeee2c49e5deb17bcf7d29ebb7a15b8c4433752cc7a"
+fb = "7b58b03e66f5bf0b2eb5c0fca287d2fcc440b26bcffc4c7b38c0db38ead24e6d"
+
+[dump.tekarmor_after]
+wram = "0ed100fa95e2c81a5c5c8f5f01a12bd7bffc89ac7c82c78ea590987959efe3d2"
+vram = "b9ac2781ea36d8e98373024d43b57059f234fa794ae93794888b6b22846fa339"
+cgram = "8d89ace6a6d415a90be8dbb250cc98bef41328dcd5d164570c4fe5bcfc5423a3"
+oam = "beabc7a077c0a6c2a4840eb8c651abdf77611f31ec161f4706aa0e7790328835"
+sram = "6afbcf1ee326d0e1f163feeee2c49e5deb17bcf7d29ebb7a15b8c4433752cc7a"
+fb = "e10b0b48c6f1536bc54ea50c5f573bcd3fb7bee17a9893f1c998d00ccd4d0c29"
+
+[dump.tekarmor_mid]
+wram = "d93b9ae7abca809a59b2198b56c6741cca60421f7ad76725b7d4721e1935743c"
+vram = "cca8253fe88d6ac4ed15b0d624cfb10f1f9b5c9de0f05ba8c5d3f64c1c095947"
+cgram = "5989ffd265a952ec7eaeb3f27b4d1d3173152bcfde10fc4c63df610ea7cd0106"
+oam = "36eba3a466c757c87344b3174305f6dce996b2dccc04d5e01d212381f8f655c8"
+sram = "6afbcf1ee326d0e1f163feeee2c49e5deb17bcf7d29ebb7a15b8c4433752cc7a"
+fb = "c7a03ca2b3b3c8701c97ee1c8174814220410f5784c3cf237aa5c084436fb58b"
+
+[dump.tekarmor_msg1]
+wram = "bdb1c339e3a5189769f55901b1692c8f405d597bfdf43a8eb09f84ef16330206"
+vram = "210b036a4a560a1a73745edad8a1d5bbc8e088f0d4ebe2bcc8da99a036249528"
+cgram = "0650dfd8c8e8318f8791315e28a4b541929f3f352b66cd651fecb8d14a159308"
+oam = "183241dba95843e0c8b09cc842ec81cefce4255118981a640c0bf56bf66eb0e2"
+sram = "6afbcf1ee326d0e1f163feeee2c49e5deb17bcf7d29ebb7a15b8c4433752cc7a"
+fb = "12081ffccbcb498d83ebc67ad930bbfba6b60a5cc34acacf0982f4c55f21d0b4"
+
+[dump.tekarmor_start]
+wram = "f35788ec9165a3415ad9588cdc6374daaf862078498bdee323a0e4703b65c99b"
+vram = "5c8de1fd37954f827e74292e703a1013615f9e513ad834f1eb05522f0b9d38b6"
+cgram = "ba783c1022a13981252fbc8a550e90d8ee86e9aa6a20712b2ca4e035a6726930"
+oam = "d3d7c291470f92ac03978d8e18e9ca17d7072c9ee8f53bb24bfc74c10adb6e23"
+sram = "6afbcf1ee326d0e1f163feeee2c49e5deb17bcf7d29ebb7a15b8c4433752cc7a"
+fb = "c380b636011529e103bb15b5c162c627b383056cba1935cbc38c21b4774a9065"
+
+[dump.tekarmor_victory]
+wram = "b738d2cdc045d5ac5e6611d432172cc1560f97e9c7c1d4c61d795897736264dc"
+vram = "0f92accf7d9899d30f322999055851ea5de111ea7114c20b7d087dc890dc17df"
+cgram = "0650dfd8c8e8318f8791315e28a4b541929f3f352b66cd651fecb8d14a159308"
+oam = "3665a155a66ffe5ce894cd0120f3d074eda8e02c6a7c7560e8859c02430e8f36"
+sram = "6afbcf1ee326d0e1f163feeee2c49e5deb17bcf7d29ebb7a15b8c4433752cc7a"
+fb = "407a58ea8d81e508caa7a8c3f751577f5d5057dcd9484a8affe2c77304b280d4"
