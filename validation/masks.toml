@@ -19,7 +19,7 @@ P=$A1/PC=$7E7208 (lda $17/bne). $15ED-$15FF (C000DD, C0B96F, $50BD) ist in Ref u
 Recomp gleich und bleibt geprueft. Unterhalb von S haengt der Inhalt nur davon ab, ob \
 der Dump vor oder nach dem NMI des Frames liegt (Ref: NMI-Frame, Recomp: \
 JSR-Ruecksprungadressen $753B/$7558 der Sprite-Routine). Nachweis 2026-10-29, docs/STATUS.md."""
-tags   = ["title"]
+tags   = ["title", "back_osmose", "back_start"]
 
 # r02/r03 (2026-10-30). Die Routen sind auf Szenenwerte gekeyt; Lade- und Hauptloop-Phasen weichen
 # zwischen Referenz und Recomp trotzdem um wenige Frames ab (CPU-Zeitmodell, docs/STATUS.md).
@@ -29,35 +29,35 @@ file   = "wram"
 start  = 0x0045
 end    = 0x0046
 reason = """Frame- und VBlank-Zaehler, laufen seit Reset (ff6 notes/field-ram.txt:26-27). Spiegeln nur den Frame-Versatz der Ladephasen."""
-tags   = ["intro17", "intro14", "introF4", "cliff", "dlg1", "dlg7", "dlg8", "control", "march1", "march2", "start", "col_left", "col_right", "dlg_south", "back_south", "dlg_north", "b_dlg_north", "b_after", "b_dlg_next", "after", "c_after"]
+tags   = ["intro17", "intro14", "introF4", "cliff", "dlg1", "dlg7", "dlg8", "control", "march1", "march2", "start", "col_left", "col_right", "dlg_south", "back_south", "dlg_north", "b_dlg_north", "b_after", "b_dlg_next", "after", "c_after", "back_after", "pincer_after", "side_after"]
 
 [[mask]]
 file   = "wram"
 start  = 0x1245
 end    = 0x1246
 reason = """Kopie von $45/$46 in der gesicherten Direct Page $1200-$12FF (notes/field-ram.txt:843)."""
-tags   = ["intro17", "intro14", "introF4", "cliff", "dlg1", "dlg7", "dlg8", "control", "march1", "march2", "start", "col_left", "col_right", "dlg_south", "back_south", "dlg_north", "m006", "m00d", "m00e", "m020", "m072", "m082", "m088", "m08d", "m0b1", "m0e7", "m105", "m116", "m12a", "m139", "m13d", "m150", "m15f", "m167", "m185", "m187", "m188", "m18a", "m18e", "m190", "door_n13", "door_m27", "door_n13b", "door_m006", "door_m007", "door_m006b", "b_dlg_north", "b_after", "b_dlg_next", "after", "c_after"]
+tags   = ["intro17", "intro14", "introF4", "cliff", "dlg1", "dlg7", "dlg8", "control", "march1", "march2", "start", "col_left", "col_right", "dlg_south", "back_south", "dlg_north", "m006", "m00d", "m00e", "m020", "m072", "m082", "m088", "m08d", "m0b1", "m0e7", "m105", "m116", "m12a", "m139", "m13d", "m150", "m15f", "m167", "m185", "m187", "m188", "m18a", "m18e", "m190", "door_n13", "door_m27", "door_n13b", "door_m006", "door_m007", "door_m006b", "b_dlg_north", "b_after", "b_dlg_next", "after", "c_after", "back_after", "back_msg1", "back_msg2", "back_msg3", "back_osmose", "back_start", "back_victory", "pincer_after", "pincer_msg1", "pincer_start", "pincer_victory", "side_after", "side_msg1", "side_msg2", "side_msg3", "side_start", "side_victory"]
 
 [[mask]]
 file   = "wram"
 start  = 0x021b
 end    = 0x021e
 reason = """Spielzeit (field/init.asm:264-265, menu/field_menu.asm), zaehlt Frames seit Spielstart."""
-tags   = ["intro17", "intro14", "introF4", "cliff", "dlg1", "dlg7", "dlg8", "control", "march1", "march2", "start", "col_left", "col_right", "dlg_south", "back_south", "dlg_north", "m006", "m00d", "m00e", "m020", "m072", "m082", "m088", "m08d", "m0b1", "m0e7", "m105", "m116", "m12a", "m139", "m13d", "m150", "m15f", "m167", "m185", "m187", "m188", "m18a", "m18e", "m190", "door_n13", "door_m27", "door_n13b", "door_m006", "door_m007", "door_m006b", "b_dlg_north", "b_after", "b_dlg_next", "after", "c_after"]
+tags   = ["intro17", "intro14", "introF4", "cliff", "dlg1", "dlg7", "dlg8", "control", "march1", "march2", "start", "col_left", "col_right", "dlg_south", "back_south", "dlg_north", "m006", "m00d", "m00e", "m020", "m072", "m082", "m088", "m08d", "m0b1", "m0e7", "m105", "m116", "m12a", "m139", "m13d", "m150", "m15f", "m167", "m185", "m187", "m188", "m18a", "m18e", "m190", "door_n13", "door_m27", "door_n13b", "door_m006", "door_m007", "door_m006b", "b_dlg_north", "b_after", "b_dlg_next", "after", "c_after", "back_after", "back_msg2", "back_msg3", "back_osmose", "pincer_after", "pincer_start", "side_msg2", "side_msg3", "side_start"]
 
 [[mask]]
 file   = "wram"
 start  = 0x0630
 end    = 0x0632
 reason = """Per SLHV gelatchte Beam-Position im Hauptloop, Messwert fuer die CPU-Last (field/reset.asm:155-168, notes/field-ram.txt:435-437). Haengt am Zeitmodell, kein Spielzustand; nur die Debug-Anzeige liest ihn."""
-tags   = ["intro17", "intro14", "introF4", "cliff", "dlg1", "dlg7", "dlg8", "control", "march1", "march2", "start", "col_left", "col_right", "dlg_south", "back_south", "dlg_north", "m006", "m00d", "m00e", "m020", "m072", "m082", "m088", "m08d", "m0b1", "m0e7", "m105", "m116", "m12a", "m139", "m13d", "m150", "m15f", "m167", "m185", "m187", "m188", "m18a", "m18e", "m190", "door_n13", "door_m27", "door_n13b", "door_m006", "door_m007", "door_m006b", "b_dlg_north", "b_after", "b_dlg_next", "after", "c_after"]
+tags   = ["intro17", "intro14", "introF4", "cliff", "dlg1", "dlg7", "dlg8", "control", "march1", "march2", "start", "col_left", "col_right", "dlg_south", "back_south", "dlg_north", "m006", "m00d", "m00e", "m020", "m072", "m082", "m088", "m08d", "m0b1", "m0e7", "m105", "m116", "m12a", "m139", "m13d", "m150", "m15f", "m167", "m185", "m187", "m188", "m18a", "m18e", "m190", "door_n13", "door_m27", "door_n13b", "door_m006", "door_m007", "door_m006b", "b_dlg_north", "b_after", "b_dlg_next", "after", "c_after", "back_after", "back_msg1", "back_msg2", "back_msg3", "back_osmose", "back_start", "back_victory", "pincer_after", "pincer_msg1", "pincer_start", "pincer_victory", "side_after", "side_msg1", "side_msg2", "side_msg3", "side_start", "side_victory"]
 
 [[mask]]
 file   = "wram"
 start  = 0xf230
 end    = 0xf232
 reason = """Schnappschuss von $0630-$0632 (Werte passen zu $0632 in der Klippenszene, Kopierstelle nicht lokalisiert), taucht nur nach dem Marsch auf."""
-tags   = ["intro17", "intro14", "introF4", "cliff", "dlg1", "dlg7", "dlg8", "control", "march1", "march2", "start", "col_left", "col_right", "dlg_south", "back_south", "dlg_north", "m006", "m00d", "m00e", "m020", "m072", "m082", "m088", "m08d", "m0b1", "m0e7", "m105", "m116", "m12a", "m139", "m13d", "m150", "m15f", "m167", "m185", "m187", "m188", "m18a", "m18e", "m190", "door_n13", "door_m27", "door_n13b", "door_m006", "door_m007", "door_m006b", "b_dlg_north", "b_after", "b_dlg_next", "after", "c_after"]
+tags   = ["intro17", "intro14", "introF4", "cliff", "dlg1", "dlg7", "dlg8", "control", "march1", "march2", "start", "col_left", "col_right", "dlg_south", "back_south", "dlg_north", "m006", "m00d", "m00e", "m020", "m072", "m082", "m088", "m08d", "m0b1", "m0e7", "m105", "m116", "m12a", "m139", "m13d", "m150", "m15f", "m167", "m185", "m187", "m188", "m18a", "m18e", "m190", "door_n13", "door_m27", "door_n13b", "door_m006", "door_m007", "door_m006b", "b_dlg_north", "b_after", "b_dlg_next", "after", "c_after", "back_after", "back_osmose", "back_start", "pincer_after", "pincer_msg1", "pincer_start", "pincer_victory", "side_after", "side_msg1", "side_msg2", "side_msg3", "side_victory"]
 
 [[mask]]
 file   = "wram"
@@ -71,7 +71,7 @@ file   = "wram"
 start  = 0x1508
 end    = 0x15fd
 reason = """Toter CPU-Stack unter dem Field-Hauptloop: S=$15FF ab field/reset.asm:17, beim Warten auf VBlank liegt nur die Ruecksprungadresse ($15FE-$15FF, geprueft) oben. Darunter steht, was NMI und Hauptloop zuletzt abgelegt haben; das haengt an der Dump-Phase."""
-tags   = ["intro17", "intro14", "introF4", "cliff", "dlg1", "dlg7", "dlg8", "control", "start", "col_left", "col_right", "dlg_south", "back_south", "dlg_north", "m006", "m00d", "m00e", "m020", "m072", "m082", "m088", "m08d", "m0b1", "m0e7", "m105", "m116", "m12a", "m139", "m13d", "m150", "m15f", "m167", "m185", "m187", "m188", "m18a", "m18e", "m190", "door_n13", "door_m27", "door_n13b", "door_m006", "door_m007", "door_m006b", "b_dlg_north", "b_after", "b_dlg_next", "after", "c_after"]
+tags   = ["intro17", "intro14", "introF4", "cliff", "dlg1", "dlg7", "dlg8", "control", "start", "col_left", "col_right", "dlg_south", "back_south", "dlg_north", "m006", "m00d", "m00e", "m020", "m072", "m082", "m088", "m08d", "m0b1", "m0e7", "m105", "m116", "m12a", "m139", "m13d", "m150", "m15f", "m167", "m185", "m187", "m188", "m18a", "m18e", "m190", "door_n13", "door_m27", "door_n13b", "door_m006", "door_m007", "door_m006b", "b_dlg_north", "b_after", "b_dlg_next", "after", "c_after", "pincer_after", "side_after"]
 
 [[mask]]
 file   = "wram"
@@ -212,7 +212,7 @@ reg    = [0x210D, 0x210E, 0x210F, 0x2110, 0x2111, 0x2112]
 first  = 1
 last   = 7
 reason = """Wie der BG3-Streifen oben: Die Kanaele lesen in den Zeilen 1-7 aus DP-Scratch, den die CPU mitten im Feld aendert. Nach dem Neuladen der Map trifft das auch BG1/BG2. Die Zeilen liegen im schwarzen Rand, der Framebuffer ist gleich."""
-tags   = ["field_back", "field_shop", "field_shop2", "field_final", "field_colosseum", "field_party", "field_loaded", "b_after", "b_dlg_next", "after", "c_after"]
+tags   = ["field_back", "field_shop", "field_shop2", "field_final", "field_colosseum", "field_party", "field_loaded", "b_after", "b_dlg_next", "after", "c_after", "back_after", "pincer_after", "side_after"]
 # r04 (2026-11-01): Menue-Tour. Die Route wartet im Menue auf $CF (Durchlaeufe der Hauptschleife), nicht auf Frames.
 # Was in Frames zaehlt, weicht also um die Lag-Frames ab; $45-$47 setzt die Route vor dem Oeffnen gleich.
 
@@ -291,7 +291,7 @@ file   = "wram"
 start  = 0x0000
 end    = 0x15ff
 reason = """snes9x behaelt beim Reset den WRAM wie die Hardware, der Recomp nullt ihn (snes_reset hard, RtlReset). Das Spiel initialisiert, was es liest: VRAM, CGRAM, OAM, Framebuffer sind gleich. Niedriger WRAM vor dem Laden: alte Inhalte."""
-tags   = ["load", "load_confirm"]
+tags   = ["load", "load_confirm", "back_msg1", "back_msg2", "back_msg3", "back_start", "back_victory", "pincer_msg1", "pincer_start", "pincer_victory", "side_after", "side_msg1", "side_msg2", "side_msg3", "side_victory"]
 
 [[mask]]
 file   = "wram"
@@ -305,7 +305,7 @@ file   = "wram"
 start  = 0x2000
 end    = 0x1ffff
 reason = """snes9x behaelt beim Reset den WRAM wie die Hardware, der Recomp nullt ihn (snes_reset hard, RtlReset). Das Spiel initialisiert, was es liest: VRAM, CGRAM, OAM, Framebuffer sind gleich. Puffer und Bank $7F: alte Inhalte."""
-tags   = ["load", "load_confirm", "field_loaded"]
+tags   = ["load", "load_confirm", "field_loaded", "back_after", "back_msg1", "back_msg2", "back_msg3", "back_osmose", "back_start", "back_victory", "pincer_msg1", "pincer_start", "pincer_victory", "side_after", "side_msg1", "side_msg2", "side_msg3", "side_start", "side_victory"]
 
 [[mask]]
 file   = "wram"
@@ -419,21 +419,21 @@ file   = "wram"
 start  = 0x000e
 end    = 0x0045
 reason = """Grafik-DP des Kampfes: $0E Bildzaehler, $10-$45 Scratch (notes/battle-ram.txt:24-27)."""
-tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08", "m09", "m10", "m11", "m12", "m13", "m14", "slot", "victory", "msg1", "msg2", "msg3", "c01", "c02", "c03", "c04", "c05", "c06", "c07", "c08", "c09", "c10", "c11", "c12", "c13", "c14", "c15", "c16", "c17", "c_victory", "c_msg1", "c_msg2", "c_msg3"]
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08", "m09", "m10", "m11", "m12", "m13", "m14", "slot", "victory", "msg1", "msg2", "msg3", "c01", "c02", "c03", "c04", "c05", "c06", "c07", "c08", "c09", "c10", "c11", "c12", "c13", "c14", "c15", "c16", "c17", "c_victory", "c_msg1", "c_msg2", "c_msg3", "back_msg1", "back_msg2", "back_msg3", "back_osmose", "back_start", "back_victory", "pincer_msg1", "pincer_start", "pincer_victory", "side_msg1", "side_msg2", "side_msg3", "side_start", "side_victory"]
 
 [[mask]]
 file   = "wram"
 start  = 0x0047
 end    = 0x004c
 reason = """$47 Warten auf VBlank, $48-$4C Zeiger von DrawMenuText (btlgfx/menu.asm:6839): welche Menuezeile zuletzt gezeichnet wurde, haengt an der Frame-Phase."""
-tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08", "m09", "m10", "m11", "m12", "m13", "m14", "slot", "victory", "msg1", "msg2", "msg3", "c01", "c02", "c03", "c04", "c05", "c06", "c07", "c08", "c09", "c10", "c11", "c12", "c13", "c14", "c15", "c16", "c17", "c_victory", "c_msg1", "c_msg2", "c_msg3"]
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08", "m09", "m10", "m11", "m12", "m13", "m14", "slot", "victory", "msg1", "msg2", "msg3", "c01", "c02", "c03", "c04", "c05", "c06", "c07", "c08", "c09", "c10", "c11", "c12", "c13", "c14", "c15", "c16", "c17", "c_victory", "c_msg1", "c_msg2", "c_msg3", "back_osmose", "side_start", "side_victory"]
 
 [[mask]]
 file   = "wram"
 start  = 0x0069
 end    = 0x0070
 reason = """Ergebnis der letzten Hex->Dec-Umwandlung (notes/battle-ram.txt:50), wie oben eine Frage der Zeichenreihenfolge."""
-tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08", "m09", "m10", "m11", "m12", "m13", "m14", "slot", "victory", "msg1", "msg2", "msg3", "c01", "c02", "c03", "c04", "c05", "c06", "c07", "c08", "c09", "c10", "c11", "c12", "c13", "c14", "c15", "c16", "c17", "c_victory", "c_msg1", "c_msg2", "c_msg3"]
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08", "m09", "m10", "m11", "m12", "m13", "m14", "slot", "victory", "msg1", "msg2", "msg3", "c01", "c02", "c03", "c04", "c05", "c06", "c07", "c08", "c09", "c10", "c11", "c12", "c13", "c14", "c15", "c16", "c17", "c_victory", "c_msg1", "c_msg2", "c_msg3", "side_start"]
 
 [[mask]]
 file   = "wram"
@@ -447,7 +447,7 @@ file   = "wram"
 start  = 0x0098
 end    = 0x0098
 reason = """Bildzaehler des Grafikmoduls, +1 je Frame (notes/battle-ram.txt:90)."""
-tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08", "m09", "m10", "m11", "m12", "m13", "m14", "slot", "victory", "msg1", "msg2", "msg3", "c01", "c02", "c03", "c04", "c05", "c06", "c07", "c08", "c09", "c10", "c11", "c12", "c13", "c14", "c15", "c16", "c17", "c_victory", "c_msg1", "c_msg2", "c_msg3"]
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08", "m09", "m10", "m11", "m12", "m13", "m14", "slot", "victory", "msg1", "msg2", "msg3", "c01", "c02", "c03", "c04", "c05", "c06", "c07", "c08", "c09", "c10", "c11", "c12", "c13", "c14", "c15", "c16", "c17", "c_victory", "c_msg1", "c_msg2", "c_msg3", "back_msg1", "back_msg2", "back_msg3", "back_osmose", "back_start", "back_victory", "pincer_msg1", "pincer_start", "pincer_victory", "side_msg1", "side_msg2", "side_msg3", "side_start", "side_victory"]
 
 [[mask]]
 file   = "wram"
@@ -510,7 +510,7 @@ file   = "wram"
 start  = 0x1508
 end    = 0x15e4
 reason = """Toter CPU-Stack unter dem Kampf-Hauptloop; $15E5-$15FF ist gleich und bleibt geprueft."""
-tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08", "m09", "m10", "m11", "m12", "m13", "m14", "slot", "victory", "msg1", "msg2", "msg3", "c01", "c02", "c03", "c04", "c05", "c06", "c07", "c08", "c09", "c10", "c11", "c12", "c13", "c14", "c15", "c16", "c17", "c_victory", "c_msg1", "c_msg2", "c_msg3"]
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08", "m09", "m10", "m11", "m12", "m13", "m14", "slot", "victory", "msg1", "msg2", "msg3", "c01", "c02", "c03", "c04", "c05", "c06", "c07", "c08", "c09", "c10", "c11", "c12", "c13", "c14", "c15", "c16", "c17", "c_victory", "c_msg1", "c_msg2", "c_msg3", "back_after", "back_msg1", "back_msg2", "back_msg3", "back_victory", "pincer_after", "pincer_msg1", "pincer_start", "pincer_victory", "side_after", "side_msg2", "side_msg3", "side_start", "side_victory"]
 
 [[mask]]
 file   = "wram"
@@ -531,7 +531,7 @@ file   = "wram"
 start  = 0x3a3e
 end    = 0x3a3f
 reason = """Rundenzaehler (notes/battle-ram.txt:823)."""
-tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08", "m09", "m10", "m11", "m12", "m13", "m14", "slot", "victory", "msg1", "msg2", "msg3", "c01", "c02", "c03", "c04", "c05", "c06", "c07", "c08", "c09", "c10", "c11", "c12", "c13", "c14", "c15", "c16", "c17", "c_victory", "c_msg1", "c_msg2", "c_msg3"]
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08", "m09", "m10", "m11", "m12", "m13", "m14", "slot", "victory", "msg1", "msg2", "msg3", "c01", "c02", "c03", "c04", "c05", "c06", "c07", "c08", "c09", "c10", "c11", "c12", "c13", "c14", "c15", "c16", "c17", "c_victory", "c_msg1", "c_msg2", "c_msg3", "back_msg1", "back_msg2", "back_msg3", "back_victory"]
 
 [[mask]]
 file   = "wram"
@@ -545,14 +545,14 @@ file   = "wram"
 start  = 0x3a6c
 end    = 0x3a6c
 reason = """Bildzaehler des Vor-Frames (notes/battle-ram.txt:853)."""
-tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08", "m09", "m10", "m11", "m12", "m13", "m14", "slot", "victory", "msg1", "msg2", "msg3", "c01", "c02", "c03", "c04", "c05", "c06", "c07", "c08", "c09", "c10", "c11", "c12", "c13", "c14", "c15", "c16", "c17", "c_victory", "c_msg1", "c_msg2", "c_msg3"]
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08", "m09", "m10", "m11", "m12", "m13", "m14", "slot", "victory", "msg1", "msg2", "msg3", "c01", "c02", "c03", "c04", "c05", "c06", "c07", "c08", "c09", "c10", "c11", "c12", "c13", "c14", "c15", "c16", "c17", "c_victory", "c_msg1", "c_msg2", "c_msg3", "back_msg1", "back_msg2", "back_msg3", "back_osmose", "back_start", "back_victory", "pincer_msg1", "pincer_start", "pincer_victory", "side_msg1", "side_msg2", "side_msg3", "side_start", "side_victory"]
 
 [[mask]]
 file   = "wram"
 start  = 0x3a91
 end    = 0x3a91
 reason = """Umlaufzaehler der Statuspruefung (notes/battle-ram.txt:896)."""
-tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08", "m09", "m10", "m11", "m12", "m13", "m14", "slot", "victory", "msg1", "msg2", "msg3", "c01", "c02", "c03", "c04", "c05", "c06", "c07", "c08", "c09", "c10", "c11", "c12", "c13", "c14", "c15", "c16", "c17", "c_victory", "c_msg1", "c_msg2", "c_msg3"]
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08", "m09", "m10", "m11", "m12", "m13", "m14", "slot", "victory", "msg1", "msg2", "msg3", "c01", "c02", "c03", "c04", "c05", "c06", "c07", "c08", "c09", "c10", "c11", "c12", "c13", "c14", "c15", "c16", "c17", "c_victory", "c_msg1", "c_msg2", "c_msg3", "back_msg1", "back_msg2", "back_msg3", "back_victory"]
 
 [[mask]]
 file   = "wram"
@@ -566,7 +566,7 @@ file   = "wram"
 start  = 0x3adc
 end    = 0x3aef
 reason = """Slow/Normal/Haste-Zaehler je Ziel (notes/battle-ram.txt:932)."""
-tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08", "m09", "m10", "m11", "m12", "m13", "m14", "slot", "victory", "msg1", "msg2", "msg3", "c01", "c02", "c03", "c04", "c05", "c06", "c07", "c08", "c09", "c10", "c11", "c12", "c13", "c14", "c15", "c16", "c17", "c_victory", "c_msg1", "c_msg2", "c_msg3"]
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08", "m09", "m10", "m11", "m12", "m13", "m14", "slot", "victory", "msg1", "msg2", "msg3", "c01", "c02", "c03", "c04", "c05", "c06", "c07", "c08", "c09", "c10", "c11", "c12", "c13", "c14", "c15", "c16", "c17", "c_victory", "c_msg1", "c_msg2", "c_msg3", "back_msg2", "back_msg3", "back_victory"]
 
 [[mask]]
 file   = "wram"
@@ -601,7 +601,7 @@ file   = "wram"
 start  = 0x56d5
 end    = 0x5714
 reason = """Textpuffer w7e56d5 (btlgfx/btlgfx_ram.inc, 64 Byte), Vorlage der zuletzt gezeichneten Menuezeile (LoadMenuText, btlgfx/menu.asm:1180)."""
-tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08", "m09", "m10", "m11", "m12", "m13", "m14", "slot", "victory", "msg1", "msg2", "msg3", "c01", "c02", "c03", "c04", "c05", "c06", "c07", "c08", "c09", "c10", "c11", "c12", "c13", "c14", "c15", "c16", "c17", "c_victory", "c_msg1", "c_msg2", "c_msg3"]
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08", "m09", "m10", "m11", "m12", "m13", "m14", "slot", "victory", "msg1", "msg2", "msg3", "c01", "c02", "c03", "c04", "c05", "c06", "c07", "c08", "c09", "c10", "c11", "c12", "c13", "c14", "c15", "c16", "c17", "c_victory", "c_msg1", "c_msg2", "c_msg3", "back_msg1", "back_msg2", "back_msg3", "back_osmose", "back_start", "back_victory", "pincer_msg1", "pincer_start", "pincer_victory", "side_msg1", "side_msg2", "side_msg3", "side_start", "side_victory"]
 
 [[mask]]
 file   = "wram"
@@ -615,7 +615,7 @@ file   = "wram"
 start  = 0x5c45
 end    = 0x5ca4
 reason = """Gauge-Textpuffer (btlgfx/btlgfx_ram.inc), Kacheln der ATB-Leisten."""
-tags   = ["b_victory", "b_msg1", "b_msg2", "b_msg3", "victory", "msg1", "msg2", "msg3"]
+tags   = ["b_victory", "b_msg1", "b_msg2", "b_msg3", "victory", "msg1", "msg2", "msg3", "back_msg2"]
 
 [[mask]]
 file   = "wram"
@@ -636,28 +636,28 @@ file   = "wram"
 start  = 0x619f
 end    = 0x61a0
 reason = """Zaehler im Grafikmodul, laeuft je Frame weiter (Wertverlauf in r05: +18/+19 je Meldung auf beiden Seiten, nur verschoben); bleibt nach dem Kampf stehen."""
-tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "b_after", "b_dlg_next", "m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08", "m09", "m10", "m11", "m12", "m13", "m14", "slot", "victory", "msg1", "msg2", "msg3", "c01", "c02", "c03", "c04", "c05", "c06", "c07", "c08", "c09", "c10", "c11", "c12", "c13", "c14", "c15", "c16", "c17", "after"]
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "b_after", "b_dlg_next", "m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08", "m09", "m10", "m11", "m12", "m13", "m14", "slot", "victory", "msg1", "msg2", "msg3", "c01", "c02", "c03", "c04", "c05", "c06", "c07", "c08", "c09", "c10", "c11", "c12", "c13", "c14", "c15", "c16", "c17", "after", "back_start", "pincer_msg1", "pincer_start", "pincer_victory", "side_msg1", "side_start", "side_victory"]
 
 [[mask]]
 file   = "wram"
 start  = 0x61c2
 end    = 0x61c2
 reason = """Aktionszaehler der Figurengrafik, +1 je Frame (notes/battle-ram.txt:1468), Figur 0."""
-tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "b_after", "b_dlg_next", "m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08", "m09", "m10", "m11", "m12", "m13", "m14", "slot", "victory", "msg1", "msg2", "msg3", "after", "c01", "c02", "c03", "c04", "c05", "c06", "c07", "c08", "c09", "c10", "c11", "c12", "c13", "c14", "c15", "c16", "c17", "c_victory", "c_msg1", "c_msg2", "c_msg3", "c_after"]
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "b_after", "b_dlg_next", "m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08", "m09", "m10", "m11", "m12", "m13", "m14", "slot", "victory", "msg1", "msg2", "msg3", "after", "c01", "c02", "c03", "c04", "c05", "c06", "c07", "c08", "c09", "c10", "c11", "c12", "c13", "c14", "c15", "c16", "c17", "c_victory", "c_msg1", "c_msg2", "c_msg3", "c_after", "back_after", "back_msg3", "back_osmose", "back_start", "back_victory", "pincer_msg1", "pincer_start", "pincer_victory", "side_msg3", "side_start", "side_victory"]
 
 [[mask]]
 file   = "wram"
 start  = 0x61e2
 end    = 0x61e2
 reason = """Wie $61C2, Figur 1."""
-tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "b_after", "b_dlg_next", "m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08", "m09", "m10", "m11", "m12", "m13", "m14", "slot", "victory", "msg1", "msg2", "msg3", "after", "c01", "c02", "c03", "c04", "c05", "c06", "c07", "c08", "c09", "c10", "c11", "c12", "c13", "c14", "c15", "c16", "c17", "c_victory", "c_msg1", "c_msg2", "c_msg3", "c_after"]
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "b_after", "b_dlg_next", "m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08", "m09", "m10", "m11", "m12", "m13", "m14", "slot", "victory", "msg1", "msg2", "msg3", "after", "c01", "c02", "c03", "c04", "c05", "c06", "c07", "c08", "c09", "c10", "c11", "c12", "c13", "c14", "c15", "c16", "c17", "c_victory", "c_msg1", "c_msg2", "c_msg3", "c_after", "back_after", "back_osmose", "back_start", "back_victory", "pincer_after", "pincer_msg1", "pincer_start", "pincer_victory", "side_after", "side_start", "side_victory"]
 
 [[mask]]
 file   = "wram"
 start  = 0x6202
 end    = 0x6202
 reason = """Wie $61C2, Figur 2."""
-tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "b_after", "b_dlg_next", "m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08", "m09", "m10", "m11", "m12", "m13", "m14", "slot", "victory", "msg1", "msg2", "msg3", "after", "c01", "c02", "c03", "c04", "c05", "c06", "c07", "c08", "c09", "c10", "c11", "c12", "c13", "c14", "c15", "c16", "c17", "c_victory", "c_msg1", "c_msg2", "c_msg3", "c_after"]
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "b_after", "b_dlg_next", "m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08", "m09", "m10", "m11", "m12", "m13", "m14", "slot", "victory", "msg1", "msg2", "msg3", "after", "c01", "c02", "c03", "c04", "c05", "c06", "c07", "c08", "c09", "c10", "c11", "c12", "c13", "c14", "c15", "c16", "c17", "c_victory", "c_msg1", "c_msg2", "c_msg3", "c_after", "back_msg1", "back_osmose", "back_start", "back_victory", "pincer_after", "pincer_start", "pincer_victory", "side_start", "side_victory"]
 
 [[mask]]
 file   = "wram"
@@ -692,7 +692,7 @@ file   = "wram"
 start  = 0x7b99
 end    = 0x7b9d
 reason = """Figur, deren HP/MP-Text als naechstes aktualisiert wird (notes/battle-ram.txt:1868), reihum je Frame."""
-tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "b_after", "b_dlg_next", "m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08", "m09", "m10", "m11", "m12", "m13", "m14", "slot", "victory", "msg1", "msg2", "msg3", "after", "c01", "c02", "c03", "c04", "c05", "c06", "c07", "c08", "c09", "c10", "c11", "c12", "c13", "c14", "c15", "c16", "c17", "c_victory", "c_msg1", "c_msg2", "c_msg3", "c_after"]
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "b_after", "b_dlg_next", "m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08", "m09", "m10", "m11", "m12", "m13", "m14", "slot", "victory", "msg1", "msg2", "msg3", "after", "c01", "c02", "c03", "c04", "c05", "c06", "c07", "c08", "c09", "c10", "c11", "c12", "c13", "c14", "c15", "c16", "c17", "c_victory", "c_msg1", "c_msg2", "c_msg3", "c_after", "back_after", "back_msg1", "back_msg2", "back_msg3", "back_osmose", "back_start", "back_victory", "pincer_after", "pincer_msg1", "pincer_start", "pincer_victory", "side_after", "side_msg1", "side_msg2", "side_msg3", "side_start", "side_victory"]
 
 [[mask]]
 file   = "wram"
@@ -706,21 +706,21 @@ file   = "wram"
 start  = 0x88d9
 end    = 0x88d9
 reason = """Grafikmodul-Zustand (btlgfx_ram.inc w7e88d9), rotiert durch $45/$5D/$75/$8D."""
-tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "b_after", "b_dlg_next", "m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08", "m09", "m10", "m11", "m12", "m13", "m14", "slot", "victory", "msg1", "msg2", "msg3", "after", "c01", "c02", "c03", "c04", "c05", "c06", "c07", "c08", "c09", "c10", "c11", "c12", "c13", "c14", "c15", "c16", "c17", "c_victory", "c_msg1", "c_msg2", "c_msg3", "c_after"]
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "b_after", "b_dlg_next", "m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08", "m09", "m10", "m11", "m12", "m13", "m14", "slot", "victory", "msg1", "msg2", "msg3", "after", "c01", "c02", "c03", "c04", "c05", "c06", "c07", "c08", "c09", "c10", "c11", "c12", "c13", "c14", "c15", "c16", "c17", "c_victory", "c_msg1", "c_msg2", "c_msg3", "c_after", "back_after", "back_msg3", "back_osmose", "back_start", "back_victory", "pincer_after", "pincer_msg1", "pincer_start", "pincer_victory", "side_after", "side_msg1", "side_msg2", "side_msg3", "side_start", "side_victory"]
 
 [[mask]]
 file   = "wram"
 start  = 0xe9db
 end    = 0xe9db
 reason = """Zaehler der Condemned-Ziffern (notes/battle-ram.txt:2197); liegt nach dem Kampf in Zeile 0 der Field-BG3-Map, die das Field nicht beschreibt (VRAM gleich)."""
-tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "b_after", "b_dlg_next", "m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08", "m09", "m10", "m11", "m12", "m13", "m14", "slot", "victory", "msg1", "msg2", "msg3", "after", "c01", "c02", "c03", "c04", "c05", "c06", "c07", "c08", "c09", "c10", "c11", "c12", "c13", "c14", "c15", "c16", "c17", "c_victory", "c_msg1", "c_msg2", "c_msg3", "c_after"]
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "b_after", "b_dlg_next", "m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08", "m09", "m10", "m11", "m12", "m13", "m14", "slot", "victory", "msg1", "msg2", "msg3", "after", "c01", "c02", "c03", "c04", "c05", "c06", "c07", "c08", "c09", "c10", "c11", "c12", "c13", "c14", "c15", "c16", "c17", "c_victory", "c_msg1", "c_msg2", "c_msg3", "c_after", "back_after", "back_osmose", "back_start", "back_victory", "pincer_after", "pincer_msg1", "pincer_start", "pincer_victory", "side_after", "side_msg1", "side_msg2", "side_msg3", "side_victory"]
 
 [[mask]]
 file   = "wram"
 start  = 0xe9ef
 end    = 0xe9ef
 reason = """Kampfzeit angehalten (notes/battle-ram.txt:2216), haengt an der Meldungsphase."""
-tags   = ["b_victory", "b_msg1", "b_msg2", "b_msg3", "c_victory", "c_msg1", "c_msg2", "c_msg3"]
+tags   = ["b_victory", "b_msg1", "b_msg2", "b_msg3", "c_victory", "c_msg1", "c_msg2", "c_msg3", "pincer_victory", "side_victory"]
 
 [[mask]]
 file   = "wram"
@@ -734,7 +734,7 @@ file   = "vram"
 start  = 0x4000
 end    = 0x47ff
 reason = """Figuren- und Statuskacheln. Der Kampf-NMI laedt je Frame einen Ausschnitt nach z98: Figur z98 & 3, Status zwei Kacheln nach z98 & 31 (btlgfx/interrupt.asm:960-990, Ziele in btlgfx/interrupt_2.asm:239-262). Die Quellen in Bank 7F sind gleich, nur die Upload-Phase weicht ab."""
-tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08", "m09", "m10", "m11", "m12", "m13", "m14", "slot", "victory", "msg1", "msg2", "msg3", "c01", "c02", "c03", "c04", "c05", "c06", "c07", "c08", "c09", "c10", "c11", "c12", "c13", "c14", "c15", "c16", "c17", "c_victory", "c_msg1", "c_msg2", "c_msg3"]
+tags   = ["b_t01", "b_t03", "b_victory", "b_msg1", "b_msg2", "b_msg3", "m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08", "m09", "m10", "m11", "m12", "m13", "m14", "slot", "victory", "msg1", "msg2", "msg3", "c01", "c02", "c03", "c04", "c05", "c06", "c07", "c08", "c09", "c10", "c11", "c12", "c13", "c14", "c15", "c16", "c17", "c_victory", "c_msg1", "c_msg2", "c_msg3", "back_msg1", "back_msg2", "back_msg3", "back_osmose", "back_start", "back_victory", "pincer_msg1", "pincer_start", "pincer_victory", "side_msg1", "side_msg2", "side_msg3", "side_start", "side_victory"]
 
 [[mask]]
 file   = "vram"
@@ -948,7 +948,7 @@ file   = "wram"
 start  = 0x619e
 end    = 0x619e
 reason = """ATB-Anzeige je Figur (notes/battle-ram.txt:433), fuellt sich je Frame. Die Referenz hat bei Animationen Lag-Frames (docs/STATUS.md, Route r06), die Leisten stehen beim Dump verschieden weit."""
-tags   = ["m06", "m12", "msg1", "msg3", "victory", "msg2"]
+tags   = ["m06", "m12", "msg1", "msg3", "victory", "msg2", "back_after", "back_msg1", "pincer_after", "side_msg3"]
 
 [[mask]]
 file   = "wram"
@@ -976,28 +976,28 @@ file   = "wram"
 start  = 0x1a040
 end    = 0x1a07f
 reason = """Grafik des aktuellen Animationsbilds je Figur, $7F:A000-$7F:A3FF (notes/battle-ram.txt:2275), siehe $61C3. Bank $7F bleibt nach dem Kampf unberuehrt, deshalb auch in `after`."""
-tags   = ["m03", "m05", "m08", "msg1", "msg2", "msg3", "after"]
+tags   = ["m03", "m05", "m08", "msg1", "msg2", "msg3", "after", "pincer_after", "side_after", "side_msg1", "side_msg2"]
 
 [[mask]]
 file   = "wram"
 start  = 0x1a0c8
 end    = 0x1a0ff
 reason = """Grafik des aktuellen Animationsbilds je Figur, $7F:A000-$7F:A3FF (notes/battle-ram.txt:2275), siehe $61C3. Bank $7F bleibt nach dem Kampf unberuehrt, deshalb auch in `after`."""
-tags   = ["msg1", "msg2", "msg3", "after"]
+tags   = ["msg1", "msg2", "msg3", "after", "side_msg1"]
 
 [[mask]]
 file   = "wram"
 start  = 0x1a148
 end    = 0x1a17f
 reason = """Grafik des aktuellen Animationsbilds je Figur, $7F:A000-$7F:A3FF (notes/battle-ram.txt:2275), siehe $61C3. Bank $7F bleibt nach dem Kampf unberuehrt, deshalb auch in `after`."""
-tags   = ["msg2", "msg3", "after", "msg1"]
+tags   = ["msg2", "msg3", "after", "msg1", "back_after", "side_after"]
 
 [[mask]]
 file   = "wram"
 start  = 0x1a200
 end    = 0x1a27d
 reason = """Grafik des aktuellen Animationsbilds je Figur, $7F:A000-$7F:A3FF (notes/battle-ram.txt:2275), siehe $61C3. Bank $7F bleibt nach dem Kampf unberuehrt, deshalb auch in `after`."""
-tags   = ["m03", "msg1", "msg2", "msg3", "after"]
+tags   = ["m03", "msg1", "msg2", "msg3", "after", "pincer_after", "side_after"]
 
 [[mask]]
 file   = "wram"
@@ -1011,14 +1011,14 @@ file   = "wram"
 start  = 0x1a320
 end    = 0x1a37d
 reason = """Grafik des aktuellen Animationsbilds je Figur, $7F:A000-$7F:A3FF (notes/battle-ram.txt:2275), siehe $61C3. Bank $7F bleibt nach dem Kampf unberuehrt, deshalb auch in `after`."""
-tags   = ["msg2", "msg3", "after", "msg1"]
+tags   = ["msg2", "msg3", "after", "msg1", "back_after", "side_after"]
 
 [[mask]]
 file   = "wram"
 start  = 0x0320
 end    = 0x0361
 reason = """Sprite-Puffer $0300-$051F (notes/battle-ram.txt:175) bzw. OAM: Sprites der laufenden Animation (siehe Animationsphase) und der Siegerpose (Figuren wippen, siehe $61C3)."""
-tags   = ["m03", "m12", "msg1", "msg2", "msg3"]
+tags   = ["m03", "m12", "msg1", "msg2", "msg3", "back_msg1", "back_msg2", "back_msg3", "pincer_msg1", "side_msg1", "side_msg2", "side_msg3"]
 
 [[mask]]
 file   = "wram"
@@ -1074,7 +1074,7 @@ file   = "wram"
 start  = 0x61b0
 end    = 0x61d5
 reason = """Animation der vorigen Aktion laeuft beim Menue-Dump noch und steht auf beiden Seiten in verschiedener Phase (Lag-Frames der Referenz waehrend Animationen, docs/STATUS.md Route r06). Bereiche (notes/battle-ram.txt): Animations-DP $5B-$78, BG1-Scroll-HDMA $43F5-$4650 (1223), Figuren-Ebenen $61B0-$61D5, Scrollwerte $64B4-$64ED (1648-1673), Animations-Threads $67DE-$7B1F (btlgfx_ram.inc ThreadIsActive, AttackerPos, LoopCounter, w7e7b14 Zahl aktiver Threads), Paletten $7C00-$7FFF (1925-1945), grosse VRAM-DMA $8000-$800A (1947-1952), Positionen $800F-$81A6 (1955-1995), Bildschirmregister je Bereich $896F-$8BED (2089-2112), BG-Kachelpuffer $A97F-$AE3E (2169), Sprite-Animationsbilder $CE3F-$E33E (2172-2173), Animations-Sound $E9E7 (2208), BG-Paletten $EC11-$ECB3 (2242-2246), BG1-Animationskacheln $7F:C400-$7F:E3FF (2283)."""
-tags   = ["m03", "m04"]
+tags   = ["m03", "m04", "back_msg1", "back_msg2", "pincer_after", "side_after", "side_msg1", "side_msg2"]
 
 [[mask]]
 file   = "wram"
@@ -1340,7 +1340,7 @@ file   = "oam"
 start  = 0x0020
 end    = 0x0061
 reason = """Sprite-Puffer $0300-$051F (notes/battle-ram.txt:175) bzw. OAM: Sprites der laufenden Animation (siehe Animationsphase) und der Siegerpose (Figuren wippen, siehe $61C3)."""
-tags   = ["m12", "msg1", "msg2", "msg3"]
+tags   = ["m12", "msg1", "msg2", "msg3", "back_msg1", "back_msg2", "back_msg3", "pincer_msg1", "side_msg1", "side_msg2", "side_msg3"]
 
 [[mask]]
 file   = "oam"
@@ -1410,7 +1410,7 @@ file   = "vram"
 start  = 0xf0f3
 end    = 0xf0fd
 reason = """BG1-/BG3-Map der ATB-Leisten (Kachel $F0-$F8 je Fuellstand, Attribut $29/$35 je nachdem, ob die Figur am Zug ist), siehe $2022. Bild an diesen Stellen in eigenen Rechtecken maskiert."""
-tags   = ["m13", "victory", "msg3"]
+tags   = ["m13", "victory", "msg3", "back_victory"]
 
 [[mask]]
 file   = "vram"
@@ -1424,7 +1424,7 @@ file   = "vram"
 start  = 0xf2f3
 end    = 0xf2fd
 reason = """BG1-/BG3-Map der ATB-Leisten (Kachel $F0-$F8 je Fuellstand, Attribut $29/$35 je nachdem, ob die Figur am Zug ist), siehe $2022. Bild an diesen Stellen in eigenen Rechtecken maskiert."""
-tags   = ["m13", "victory", "msg3"]
+tags   = ["m13", "victory", "msg3", "back_victory"]
 
 [[mask]]
 file   = "vram"
@@ -1438,7 +1438,7 @@ file   = "vram"
 start  = 0xf4f3
 end    = 0xf4fd
 reason = """BG1-/BG3-Map der ATB-Leisten (Kachel $F0-$F8 je Fuellstand, Attribut $29/$35 je nachdem, ob die Figur am Zug ist), siehe $2022. Bild an diesen Stellen in eigenen Rechtecken maskiert."""
-tags   = ["m13", "victory", "msg3"]
+tags   = ["m13", "victory", "msg3", "back_victory"]
 
 [[mask]]
 file   = "fb"
@@ -1586,7 +1586,7 @@ file   = "wram"
 start  = 0x3e4c
 end    = 0x3e50
 reason = """Zaehler fuer Schaden ueber Zeit je Ziel (notes/battle-ram.txt:934) und Vergeltungsflags $3E4C,x (notes/battle-ram.txt:1061): laufen frameweise."""
-tags   = ["c08", "c10", "c15", "c16", "c_msg1", "c_msg2", "c12", "c17", "c_msg3"]
+tags   = ["c08", "c10", "c15", "c16", "c_msg1", "c_msg2", "c12", "c17", "c_msg3", "back_msg1"]
 
 [[mask]]
 file   = "wram"
@@ -1621,7 +1621,7 @@ file   = "wram"
 start  = 0x594f
 end    = 0x594f
 reason = """Kacheln der ATB-Leisten im Menue-Kachelpuffer w7e5855, im Gauge-Textpuffer w7e5c45 und im Tilemap-Puffer w7e8d13 (btlgfx/btlgfx_ram.inc): Kachelnummer = Fuellstand ($F0-$F8), siehe $2022."""
-tags   = ["c11"]
+tags   = ["c11", "pincer_start", "side_start"]
 
 [[mask]]
 file   = "wram"
@@ -1677,7 +1677,7 @@ file   = "wram"
 start  = 0x8e4d
 end    = 0x8e4d
 reason = """Kacheln der ATB-Leisten im Menue-Kachelpuffer w7e5855, im Gauge-Textpuffer w7e5c45 und im Tilemap-Puffer w7e8d13 (btlgfx/btlgfx_ram.inc): Kachelnummer = Fuellstand ($F0-$F8), siehe $2022."""
-tags   = ["c11"]
+tags   = ["c11", "pincer_start", "side_start"]
 
 [[mask]]
 file   = "wram"
@@ -1789,7 +1789,7 @@ file   = "wram"
 start  = 0x0076
 end    = 0x0076
 reason = """Animation der vorigen Aktion laeuft beim Menue-Dump noch und steht auf beiden Seiten in verschiedener Phase (Lag-Frames der Referenz waehrend Animationen, docs/STATUS.md Route r06). Bereiche (notes/battle-ram.txt): Animations-DP $5B-$78, BG1-Scroll-HDMA $43F5-$4650 (1223), Figuren-Ebenen $61B0-$61D5, Scrollwerte $64B4-$64ED (1648-1673), Animations-Threads $67DE-$7B1F (btlgfx_ram.inc ThreadIsActive, AttackerPos, LoopCounter, w7e7b14 Zahl aktiver Threads), Paletten $7C00-$7FFF (1925-1945), grosse VRAM-DMA $8000-$800A (1947-1952), Positionen $800F-$81A6 (1955-1995), Bildschirmregister je Bereich $896F-$8BED (2089-2112), BG-Kachelpuffer $A97F-$AE3E (2169), Sprite-Animationsbilder $CE3F-$E33E (2172-2173), Animations-Sound $E9E7 (2208), BG-Paletten $EC11-$ECB3 (2242-2246), BG1-Animationskacheln $7F:C400-$7F:E3FF (2283)."""
-tags   = ["c_victory"]
+tags   = ["c_victory", "back_victory", "pincer_victory", "side_victory"]
 
 [[mask]]
 file   = "wram"
@@ -2482,14 +2482,14 @@ file   = "vram"
 start  = 0xf074
 end    = 0xf074
 reason = """BG1-/BG3-Map der ATB-Leisten (Kachel $F0-$F8 je Fuellstand, Attribut $29/$35 je nachdem, ob die Figur am Zug ist), siehe $2022. Bild an diesen Stellen in eigenen Rechtecken maskiert."""
-tags   = ["c04", "c_victory", "c_msg1"]
+tags   = ["c04", "c_victory", "c_msg1", "pincer_msg1", "side_msg1"]
 
 [[mask]]
 file   = "vram"
 start  = 0xf0b3
 end    = 0xf0bd
 reason = """BG1-/BG3-Map der ATB-Leisten (Kachel $F0-$F8 je Fuellstand, Attribut $29/$35 je nachdem, ob die Figur am Zug ist), siehe $2022. Bild an diesen Stellen in eigenen Rechtecken maskiert."""
-tags   = ["c_victory"]
+tags   = ["c_victory", "back_victory", "pincer_victory", "side_victory"]
 
 [[mask]]
 file   = "vram"
@@ -2510,7 +2510,7 @@ file   = "vram"
 start  = 0xf274
 end    = 0xf274
 reason = """BG1-/BG3-Map der ATB-Leisten (Kachel $F0-$F8 je Fuellstand, Attribut $29/$35 je nachdem, ob die Figur am Zug ist), siehe $2022. Bild an diesen Stellen in eigenen Rechtecken maskiert."""
-tags   = ["c04", "c_victory", "c_msg1"]
+tags   = ["c04", "c_victory", "c_msg1", "pincer_msg1", "side_msg1"]
 
 [[mask]]
 file   = "vram"
@@ -2531,7 +2531,7 @@ file   = "vram"
 start  = 0xf474
 end    = 0xf474
 reason = """BG1-/BG3-Map der ATB-Leisten (Kachel $F0-$F8 je Fuellstand, Attribut $29/$35 je nachdem, ob die Figur am Zug ist), siehe $2022. Bild an diesen Stellen in eigenen Rechtecken maskiert."""
-tags   = ["c04", "c_victory", "c_msg1"]
+tags   = ["c04", "c_victory", "c_msg1", "pincer_msg1", "side_msg1"]
 
 [[mask]]
 file   = "vram"
@@ -3138,3 +3138,99 @@ start  = 0xf476
 end    = 0xf476
 reason = """BG1/BG3 map of the ATB gauges (tile $F0-$F8 per fill level), see $2022."""
 tags   = ["c13"]
+
+# r14 (2026-11-11): battle types and Osmose. Scene-keyed against snes9x like r06 and r13: the reference has lag
+# frames during animations, so animation phases at a dump differ by a few frames. The WRAM, VRAM and OAM classes
+# of r05, r06 and r13 apply (tags added to them). New here are the framebuffer rectangles below and one VRAM range.
+
+[[mask]]
+file   = "fb"
+rect   = [16, 163, 54, 170]
+reason = """Party sprite (victory pose) or ATB gauge at a different animation phase: the reference has lag frames during the victory animation, so the pose frame and the gauge fill at the dump differ by a few frames. Same class as the OAM, VRAM and WRAM masks of these tags (OAM and sprite tiles in VRAM differ at the same dumps). The rectangle is the cluster of differing pixels (dilated by at most 3 pixels); the rest of the frame is equal."""
+tags   = ["side_victory"]
+
+[[mask]]
+file   = "fb"
+rect   = [30, 85, 51, 127]
+reason = """Party sprite (victory pose) or ATB gauge at a different animation phase: the reference has lag frames during the victory animation, so the pose frame and the gauge fill at the dump differ by a few frames. Same class as the OAM, VRAM and WRAM masks of these tags (OAM and sprite tiles in VRAM differ at the same dumps). The rectangle is the cluster of differing pixels (dilated by at most 3 pixels); the rest of the frame is equal."""
+tags   = ["back_msg2"]
+
+[[mask]]
+file   = "fb"
+rect   = [30, 103, 43, 127]
+reason = """Party sprite (victory pose) or ATB gauge at a different animation phase: the reference has lag frames during the victory animation, so the pose frame and the gauge fill at the dump differ by a few frames. Same class as the OAM, VRAM and WRAM masks of these tags (OAM and sprite tiles in VRAM differ at the same dumps). The rectangle is the cluster of differing pixels (dilated by at most 3 pixels); the rest of the frame is equal."""
+tags   = ["back_msg3"]
+
+[[mask]]
+file   = "fb"
+rect   = [38, 67, 59, 109]
+reason = """Party sprite (victory pose) or ATB gauge at a different animation phase: the reference has lag frames during the victory animation, so the pose frame and the gauge fill at the dump differ by a few frames. Same class as the OAM, VRAM and WRAM masks of these tags (OAM and sprite tiles in VRAM differ at the same dumps). The rectangle is the cluster of differing pixels (dilated by at most 3 pixels); the rest of the frame is equal."""
+tags   = ["back_msg1"]
+
+[[mask]]
+file   = "fb"
+rect   = [42, 77, 55, 101]
+reason = """Party sprite (victory pose) or ATB gauge at a different animation phase: the reference has lag frames during the victory animation, so the pose frame and the gauge fill at the dump differ by a few frames. Same class as the OAM, VRAM and WRAM masks of these tags (OAM and sprite tiles in VRAM differ at the same dumps). The rectangle is the cluster of differing pixels (dilated by at most 3 pixels); the rest of the frame is equal."""
+tags   = ["side_msg1", "side_msg2", "side_msg3"]
+
+[[mask]]
+file   = "fb"
+rect   = [56, 77, 57, 78]
+reason = """Party sprite (victory pose) or ATB gauge at a different animation phase: the reference has lag frames during the victory animation, so the pose frame and the gauge fill at the dump differ by a few frames. Same class as the OAM, VRAM and WRAM masks of these tags (OAM and sprite tiles in VRAM differ at the same dumps). The rectangle is the cluster of differing pixels (dilated by at most 3 pixels); the rest of the frame is equal."""
+tags   = ["back_osmose"]
+
+[[mask]]
+file   = "fb"
+rect   = [121, 67, 135, 88]
+reason = """Party sprite (victory pose) or ATB gauge at a different animation phase: the reference has lag frames during the victory animation, so the pose frame and the gauge fill at the dump differ by a few frames. Same class as the OAM, VRAM and WRAM masks of these tags (OAM and sprite tiles in VRAM differ at the same dumps). The rectangle is the cluster of differing pixels (dilated by at most 3 pixels); the rest of the frame is equal."""
+tags   = ["pincer_msg1"]
+
+[[mask]]
+file   = "fb"
+rect   = [121, 103, 134, 127]
+reason = """Party sprite (victory pose) or ATB gauge at a different animation phase: the reference has lag frames during the victory animation, so the pose frame and the gauge fill at the dump differ by a few frames. Same class as the OAM, VRAM and WRAM masks of these tags (OAM and sprite tiles in VRAM differ at the same dumps). The rectangle is the cluster of differing pixels (dilated by at most 3 pixels); the rest of the frame is equal."""
+tags   = ["pincer_msg1"]
+
+[[mask]]
+file   = "fb"
+rect   = [200, 77, 214, 101]
+reason = """Party sprite (victory pose) or ATB gauge at a different animation phase: the reference has lag frames during the victory animation, so the pose frame and the gauge fill at the dump differ by a few frames. Same class as the OAM, VRAM and WRAM masks of these tags (OAM and sprite tiles in VRAM differ at the same dumps). The rectangle is the cluster of differing pixels (dilated by at most 3 pixels); the rest of the frame is equal."""
+tags   = ["side_msg1"]
+
+[[mask]]
+file   = "fb"
+rect   = [201, 80, 214, 100]
+reason = """Party sprite (victory pose) or ATB gauge at a different animation phase: the reference has lag frames during the victory animation, so the pose frame and the gauge fill at the dump differ by a few frames. Same class as the OAM, VRAM and WRAM masks of these tags (OAM and sprite tiles in VRAM differ at the same dumps). The rectangle is the cluster of differing pixels (dilated by at most 3 pixels); the rest of the frame is equal."""
+tags   = ["side_msg3"]
+
+[[mask]]
+file   = "fb"
+rect   = [211, 178, 211, 180]
+reason = """Party sprite (victory pose) or ATB gauge at a different animation phase: the reference has lag frames during the victory animation, so the pose frame and the gauge fill at the dump differ by a few frames. Same class as the OAM, VRAM and WRAM masks of these tags (OAM and sprite tiles in VRAM differ at the same dumps). The rectangle is the cluster of differing pixels (dilated by at most 3 pixels); the rest of the frame is equal."""
+tags   = ["back_victory"]
+
+[[mask]]
+file   = "fb"
+rect   = [215, 166, 215, 168]
+reason = """Party sprite (victory pose) or ATB gauge at a different animation phase: the reference has lag frames during the victory animation, so the pose frame and the gauge fill at the dump differ by a few frames. Same class as the OAM, VRAM and WRAM masks of these tags (OAM and sprite tiles in VRAM differ at the same dumps). The rectangle is the cluster of differing pixels (dilated by at most 3 pixels); the rest of the frame is equal."""
+tags   = ["pincer_msg1", "side_msg1"]
+
+[[mask]]
+file   = "fb"
+rect   = [219, 121, 232, 145]
+reason = """Party sprite (victory pose) or ATB gauge at a different animation phase: the reference has lag frames during the victory animation, so the pose frame and the gauge fill at the dump differ by a few frames. Same class as the OAM, VRAM and WRAM masks of these tags (OAM and sprite tiles in VRAM differ at the same dumps). The rectangle is the cluster of differing pixels (dilated by at most 3 pixels); the rest of the frame is equal."""
+tags   = ["side_msg1", "side_msg2"]
+
+[[mask]]
+file   = "vram"
+start  = 0xf033
+end    = 0xf04c
+reason = """Battle menu window tilemap in the victory frame: the reference still shows the monster name window ("Guard" in its framebuffer) where the recomp has already closed it, so the window tiles differ by the window close phase (a few frames, reference lag). The framebuffer rectangle of the same tag covers the window text."""
+tags   = ["side_victory"]
+
+[[mask]]
+file   = "vram"
+start  = 0xf0b3
+end    = 0xf0bd
+reason = """Battle menu window tilemap in the victory frame: the reference still shows the monster name window ("Guard" in its framebuffer) where the recomp has already closed it, so the window tiles differ by the window close phase (a few frames, reference lag)."""
+tags   = ["side_victory"]
