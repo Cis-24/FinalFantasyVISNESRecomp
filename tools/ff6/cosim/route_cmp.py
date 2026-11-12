@@ -77,6 +77,9 @@ def main():
     ap.add_argument("--grace", type=int, default=120,
                     help="longest run of live differences that still counts as transient")
     ap.add_argument("--dump-dir", default=".")
+    ap.add_argument("--cyc-step", type=int, default=0,
+                    help="print the checkpoint whenever the CPU cycle difference A-B moves by "
+                         "more than this since the last print (0 = off)")
     ap.add_argument("--watch", default="",
                     help="comma list of WRAM offsets printed for A and B at every checkpoint "
                     "of --watch-range, with both CPUs (diagnostics)")
@@ -118,6 +121,7 @@ def main():
 
     t0 = time.time()
     live_start = None
+    cyc_last = 0
     transients = []
     dead_cps = 0
     dead_seen = set()
@@ -152,6 +156,15 @@ def main():
         if "ram" not in sa or "ram" not in sb:
             sc.die(f"sub without ram: A={sa} B={sb}")
         live = False
+        if args.cyc_step:
+            try:
+                d = int(sa["cyc"]) - int(sb["cyc"])
+                if abs(d - cyc_last) > args.cyc_step:
+                    print(f"  cyc A-B at cp {cp}: {d} (was {cyc_last}), mcyc A-B "
+                          f"{int(sa['mcyc']) - int(sb['mcyc'])}", flush=True)
+                    cyc_last = d
+            except (KeyError, ValueError):
+                pass
         if watch and w_lo <= cp <= w_hi:
             cpu, da, db = snapshot()
             vals = " ".join(f"{o:04X}={da[o]:02x}/{db[o]:02x}" for o in watch)
