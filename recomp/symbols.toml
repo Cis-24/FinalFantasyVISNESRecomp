@@ -8964,7 +8964,10 @@ note = "Miss-Promotion, 0 Treffer"
 name = "WaitDlgScroll"
 addr = "5e1c"
 bank = 0xc1
-emit = false
+emit = true
+entry_m = 1
+entry_x = 0
+note = "Battle dialog page scroll wait, reached from C160CF in r20 (call_gap miss)"
 
 [[func]]
 name = "WaitDlg"

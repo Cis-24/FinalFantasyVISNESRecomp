@@ -4,6 +4,9 @@ Every change to `validation/expected/*.toml` (events, dump hashes) needs a justi
 entry here (PLAN 5.3). The expectations are written with
 `bash tools/ff6/regress.sh --quick --update` and checked without `--update`.
 
+## 2026-11-13: New route r20_battle_bosses, expectation `r20_battle_bosses.toml` added, existing expectations unchanged
+- `validation/routes/r20_battle_bosses.txt`: six boss battles (battle ids 387, 452, 444, 462, 440, 460 of `BattleMonsters`; Ultros, Sr. Behemoth, Umaro and three more) in which the bosses run their AI scripts and dialog while the party's ATB is held at 0 and A is pressed once a second; Ultros is then beaten with Fights, the others get the dead status by poke. One ROM miss (`WaitDlgScroll`, `C15E1C`, call gap from the dialog page wait) resolved by a hand entry in `symbols_overrides.toml`; `src/gen` `2d2de2700d93203d`. Co-sim A vs B: no lasting divergence over 39097 checkpoints (296 transients). No tripwires, `regress.sh --full --update` 710 PASS, all old expectations byte-identical. No snes9x reference. +48 dispatch targets (611 of 1079, see `docs/battle_dispatch_coverage.md`).
+
 ## 2026-11-12: New route r19_battle_monsters, expectation `r19_battle_monsters.toml` added, existing expectations unchanged
 - `validation/routes/r19_battle_monsters.txt`: five battles (battle ids 235, 64, 17, 38, 158 of `BattleMonsters`) of monsters whose AI scripts use conditions, commands and targets that r05 to r18 never ran, with the party at 9999 HP in battle and level and experience reset before each battle. Co-sim A vs B: no lasting divergence over 21473 checkpoints (281 transients). 0 ROM misses, no tripwires, `regress.sh --full --update` 707 PASS, all old expectations byte-identical. No snes9x reference. +28 dispatch targets (563 of 1079, see `docs/battle_dispatch_coverage.md`).
 

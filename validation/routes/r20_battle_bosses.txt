@@ -1,0 +1,1452 @@
+# r20: boss battles with scripted dialog (PLAN phase 8). Six battles entered like r15 (event at $7E:1FF7, battle type
+# forced to normal): Ultros, Sr. Behemoth, Umaro, three Magitek-era bosses and one more Ultros-class monster (battle ids
+# 387, 452, 444, 462, 440, 460 of BattleMonsters), picked by scanning the monster AI scripts for conditions, commands and
+# targets that r05 to r19 never ran. The party's ATB is held at 0 by forcepoke and A is pressed once a second, so the
+# bosses run their AI scripts and dialog alone (the party never opens a menu). Then Ultros is beaten with Fights
+# (ATB released, monster at 1 HP); the others get the dead status by poke, which ends the battle through
+# CheckBattleEnd. The victory messages and the return to the field are pressed through. Party HP is 9999 and its
+# status is cleared before every press. A wait of 30 frames precedes each battle start (see docs/STATUS.md, "r17 battle
+# start phase").
+# Generated with work/routes/r20_multi.py (not versioned).
+until 0019 == 09 6000
+wait 60
+press a 2
+until 0082 == 12 8000
+until 00D3 == 01 4000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 0019 == 02 3000
+wait 120
+press a 2
+until 0082 == 13 20000
+until 00D3 == 01 1500
+press a 2
+until16 00E5 == 0000 3000
+until 00E7 == CA 100
+wait 60
+until 106A == 21 60
+poke 1609 E703E703E703E703
+poke 1614 000000020101
+poke 161E 00
+poke 180F E703E703E703E703
+poke 181A 000000010101
+poke 1834 E703E703E703E703
+poke 183F 000000010101
+poke 1A97 FF
+# Battle 387: event battle group $7D
+wait 30
+poke 1609 E703E703E703E703
+poke 180F E703E703E703E703
+poke 1834 E703E703E703E703
+poke 1FF7 4D7D3F96FE
+poke 05F4 F71F7E
+poke 0594 0000CA
+poke 05C7 01
+poke 00E5 F71F7E0300
+until 8233 == 3F 300
+forcepoke 201F 00
+poke 021B 00030A00
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+forcepoke 3218 0000000000000000
+poke 3BFC 88138813
+poke 3C24 88138813
+poke 3C1C 0F270F270F27
+dump b387_start
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+dump b387_mid
+poke 3BFC 0100
+forcepoke 3218 FFFFFFFFFFFFFFFF
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+dump b387_pre
+until 628D == 01 6000
+dump b387_victory
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+until16 1501 == 0182 1200
+until 0082 == 13 3000
+until16 00E5 == 0000 600
+until 00E7 == CA 100
+wait 60
+until 106A == 21 900
+dump b387_after
+# Battle 452: event battle group $52
+wait 30
+forcepoke 3218 FFFFFFFFFFFFFFFF
+poke 1609 E703E703E703E703
+poke 180F E703E703E703E703
+poke 1834 E703E703E703E703
+poke 1FF7 4D523F96FE
+poke 05F4 F71F7E
+poke 0594 0000CA
+poke 05C7 01
+poke 00E5 F71F7E0300
+until 8233 == 3F 300
+forcepoke 201F 00
+poke 021B 00030A00
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+forcepoke 3218 0000000000000000
+poke 3BFC 88138813
+poke 3C24 88138813
+poke 3C1C 0F270F270F27
+dump b452_start
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+dump b452_mid
+poke 3EEC 8000
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+dump b452_pre
+until 628D == 01 6000
+dump b452_victory
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+until16 1501 == 0182 1200
+until 0082 == 13 3000
+until16 00E5 == 0000 600
+until 00E7 == CA 100
+wait 60
+until 106A == 21 900
+dump b452_after
+# Battle 444: event battle group $75
+wait 30
+forcepoke 3218 FFFFFFFFFFFFFFFF
+poke 1609 E703E703E703E703
+poke 180F E703E703E703E703
+poke 1834 E703E703E703E703
+poke 1FF7 4D753F96FE
+poke 05F4 F71F7E
+poke 0594 0000CA
+poke 05C7 01
+poke 00E5 F71F7E0300
+until 8233 == 3F 300
+forcepoke 201F 00
+poke 021B 00030A00
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+forcepoke 3218 0000000000000000
+poke 3BFC 88138813
+poke 3C24 88138813
+poke 3C1C 0F270F270F27
+dump b444_start
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+dump b444_mid
+poke 3EEC 8000
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+dump b444_pre
+until 628D == 01 6000
+dump b444_victory
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+until16 1501 == 0182 1200
+until 0082 == 13 3000
+until16 00E5 == 0000 600
+until 00E7 == CA 100
+wait 60
+until 106A == 21 900
+dump b444_after
+# Battle 462: event battle group $5C
+wait 30
+poke 1609 E703E703E703E703
+poke 180F E703E703E703E703
+poke 1834 E703E703E703E703
+poke 1FF7 4D5C3F96FE
+poke 05F4 F71F7E
+poke 0594 0000CA
+poke 05C7 01
+poke 00E5 F71F7E0300
+until 8233 == 3F 300
+forcepoke 201F 00
+forcepoke 3218 0000000000000000
+poke 021B 00030A00
+until 7BCB == 00 3000
+poke 3BFC 88138813
+poke 3C02 88138813
+poke 3C04 88138813
+poke 3C24 88138813
+poke 3C2A 88138813
+poke 3C2C 88138813
+poke 3C1C 0F270F270F27
+dump b462_start
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+dump b462_mid
+poke 3EEC 8000
+poke 3EF2 8000
+poke 3EF4 8000
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+dump b462_pre
+until 628D == 01 6000
+dump b462_victory
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+until16 1501 == 0182 1200
+until 0082 == 13 3000
+until16 00E5 == 0000 600
+until 00E7 == CA 100
+wait 60
+until 106A == 21 900
+dump b462_after
+# Battle 440: event battle group $47
+wait 30
+forcepoke 3218 FFFFFFFFFFFFFFFF
+poke 1609 E703E703E703E703
+poke 180F E703E703E703E703
+poke 1834 E703E703E703E703
+poke 1FF7 4D473F96FE
+poke 05F4 F71F7E
+poke 0594 0000CA
+poke 05C7 01
+poke 00E5 F71F7E0300
+until 8233 == 3F 300
+forcepoke 201F 00
+poke 021B 00030A00
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+forcepoke 3218 0000000000000000
+poke 3BFC 88138813
+poke 3BFE 88138813
+poke 3C24 88138813
+poke 3C26 88138813
+poke 3C1C 0F270F270F27
+dump b440_start
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+dump b440_mid
+poke 3EEC 8000
+poke 3EEE 8000
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+dump b440_pre
+until 628D == 01 6000
+dump b440_victory
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+until16 1501 == 0182 1200
+until 0082 == 13 3000
+until16 00E5 == 0000 600
+until 00E7 == CA 100
+wait 60
+until 106A == 21 900
+dump b440_after
+# Battle 460: event battle group $5A
+wait 30
+forcepoke 3218 FFFFFFFFFFFFFFFF
+poke 1609 E703E703E703E703
+poke 180F E703E703E703E703
+poke 1834 E703E703E703E703
+poke 1FF7 4D5A3F96FE
+poke 05F4 F71F7E
+poke 0594 0000CA
+poke 05C7 01
+poke 00E5 F71F7E0300
+until 8233 == 3F 300
+forcepoke 201F 00
+poke 021B 00030A00
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+forcepoke 3218 0000000000000000
+poke 3BFC 88138813
+poke 3BFE 88138813
+poke 3C00 88138813
+poke 3C24 88138813
+poke 3C26 88138813
+poke 3C28 88138813
+poke 3C1C 0F270F270F27
+dump b460_start
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+dump b460_mid
+poke 3EEC 8000
+poke 3EEE 8000
+poke 3EF0 8000
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+dump b460_pre
+until 628D == 01 6000
+dump b460_victory
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+until16 1501 == 0182 1200
+until 0082 == 13 3000
+until16 00E5 == 0000 600
+until 00E7 == CA 100
+wait 60
+until 106A == 21 900
+dump b460_after
+quit
