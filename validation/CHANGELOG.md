@@ -4,6 +4,9 @@ Every change to `validation/expected/*.toml` (events, dump hashes) needs a justi
 entry here (PLAN 5.3). The expectations are written with
 `bash tools/ff6/regress.sh --quick --update` and checked without `--update`.
 
+## 2026-11-12: New route r19_battle_monsters, expectation `r19_battle_monsters.toml` added, existing expectations unchanged
+- `validation/routes/r19_battle_monsters.txt`: five battles (battle ids 235, 64, 17, 38, 158 of `BattleMonsters`) of monsters whose AI scripts use conditions, commands and targets that r05 to r18 never ran, with the party at 9999 HP in battle and level and experience reset before each battle. Co-sim A vs B: no lasting divergence over 21473 checkpoints (281 transients). 0 ROM misses, no tripwires, `regress.sh --full --update` 707 PASS, all old expectations byte-identical. No snes9x reference. +28 dispatch targets (563 of 1079, see `docs/battle_dispatch_coverage.md`).
+
 ## 2026-11-12: New route r18_battle_levelup, expectation `r18_battle_levelup.toml` added, existing expectations unchanged
 - `validation/routes/r18_battle_levelup.txt`: three battles in which the party (level 1, a little experience set by poke) levels up at the victory with an esper equipped, so `CheckLevelUp`, `DoLevelUp` and the esper bonus table (`GenjuBonusTbl`, hit 0 times before) run: Siren, Terrato, Bahamut; Crusader, Ramuh, Ifrit; Odin, Maduin, Phantom. Co-sim A vs B: no lasting divergence over 14799 checkpoints. 0 ROM misses, no tripwires, `regress.sh --full --update` 704 PASS, all old expectations byte-identical. No snes9x reference. A wait of 30 frames precedes each battle (battle start phase, see docs/STATUS.md).
 

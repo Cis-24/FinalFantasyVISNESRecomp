@@ -1,0 +1,529 @@
+# r19: monster AI and enemy attacks (PLAN phase 8). Five battles entered like r15 (event at $7E:1FF7, battle type forced
+# to normal), chosen by scanning the monster AI scripts for conditions, commands and targets that r05 to r18 never ran:
+# three Pugs-like monsters (battle 235), battle 64, battle 17 (two monsters), battle 38 and the three monsters of battle
+# 158. In each battle the party (HP 9999 in battle, refreshed before every action) fights four menus against monsters at
+# 5000 HP, then the monsters drop to 1 HP and one Fight per monster ends it; the victory messages (none, one, one, four,
+# four) and the return to the field follow. Party level and experience are reset before each battle so that the
+# number of victory messages does not depend on the battles before it. A wait of 30 frames precedes each battle start
+# (see docs/STATUS.md, "r17 battle start phase").
+# Generated with work/routes/r19_multi.py (not versioned).
+until 0019 == 09 6000
+wait 60
+press a 2
+until 0082 == 12 8000
+until 00D3 == 01 4000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 0019 == 02 3000
+wait 120
+press a 2
+until 0082 == 13 20000
+until 00D3 == 01 1500
+press a 2
+until16 00E5 == 0000 3000
+until 00E7 == CA 100
+wait 60
+until 106A == 21 60
+# Party: HP/MP 999. Terra: Fight, Magic. Wedge and Vicks: Fight.
+poke 1609 E703E703E703E703
+poke 1614 000000020101
+poke 161E 00
+poke 180F E703E703E703E703
+poke 181A 000000010101
+poke 1834 E703E703E703E703
+poke 183F 000000010101
+poke 1A97 FF
+# Battle 235: event battle group $98
+wait 30
+poke 1608 03
+poke 1611 600000
+poke 180E 01
+poke 1817 000000
+poke 1833 01
+poke 183C 000000
+poke 1609 E703E703E703E703
+poke 180F E703E703E703E703
+poke 1834 E703E703E703E703
+poke 1FF7 4D983F96FE
+poke 05F4 F71F7E
+poke 0594 0000CA
+poke 05C7 01
+poke 00E5 F71F7E0300
+until 8233 == 3F 300
+forcepoke 201F 00
+poke 021B 00030A00
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE EE
+poke 3C00 88138813
+poke 3C02 88138813
+poke 3C04 88138813
+poke 3C28 88138813
+poke 3C2A 88138813
+poke 3C2C 88138813
+poke 3C1C 0F270F270F27
+dump b235_start
+poke 3BF4 0F270F270F27
+press a 2
+until 7BC2 == 38 300
+poke 00BE 19
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 11
+poke 3BF4 0F270F270F27
+press a 2
+until 7BC2 == 38 300
+poke 00BE 29
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 21
+poke 3BF4 0F270F270F27
+press a 2
+until 7BC2 == 38 300
+poke 00BE 39
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 31
+poke 3BF4 0F270F270F27
+press a 2
+until 7BC2 == 38 300
+poke 00BE 49
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 41
+dump b235_mid
+poke 3C00 0100
+poke 3C02 0100
+poke 3C04 0100
+poke 3BF4 0F270F270F27
+press a 2
+until 7BC2 == 38 300
+poke 00BE 59
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 51
+poke 3BF4 0F270F270F27
+press a 2
+until 7BC2 == 38 300
+poke 00BE 69
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 61
+poke 3BF4 0F270F270F27
+press a 2
+until 7BC2 == 38 300
+poke 00BE 79
+press a 2
+until 628D == 01 3000
+dump b235_victory
+until16 1501 == 0182 1200
+until 0082 == 13 3000
+until16 00E5 == 0000 600
+until 00E7 == CA 100
+wait 60
+until 106A == 21 60
+dump b235_after
+# Battle 64: event battle group $0B
+wait 30
+poke 1608 03
+poke 1611 600000
+poke 180E 01
+poke 1817 000000
+poke 1833 01
+poke 183C 000000
+poke 1609 E703E703E703E703
+poke 180F E703E703E703E703
+poke 1834 E703E703E703E703
+poke 1FF7 4D0B3F96FE
+poke 05F4 F71F7E
+poke 0594 0000CA
+poke 05C7 01
+poke 00E5 F71F7E0300
+until 8233 == 3F 300
+forcepoke 201F 00
+poke 021B 00030A00
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE EE
+poke 3BFC 88138813
+poke 3C24 88138813
+poke 3C1C 0F270F270F27
+dump b64_start
+poke 3BF4 0F270F270F27
+press a 2
+until 7BC2 == 38 300
+poke 00BE 19
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 11
+poke 3BF4 0F270F270F27
+press a 2
+until 7BC2 == 38 300
+poke 00BE 29
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 21
+poke 3BF4 0F270F270F27
+press a 2
+until 7BC2 == 38 300
+poke 00BE 39
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 31
+poke 3BF4 0F270F270F27
+press a 2
+until 7BC2 == 38 300
+poke 00BE 49
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 41
+dump b64_mid
+poke 3BFC 0100
+poke 3BF4 0F270F270F27
+press a 2
+until 7BC2 == 38 300
+poke 00BE 59
+press a 2
+until 628D == 01 3000
+dump b64_victory
+until E9F5 != 00 600
+wait 8
+dump b64_msg1
+press a 2
+until16 1501 == 0182 1200
+until 0082 == 13 3000
+until16 00E5 == 0000 600
+until 00E7 == CA 100
+wait 60
+until 106A == 21 60
+dump b64_after
+# Battle 17: event battle group $05
+wait 30
+poke 1608 03
+poke 1611 600000
+poke 180E 01
+poke 1817 000000
+poke 1833 01
+poke 183C 000000
+poke 1609 E703E703E703E703
+poke 180F E703E703E703E703
+poke 1834 E703E703E703E703
+poke 1FF7 4D053F96FE
+poke 05F4 F71F7E
+poke 0594 0000CA
+poke 05C7 01
+poke 00E5 F71F7E0300
+until 8233 == 3F 300
+forcepoke 201F 00
+poke 021B 00030A00
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE EE
+poke 3BFC 88138813
+poke 3C00 88138813
+poke 3C24 88138813
+poke 3C28 88138813
+poke 3C1C 0F270F270F27
+dump b17_start
+poke 3BF4 0F270F270F27
+press a 2
+until 7BC2 == 38 300
+poke 00BE 19
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 11
+poke 3BF4 0F270F270F27
+press a 2
+until 7BC2 == 38 300
+poke 00BE 29
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 21
+poke 3BF4 0F270F270F27
+press a 2
+until 7BC2 == 38 300
+poke 00BE 39
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 31
+poke 3BF4 0F270F270F27
+press a 2
+until 7BC2 == 38 300
+poke 00BE 49
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 41
+dump b17_mid
+poke 3BFC 0100
+poke 3C00 0100
+poke 3BF4 0F270F270F27
+press a 2
+until 7BC2 == 38 300
+poke 00BE 59
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 51
+poke 3BF4 0F270F270F27
+press a 2
+until 7BC2 == 38 300
+poke 00BE 69
+press a 2
+until 628D == 01 3000
+dump b17_victory
+until E9F5 != 00 600
+wait 8
+dump b17_msg1
+press a 2
+until16 1501 == 0182 1200
+until 0082 == 13 3000
+until16 00E5 == 0000 600
+until 00E7 == CA 100
+wait 60
+until 106A == 21 60
+dump b17_after
+# Battle 38: event battle group $07
+wait 30
+poke 1608 03
+poke 1611 600000
+poke 180E 01
+poke 1817 000000
+poke 1833 01
+poke 183C 000000
+poke 1609 E703E703E703E703
+poke 180F E703E703E703E703
+poke 1834 E703E703E703E703
+poke 1FF7 4D073F96FE
+poke 05F4 F71F7E
+poke 0594 0000CA
+poke 05C7 01
+poke 00E5 F71F7E0300
+until 8233 == 3F 300
+forcepoke 201F 00
+poke 021B 00030A00
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE EE
+poke 3BFC 88138813
+poke 3BFE 88138813
+poke 3C24 88138813
+poke 3C26 88138813
+poke 3C1C 0F270F270F27
+dump b38_start
+poke 3BF4 0F270F270F27
+press a 2
+until 7BC2 == 38 300
+poke 00BE 19
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 11
+poke 3BF4 0F270F270F27
+press a 2
+until 7BC2 == 38 300
+poke 00BE 29
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 21
+poke 3BF4 0F270F270F27
+press a 2
+until 7BC2 == 38 300
+poke 00BE 39
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 31
+poke 3BF4 0F270F270F27
+press a 2
+until 7BC2 == 38 300
+poke 00BE 49
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 41
+dump b38_mid
+poke 3BFC 0100
+poke 3BFE 0100
+poke 3BF4 0F270F270F27
+press a 2
+until 7BC2 == 38 300
+poke 00BE 59
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 51
+poke 3BF4 0F270F270F27
+press a 2
+until 7BC2 == 38 300
+poke 00BE 69
+press a 2
+until 628D == 01 3000
+dump b38_victory
+until E9F5 != 00 600
+wait 8
+dump b38_msg1
+press a 2
+until E9F5 == 00 600
+until E9F5 != 00 600
+wait 8
+dump b38_msg2
+press a 2
+until E9F5 == 00 600
+until E9F5 != 00 600
+wait 8
+dump b38_msg3
+press a 2
+until E9F5 == 00 600
+until E9F5 != 00 600
+wait 8
+dump b38_msg4
+press a 2
+until16 1501 == 0182 1200
+until 0082 == 13 3000
+until16 00E5 == 0000 600
+until 00E7 == CA 100
+wait 60
+until 106A == 21 60
+dump b38_after
+# Battle 158: event battle group $1F
+wait 30
+poke 1608 03
+poke 1611 600000
+poke 180E 01
+poke 1817 000000
+poke 1833 01
+poke 183C 000000
+poke 1609 E703E703E703E703
+poke 180F E703E703E703E703
+poke 1834 E703E703E703E703
+poke 1FF7 4D1F3F96FE
+poke 05F4 F71F7E
+poke 0594 0000CA
+poke 05C7 01
+poke 00E5 F71F7E0300
+until 8233 == 3F 300
+forcepoke 201F 00
+poke 021B 00030A00
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE EE
+poke 3C00 88138813
+poke 3C02 88138813
+poke 3C04 88138813
+poke 3C28 88138813
+poke 3C2A 88138813
+poke 3C2C 88138813
+poke 3C1C 0F270F270F27
+dump b158_start
+poke 3BF4 0F270F270F27
+press a 2
+until 7BC2 == 38 300
+poke 00BE 19
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 11
+poke 3BF4 0F270F270F27
+press a 2
+until 7BC2 == 38 300
+poke 00BE 29
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 21
+poke 3BF4 0F270F270F27
+press a 2
+until 7BC2 == 38 300
+poke 00BE 39
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 31
+poke 3BF4 0F270F270F27
+press a 2
+until 7BC2 == 38 300
+poke 00BE 49
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 41
+dump b158_mid
+poke 3C00 0100
+poke 3C02 0100
+poke 3C04 0100
+poke 3BF4 0F270F270F27
+press a 2
+until 7BC2 == 38 300
+poke 00BE 59
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 51
+poke 3BF4 0F270F270F27
+press a 2
+until 7BC2 == 38 300
+poke 00BE 69
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 61
+poke 3BF4 0F270F270F27
+press a 2
+until 7BC2 == 38 300
+poke 00BE 79
+press a 2
+until 628D == 01 3000
+dump b158_victory
+until E9F5 != 00 600
+wait 8
+dump b158_msg1
+press a 2
+until E9F5 == 00 600
+until E9F5 != 00 600
+wait 8
+dump b158_msg2
+press a 2
+until E9F5 == 00 600
+until E9F5 != 00 600
+wait 8
+dump b158_msg3
+press a 2
+until E9F5 == 00 600
+until E9F5 != 00 600
+wait 8
+dump b158_msg4
+press a 2
+until16 1501 == 0182 1200
+until 0082 == 13 3000
+until16 00E5 == 0000 600
+until 00E7 == CA 100
+wait 60
+until 106A == 21 60
+dump b158_after
+quit
