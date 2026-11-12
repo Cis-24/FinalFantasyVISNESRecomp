@@ -4,6 +4,9 @@ Every change to `validation/expected/*.toml` (events, dump hashes) needs a justi
 entry here (PLAN 5.3). The expectations are written with
 `bash tools/ff6/regress.sh --quick --update` and checked without `--update`.
 
+## 2026-11-12: New route r18_battle_levelup, expectation `r18_battle_levelup.toml` added, existing expectations unchanged
+- `validation/routes/r18_battle_levelup.txt`: three battles in which the party (level 1, a little experience set by poke) levels up at the victory with an esper equipped, so `CheckLevelUp`, `DoLevelUp` and the esper bonus table (`GenjuBonusTbl`, hit 0 times before) run: Siren, Terrato, Bahamut; Crusader, Ramuh, Ifrit; Odin, Maduin, Phantom. Co-sim A vs B: no lasting divergence over 14799 checkpoints. 0 ROM misses, no tripwires, `regress.sh --full --update` 704 PASS, all old expectations byte-identical. No snes9x reference. A wait of 30 frames precedes each battle (battle start phase, see docs/STATUS.md).
+
 ## 2026-11-11: New route r17_battle_spells2, expectation `r17_battle_spells2.toml` added, existing expectations unchanged
 - `validation/routes/r17_battle_spells2.txt`: Terra casts the magic list entries 28 to 53 that r16 does not (Berserk lands on her and ends a battle through her own attack, Warp leaves the battle), in three battles. Co-sim A vs B: no lasting divergence over 56722 checkpoints. It reaches 60 further dispatch targets (466 to 526 of 1079, `docs/battle_dispatch_coverage.md`). No snes9x reference (animation lengths differ through the reference's lag frames), so the comparison is SKIP.
 - The route showed one ROM miss, `BattleEnd_01` (`C24897`, `goto_gap` from `C247F8`, the `CheckBattleEnd` table, reached by Warp); it is now a hand-maintained entry with `emit = true` in `symbols_overrides.toml`. `src/gen` is `ff9d9afb422b0846`; `regress.sh --full --update` rewrote the other expectations without a diff, 701 PASS, 0 FAIL, 0 ROM misses (log `work/logs/r17_full_update2.txt`).
