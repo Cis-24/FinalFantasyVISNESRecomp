@@ -1,0 +1,1738 @@
+# r22: special effects of weapons, tools, items and lores (PLAN phase 8). Three battles against the two Narshe guards,
+# entered like r16 to r21 (event at $7E:1FF7, battle type forced to normal). Terra has Fight, Lore, Item and Tools, all
+# 24 lores ($1D29) and an inventory of Elixir, Megalixir, Super Ball, Magicite, Smoke Bomb and the eight tools. Each
+# member carries a weapon with a special effect in each hand (the battle attacks with both, no relic needed): battle 1
+# Thief Knife, Valiant Knife, Man Eater, Rune Edge, Drainer, Soul Sabre; battle 2 Ogre Nix, Atma Weapon, Tempest, Heal
+# Rod, Dice; battle 3 Scimitar, Assassin, Sniper, Hawk Eye. Each battle opens with Terra's Fight and the one Fight of
+# Wedge and Vicks, who are then held at ATB 0 (forcepoke $321A; before battles 2 and 3 it is set to $FFFF for the
+# start, as in r20, so that their first turn comes); the guards stay at ATB 0, their HP is restored after each action.
+# Battle 1: Terra casts 22 lores (Roulette kills Wedge, L.5 Doom guard 6), then Exploder on guard 7 at full HP with
+# Life 3 set on Terra ($3EF9 bit 2): she falls and is raised again (battle/action_1.asm ReraiseEffect); Aqua Rake on
+# guard 7 at 1 HP wins. (With Exploder on guard 7 at 1 HP as the last action, the co-sim splits at the victory song
+# transfer, see docs/STATUS.md.)
+# Battle 2: the eight tools (guard 7 falls after Air Anchor), Elixir, Megalixir, Super Ball, then Pep Up, which removes
+# Terra; Vicks' ATB is released (forcepoke $321C, as in r20), guard 6 is set to 1 HP and falls (it is poisoned since
+# Bio Blaster). Battle 3: Fight, Magicite, Smoke Bomb: the party escapes to the field.
+# Before each action the route waits for the command menu ($7BC2 == $05): after a death (Roulette) the menu opens and
+# closes once more. Lore list: row $8927, scroll $891F; item list: row $894F, scroll $8947; tools: column $8963, row
+# $8967 (each plus the character). A wait of 30 frames precedes each battle start (docs/STATUS.md, "r17 battle start
+# phase").
+# Generated with work/routes/r22_gen.py and work/routes/cfg22.json (not versioned).
+until 0019 == 09 6000
+wait 60
+press a 2
+until 0082 == 12 8000
+until 00D3 == 01 4000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 0019 == 02 3000
+wait 120
+press a 2
+until 0082 == 13 20000
+until 00D3 == 01 1500
+press a 2
+until16 00E5 == 0000 3000
+until 00E7 == CA 100
+wait 60
+until 106A == 21 60
+# Party: HP/MP 999, status clear. Terra: Fight, Lore, Item, Tools; Wedge and Vicks: Fight, Item.
+poke 1609 E703E703E703E703
+poke 1614 0000000C0109
+poke 161E FF
+poke 180F E703E703E703E703
+poke 181A 000000010101
+poke 1834 E703E703E703E703
+poke 183F 000000010101
+# All 24 lores known ($1D29-$1D2B), inventory for Item and Tools
+poke 1D29 FFFFFF
+poke 1869 EEEFFAF9FCA3A4A5A6A7A8A9AA
+poke 1969 05050505050505050505050505
+# Battle b1
+poke 161F 0409
+poke 1825 060C
+poke 184A 1216
+poke 1614 0000
+poke 181A 0000
+poke 183F 0000
+poke 1609 E703E703E703E703
+poke 180F E703E703E703E703
+poke 1834 E703E703E703E703
+wait 30
+poke 1FF7 4D013F96FE
+poke 05F4 F71F7E
+poke 0594 0000CA
+poke 05C7 01
+poke 00E5 F71F7E0300
+until 8233 == 3F 300
+forcepoke 201F 00
+poke 021B 00030A00
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE EE
+poke 3C00 FFFFFFFF
+poke 3C28 FFFFFFFF
+forcepoke 3224 00000000
+forcepoke 321A 00000000
+forcepoke 3C08 E703
+forcepoke 3BF4 E703
+dump b1_start
+# b1 fight
+press a 2
+until 7BC2 == 38 300
+poke 00BE 19
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 11
+poke 3C00 FFFFFFFF
+press a 2
+until 7BC2 == 38 300
+poke 00BE 29
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 21
+press a 2
+until 7BC2 == 38 300
+poke 00BE 39
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 31
+wait 400
+# b1 lore 19
+until 7BC2 == 05 3000
+press down 2
+until 890F == 01 60
+press a 2
+until 7BC2 == 1B 300
+press down 2
+until 8927 == 01 60
+press down 2
+until 8927 == 02 60
+press down 2
+until 8927 == 03 60
+press down 2
+until 891F == 01 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 02 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 03 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 04 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 05 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 06 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 07 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 08 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 09 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 0A 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 0B 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 0C 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 0D 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 0E 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 0F 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 10 60
+until 7BC2 == 1B 60
+press a 2
+until 7BC2 == 38 300
+poke 00BE 49
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 41
+poke 3C00 FFFFFFFF
+wait 400
+# b1 lore 5
+until 7BC2 == 05 3000
+press down 2
+until 890F == 01 60
+press a 2
+until 7BC2 == 1B 300
+press down 2
+until 8927 == 01 60
+press down 2
+until 8927 == 02 60
+press down 2
+until 8927 == 03 60
+press down 2
+until 891F == 01 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 02 60
+until 7BC2 == 1B 60
+press a 2
+until 7BC2 == 38 300
+poke 00BE 59
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 51
+poke 3C00 FFFFFFFF
+wait 400
+# b1 lore 7
+until 7BC2 == 05 3000
+press down 2
+until 890F == 01 60
+press a 2
+until 7BC2 == 1B 300
+press down 2
+until 8927 == 01 60
+press down 2
+until 8927 == 02 60
+press down 2
+until 8927 == 03 60
+press down 2
+until 891F == 01 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 02 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 03 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 04 60
+until 7BC2 == 1B 60
+press a 2
+until 7BC2 == 38 300
+poke 00BE 69
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 61
+poke 3C00 FFFFFFFF
+wait 400
+dump b1_a03
+# b1 lore 12
+until 7BC2 == 05 3000
+press down 2
+until 890F == 01 60
+press a 2
+until 7BC2 == 1B 300
+press down 2
+until 8927 == 01 60
+press down 2
+until 8927 == 02 60
+press down 2
+until 8927 == 03 60
+press down 2
+until 891F == 01 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 02 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 03 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 04 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 05 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 06 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 07 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 08 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 09 60
+until 7BC2 == 1B 60
+press a 2
+until 7BC2 == 38 300
+poke 00BE 79
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 71
+poke 3C00 FFFFFFFF
+wait 400
+# b1 lore 13
+until 7BC2 == 05 3000
+press down 2
+until 890F == 01 60
+press a 2
+until 7BC2 == 1B 300
+press down 2
+until 8927 == 01 60
+press down 2
+until 8927 == 02 60
+press down 2
+until 8927 == 03 60
+press down 2
+until 891F == 01 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 02 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 03 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 04 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 05 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 06 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 07 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 08 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 09 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 0A 60
+until 7BC2 == 1B 60
+press a 2
+until 7BC2 == 38 300
+poke 00BE 89
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 81
+poke 3C00 FFFFFFFF
+wait 400
+# b1 lore 14
+until 7BC2 == 05 3000
+press down 2
+until 890F == 01 60
+press a 2
+until 7BC2 == 1B 300
+press down 2
+until 8927 == 01 60
+press down 2
+until 8927 == 02 60
+press down 2
+until 8927 == 03 60
+press down 2
+until 891F == 01 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 02 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 03 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 04 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 05 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 06 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 07 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 08 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 09 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 0A 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 0B 60
+until 7BC2 == 1B 60
+press a 2
+until 7BC2 == 38 300
+poke 00BE 99
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 91
+poke 3C00 FFFFFFFF
+wait 400
+# b1 lore 15
+until 7BC2 == 05 3000
+press down 2
+until 890F == 01 60
+press a 2
+until 7BC2 == 1B 300
+press down 2
+until 8927 == 01 60
+press down 2
+until 8927 == 02 60
+press down 2
+until 8927 == 03 60
+press down 2
+until 891F == 01 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 02 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 03 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 04 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 05 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 06 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 07 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 08 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 09 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 0A 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 0B 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 0C 60
+until 7BC2 == 1B 60
+press a 2
+until 7BC2 == 38 300
+poke 00BE A9
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE A1
+poke 3C00 FFFFFFFF
+wait 400
+dump b1_a07
+# b1 lore 16
+until 7BC2 == 05 3000
+press down 2
+until 890F == 01 60
+press a 2
+until 7BC2 == 1B 300
+press down 2
+until 8927 == 01 60
+press down 2
+until 8927 == 02 60
+press down 2
+until 8927 == 03 60
+press down 2
+until 891F == 01 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 02 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 03 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 04 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 05 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 06 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 07 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 08 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 09 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 0A 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 0B 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 0C 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 0D 60
+until 7BC2 == 1B 60
+press a 2
+until 7BC2 == 38 300
+poke 00BE B9
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE B1
+poke 3C00 FFFFFFFF
+wait 400
+# b1 lore 20
+until 7BC2 == 05 3000
+press down 2
+until 890F == 01 60
+press a 2
+until 7BC2 == 1B 300
+press down 2
+until 8927 == 01 60
+press down 2
+until 8927 == 02 60
+press down 2
+until 8927 == 03 60
+press down 2
+until 891F == 01 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 02 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 03 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 04 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 05 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 06 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 07 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 08 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 09 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 0A 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 0B 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 0C 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 0D 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 0E 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 0F 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 10 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 11 60
+until 7BC2 == 1B 60
+press a 2
+until 7BC2 == 38 300
+poke 00BE C9
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE C1
+poke 3C00 FFFFFFFF
+wait 400
+# b1 lore 2
+until 7BC2 == 05 3000
+press down 2
+until 890F == 01 60
+press a 2
+until 7BC2 == 1B 300
+press down 2
+until 8927 == 01 60
+press down 2
+until 8927 == 02 60
+press a 2
+until 7BC2 == 38 300
+poke 00BE D9
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE D1
+poke 3C00 FFFFFFFF
+wait 400
+# b1 lore 3
+until 7BC2 == 05 3000
+press down 2
+until 890F == 01 60
+press a 2
+until 7BC2 == 1B 300
+press down 2
+until 8927 == 01 60
+press down 2
+until 8927 == 02 60
+press down 2
+until 8927 == 03 60
+press a 2
+until 7BC2 == 38 300
+poke 00BE E9
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE E1
+poke 3C00 FFFFFFFF
+wait 400
+dump b1_a11
+# b1 lore 4
+until 7BC2 == 05 3000
+press down 2
+until 890F == 01 60
+press a 2
+until 7BC2 == 1B 300
+press down 2
+until 8927 == 01 60
+press down 2
+until 8927 == 02 60
+press down 2
+until 8927 == 03 60
+press down 2
+until 891F == 01 60
+until 7BC2 == 1B 60
+press a 2
+until 7BC2 == 38 300
+poke 00BE F9
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE F1
+poke 3C00 FFFFFFFF
+wait 400
+# b1 lore 6
+until 7BC2 == 05 3000
+press down 2
+until 890F == 01 60
+press a 2
+until 7BC2 == 1B 300
+press down 2
+until 8927 == 01 60
+press down 2
+until 8927 == 02 60
+press down 2
+until 8927 == 03 60
+press down 2
+until 891F == 01 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 02 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 03 60
+until 7BC2 == 1B 60
+press a 2
+until 7BC2 == 38 300
+poke 00BE 09
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 01
+poke 3C00 FFFFFFFF
+wait 400
+# b1 lore 8
+until 7BC2 == 05 3000
+press down 2
+until 890F == 01 60
+press a 2
+until 7BC2 == 1B 300
+press down 2
+until 8927 == 01 60
+press down 2
+until 8927 == 02 60
+press down 2
+until 8927 == 03 60
+press down 2
+until 891F == 01 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 02 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 03 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 04 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 05 60
+until 7BC2 == 1B 60
+press a 2
+until 7BC2 == 38 300
+poke 00BE 19
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 11
+poke 3C00 FFFFFFFF
+wait 400
+# b1 lore 9
+until 7BC2 == 05 3000
+press down 2
+until 890F == 01 60
+press a 2
+until 7BC2 == 1B 300
+press down 2
+until 8927 == 01 60
+press down 2
+until 8927 == 02 60
+press down 2
+until 8927 == 03 60
+press down 2
+until 891F == 01 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 02 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 03 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 04 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 05 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 06 60
+until 7BC2 == 1B 60
+press a 2
+until 7BC2 == 38 300
+poke 00BE 29
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 21
+poke 3C00 FFFFFFFF
+wait 400
+dump b1_a15
+# b1 lore 10
+until 7BC2 == 05 3000
+press down 2
+until 890F == 01 60
+press a 2
+until 7BC2 == 1B 300
+press down 2
+until 8927 == 01 60
+press down 2
+until 8927 == 02 60
+press down 2
+until 8927 == 03 60
+press down 2
+until 891F == 01 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 02 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 03 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 04 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 05 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 06 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 07 60
+until 7BC2 == 1B 60
+press a 2
+until 7BC2 == 38 300
+poke 00BE 39
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 31
+poke 3C00 FFFFFFFF
+wait 400
+# b1 lore 11
+until 7BC2 == 05 3000
+press down 2
+until 890F == 01 60
+press a 2
+until 7BC2 == 1B 300
+press down 2
+until 8927 == 01 60
+press down 2
+until 8927 == 02 60
+press down 2
+until 8927 == 03 60
+press down 2
+until 891F == 01 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 02 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 03 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 04 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 05 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 06 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 07 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 08 60
+until 7BC2 == 1B 60
+press a 2
+until 7BC2 == 38 300
+poke 00BE 49
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 41
+poke 3C00 FFFFFFFF
+wait 400
+# b1 lore 17
+until 7BC2 == 05 3000
+press down 2
+until 890F == 01 60
+press a 2
+until 7BC2 == 1B 300
+press down 2
+until 8927 == 01 60
+press down 2
+until 8927 == 02 60
+press down 2
+until 8927 == 03 60
+press down 2
+until 891F == 01 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 02 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 03 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 04 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 05 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 06 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 07 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 08 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 09 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 0A 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 0B 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 0C 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 0D 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 0E 60
+until 7BC2 == 1B 60
+press a 2
+until 7BC2 == 38 300
+poke 00BE 59
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 51
+poke 3C00 FFFFFFFF
+wait 400
+# b1 lore 21
+until 7BC2 == 05 3000
+press down 2
+until 890F == 01 60
+press a 2
+until 7BC2 == 1B 300
+press down 2
+until 8927 == 01 60
+press down 2
+until 8927 == 02 60
+press down 2
+until 8927 == 03 60
+press down 2
+until 891F == 01 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 02 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 03 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 04 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 05 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 06 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 07 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 08 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 09 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 0A 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 0B 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 0C 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 0D 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 0E 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 0F 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 10 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 11 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 12 60
+until 7BC2 == 1B 60
+press a 2
+until 7BC2 == 38 300
+poke 00BE 69
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 61
+poke 3C00 FFFFFFFF
+wait 400
+dump b1_a19
+# b1 lore 22
+until 7BC2 == 05 3000
+press down 2
+until 890F == 01 60
+press a 2
+until 7BC2 == 1B 300
+press down 2
+until 8927 == 01 60
+press down 2
+until 8927 == 02 60
+press down 2
+until 8927 == 03 60
+press down 2
+until 891F == 01 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 02 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 03 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 04 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 05 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 06 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 07 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 08 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 09 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 0A 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 0B 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 0C 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 0D 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 0E 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 0F 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 10 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 11 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 12 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 13 60
+until 7BC2 == 1B 60
+press a 2
+until 7BC2 == 38 300
+poke 00BE 79
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 71
+poke 3C00 FFFFFFFF
+wait 400
+# b1 lore 1
+until 7BC2 == 05 3000
+press down 2
+until 890F == 01 60
+press a 2
+until 7BC2 == 1B 300
+press down 2
+until 8927 == 01 60
+press a 2
+until 7BC2 == 38 300
+poke 00BE 89
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 81
+poke 3C00 FFFFFFFF
+wait 400
+# b1 lore 0
+until 7BC2 == 05 3000
+press down 2
+until 890F == 01 60
+press a 2
+until 7BC2 == 1B 300
+press a 2
+until 7BC2 == 38 300
+poke 00BE 99
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 91
+poke 3C00 FFFFFFFF
+wait 400
+# b1 end: reraise_aqua
+until 7BC2 == 05 3000
+poke 3EF9 04
+press down 2
+until 890F == 01 60
+press a 2
+until 7BC2 == 1B 300
+press down 2
+until 8927 == 01 60
+press down 2
+until 8927 == 02 60
+press down 2
+until 8927 == 03 60
+press down 2
+until 891F == 01 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 02 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 03 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 04 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 05 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 06 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 07 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 08 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 09 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 0A 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 0B 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 0C 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 0D 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 0E 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 0F 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 10 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 11 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 12 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 13 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 14 60
+until 7BC2 == 1B 60
+press a 2
+until 7BC2 == 38 300
+poke 00BE A9
+press a 2
+wait 300
+dump b1_exploder
+until 62CA == 00 3000
+until 7BC2 == 05 3000
+poke 3C00 01000100
+press down 2
+until 890F == 01 60
+press a 2
+until 7BC2 == 1B 300
+press down 2
+until 8927 == 01 60
+press down 2
+until 8927 == 02 60
+press down 2
+until 8927 == 03 60
+press a 2
+until 7BC2 == 38 300
+poke 00BE B9
+press a 2
+until 628D == 01 3000
+dump b1_victory
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+until16 1501 == 0182 1200
+until 0082 == 13 3000
+until16 00E5 == 0000 600
+until 00E7 == CA 100
+wait 60
+until 106A == 21 900
+dump b1_after
+# Battle b2
+poke 161F 171C
+poke 1825 2E33
+poke 184A 51FF
+poke 1614 0000
+poke 181A 0000
+poke 183F 0000
+poke 1609 E703E703E703E703
+poke 180F E703E703E703E703
+poke 1834 E703E703E703E703
+forcepoke 321A FFFFFFFF
+wait 30
+poke 1FF7 4D013F96FE
+poke 05F4 F71F7E
+poke 0594 0000CA
+poke 05C7 01
+poke 00E5 F71F7E0300
+until 8233 == 3F 300
+forcepoke 201F 00
+poke 021B 00030A00
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE EE
+poke 3C00 FFFFFFFF
+poke 3C28 FFFFFFFF
+forcepoke 3224 00000000
+forcepoke 321A 00000000
+forcepoke 3C08 E703
+forcepoke 3BF4 E703
+dump b2_start
+# b2 fight
+press a 2
+until 7BC2 == 38 300
+poke 00BE C9
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE C1
+poke 3C00 FFFFFFFF
+press a 2
+until 7BC2 == 38 300
+poke 00BE D9
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE D1
+press a 2
+until 7BC2 == 38 300
+poke 00BE E9
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE E1
+wait 400
+# b2 tool 0
+until 7BC2 == 05 3000
+press down 2
+until 890F == 01 60
+press down 2
+until 890F == 02 60
+press down 2
+until 890F == 03 60
+press a 2
+until 7BC2 == 30 300
+press a 2
+until 7BC2 == 38 300
+poke 00BE F9
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE F1
+poke 3C00 FFFFFFFF
+wait 400
+# b2 tool 1
+until 7BC2 == 05 3000
+press down 2
+until 890F == 01 60
+press down 2
+until 890F == 02 60
+press down 2
+until 890F == 03 60
+press a 2
+until 7BC2 == 30 300
+press right 2
+until 8963 == 01 60
+press a 2
+until 7BC2 == 38 300
+poke 00BE 09
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 01
+poke 3C00 FFFFFFFF
+wait 400
+# b2 tool 2
+until 7BC2 == 05 3000
+press down 2
+until 890F == 01 60
+press down 2
+until 890F == 02 60
+press down 2
+until 890F == 03 60
+press a 2
+until 7BC2 == 30 300
+press down 2
+until 8967 == 01 60
+press a 2
+until 7BC2 == 38 300
+poke 00BE 19
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 11
+poke 3C00 FFFFFFFF
+wait 400
+dump b2_a03
+# b2 tool 4
+until 7BC2 == 05 3000
+press down 2
+until 890F == 01 60
+press down 2
+until 890F == 02 60
+press down 2
+until 890F == 03 60
+press a 2
+until 7BC2 == 30 300
+press down 2
+until 8967 == 01 60
+press down 2
+until 8967 == 02 60
+press a 2
+until 7BC2 == 38 300
+poke 00BE 29
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 21
+poke 3C00 FFFFFFFF
+wait 400
+# b2 tool 5
+until 7BC2 == 05 3000
+press down 2
+until 890F == 01 60
+press down 2
+until 890F == 02 60
+press down 2
+until 890F == 03 60
+press a 2
+until 7BC2 == 30 300
+press right 2
+until 8963 == 01 60
+press down 2
+until 8967 == 01 60
+press down 2
+until 8967 == 02 60
+press a 2
+until 7BC2 == 38 300
+poke 00BE 39
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 31
+poke 3C00 FFFFFFFF
+wait 400
+# b2 tool 7
+until 7BC2 == 05 3000
+press down 2
+until 890F == 01 60
+press down 2
+until 890F == 02 60
+press down 2
+until 890F == 03 60
+press a 2
+until 7BC2 == 30 300
+press right 2
+until 8963 == 01 60
+press down 2
+until 8967 == 01 60
+press down 2
+until 8967 == 02 60
+press down 2
+until 8967 == 03 60
+press a 2
+until 7BC2 == 38 300
+poke 00BE 49
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 41
+poke 3C00 FFFFFFFF
+wait 400
+# b2 item 0
+until 7BC2 == 05 3000
+press down 2
+until 890F == 01 60
+press down 2
+until 890F == 02 60
+press a 2
+until 7BC2 == 0A 300
+press a 2
+until 7B02 == 01 60
+press a 2
+until 7BC2 == 38 300
+poke 00BE 59
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 51
+poke 3C00 FFFFFFFF
+wait 400
+dump b2_a07
+# b2 item 1
+until 7BC2 == 05 3000
+press down 2
+until 890F == 01 60
+press down 2
+until 890F == 02 60
+press a 2
+until 7BC2 == 0A 300
+press down 2
+until 894F == 01 60
+press a 2
+until 7B02 == 01 60
+press a 2
+until 7BC2 == 38 300
+poke 00BE 69
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 61
+poke 3C00 FFFFFFFF
+wait 400
+# b2 item 2
+until 7BC2 == 05 3000
+press down 2
+until 890F == 01 60
+press down 2
+until 890F == 02 60
+press a 2
+until 7BC2 == 0A 300
+press down 2
+until 894F == 01 60
+press down 2
+until 894F == 02 60
+press a 2
+until 7B02 == 01 60
+press a 2
+until 7BC2 == 38 300
+poke 00BE 79
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 71
+poke 3C00 FFFFFFFF
+wait 400
+# b2 tool 3
+until 7BC2 == 05 3000
+press down 2
+until 890F == 01 60
+press down 2
+until 890F == 02 60
+press down 2
+until 890F == 03 60
+press a 2
+until 7BC2 == 30 300
+press right 2
+until 8963 == 01 60
+press down 2
+until 8967 == 01 60
+press a 2
+until 7BC2 == 38 300
+poke 00BE 89
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 81
+poke 3C00 FFFFFFFF
+wait 400
+# b2 tool 6
+until 7BC2 == 05 3000
+press down 2
+until 890F == 01 60
+press down 2
+until 890F == 02 60
+press down 2
+until 890F == 03 60
+press a 2
+until 7BC2 == 30 300
+press down 2
+until 8967 == 01 60
+press down 2
+until 8967 == 02 60
+press down 2
+until 8967 == 03 60
+press a 2
+until 7BC2 == 38 300
+poke 00BE 99
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 91
+poke 3C00 FFFFFFFF
+wait 400
+dump b2_a11
+# b2 end: pepup
+until 7BC2 == 05 3000
+press down 2
+until 890F == 01 60
+press a 2
+until 7BC2 == 1B 300
+press down 2
+until 8927 == 01 60
+press down 2
+until 8927 == 02 60
+press down 2
+until 8927 == 03 60
+press down 2
+until 891F == 01 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 02 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 03 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 04 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 05 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 06 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 07 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 08 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 09 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 0A 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 0B 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 0C 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 0D 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 0E 60
+until 7BC2 == 1B 60
+press down 2
+until 891F == 0F 60
+until 7BC2 == 1B 60
+press a 2
+until 7BC2 == 38 300
+poke 00BE A9
+press a 2
+wait 300
+dump b2_pepup
+forcepoke 321C FFFF
+until 62CA == 02 3000
+until 7BC2 == 05 3000
+poke 3C00 01000100
+press a 2
+until 7BC2 == 38 300
+poke 00BE B9
+press a 2
+until 628D == 01 3000
+dump b2_victory
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+until16 1501 == 0182 1200
+until 0082 == 13 3000
+until16 00E5 == 0000 600
+until 00E7 == CA 100
+wait 60
+until 106A == 21 900
+dump b2_after
+# Battle b3
+poke 161F 1905
+poke 1825 4BFF
+poke 184A 49FF
+poke 1614 0000
+poke 181A 0000
+poke 183F 0000
+poke 1609 E703E703E703E703
+poke 180F E703E703E703E703
+poke 1834 E703E703E703E703
+forcepoke 321A FFFFFFFF
+wait 30
+poke 1FF7 4D013F96FE
+poke 05F4 F71F7E
+poke 0594 0000CA
+poke 05C7 01
+poke 00E5 F71F7E0300
+until 8233 == 3F 300
+forcepoke 201F 00
+poke 021B 00030A00
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE EE
+poke 3C00 FFFFFFFF
+poke 3C28 FFFFFFFF
+forcepoke 3224 00000000
+forcepoke 321A 00000000
+forcepoke 3C08 E703
+forcepoke 3BF4 E703
+dump b3_start
+# b3 fight
+press a 2
+until 7BC2 == 38 300
+poke 00BE C9
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE C1
+poke 3C00 FFFFFFFF
+press a 2
+until 7BC2 == 38 300
+poke 00BE D9
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE D1
+press a 2
+until 7BC2 == 38 300
+poke 00BE E9
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE E1
+wait 400
+dump b3_a00
+# b3 item 3
+until 7BC2 == 05 3000
+press down 2
+until 890F == 01 60
+press down 2
+until 890F == 02 60
+press a 2
+until 7BC2 == 0A 300
+press down 2
+until 894F == 01 60
+press down 2
+until 894F == 02 60
+press down 2
+until 894F == 03 60
+press a 2
+until 7B02 == 01 60
+press a 2
+until 7BC2 == 38 300
+poke 00BE F9
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE F1
+poke 3C00 FFFFFFFF
+wait 400
+dump b3_a01
+# b3 end: smoke
+until 7BC2 == 05 3000
+press down 2
+until 890F == 01 60
+press down 2
+until 890F == 02 60
+press a 2
+until 7BC2 == 0A 300
+press down 2
+until 894F == 01 60
+press down 2
+until 894F == 02 60
+press down 2
+until 894F == 03 60
+press down 2
+until 8947 == 01 60
+until 7BC2 == 0A 60
+press a 2
+until 7B02 == 01 60
+press a 2
+until 7BC2 == 38 300
+poke 00BE 09
+press a 2
+until 0082 == 13 3000
+until 106A == 21 3000
+dump b3_after
+quit
