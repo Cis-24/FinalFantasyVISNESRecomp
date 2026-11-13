@@ -1,0 +1,359 @@
+# r23: Sabin's Blitzes, Man Eater and the target cursor moved left and right (PLAN phase 8). One battle against the
+# two Narshe guards, entered like r16 to r22 (event at $7E:1FF7, battle type forced to normal). Terra has Fight (Man
+# Eater in the right hand), Blitz, Item and Lore and knows all eight Blitzes ($1D28). The battle opens with Terra's
+# Fight and the one Fight of Wedge and Vicks, who are then held at ATB 0 as in r16; the guards stay at ATB 0, their HP
+# is restored after each action. Terra then enters seven Blitz codes (data/blitz_code.asm, each button alone with 4
+# frames between, then A): Pummel, Aura Bolt, Suplex, Fire Dance, Mantra, Air Blade, Bum Rush. She uses an Elixir and
+# moves the target cursor right, left, left and right before confirming (key_target_right and key_target_left of the
+# normal battle type). Last, the guards get the dead status by poke and Terra enters Spiraler, which removes her: the
+# Spiraler action is the action after which CheckBattleEnd sees the poke (without one it does not end the battle).
+# Victory, the messages and the return to the field are pressed through. A wait of 30 frames precedes the battle start
+# (docs/STATUS.md, "r17 battle start phase").
+# Generated with work/routes/r23_gen.py (not versioned).
+until 0019 == 09 6000
+wait 60
+press a 2
+until 0082 == 12 8000
+until 00D3 == 01 4000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 0019 == 02 3000
+wait 120
+press a 2
+until 0082 == 13 20000
+until 00D3 == 01 1500
+press a 2
+until16 00E5 == 0000 3000
+until 00E7 == CA 100
+wait 60
+until 106A == 21 60
+# Party: HP/MP 999, status clear. Terra: Fight (Man Eater in the right hand), Blitz, Item, Lore; Wedge and Vicks:
+# Fight, Item. All eight Blitzes known ($1D28), all lores ($1D29), Elixir in the first item slot.
+poke 1609 E703E703E703E703
+poke 1614 0000000A010C
+poke 161E FF
+poke 161F 06FF
+poke 180F E703E703E703E703
+poke 181A 000000010101
+poke 1834 E703E703E703E703
+poke 183F 000000010101
+poke 1D28 FF
+poke 1D29 FFFFFF
+poke 1869 EE
+poke 1969 05
+# Battle
+wait 30
+poke 1FF7 4D013F96FE
+poke 05F4 F71F7E
+poke 0594 0000CA
+poke 05C7 01
+poke 00E5 F71F7E0300
+until 8233 == 3F 300
+forcepoke 201F 00
+poke 021B 00030A00
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE EE
+poke 3C00 FFFFFFFF
+poke 3C28 FFFFFFFF
+forcepoke 3224 00000000
+forcepoke 321A 00000000
+forcepoke 3C08 E703
+forcepoke 3BF4 E703
+dump b1_start
+# Terra: Fight (Man Eater)
+press a 2
+until 7BC2 == 38 300
+poke 00BE 19
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 11
+poke 3C00 FFFFFFFF
+press a 2
+until 7BC2 == 38 300
+poke 00BE 29
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 21
+press a 2
+until 7BC2 == 38 300
+poke 00BE 39
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 31
+wait 400
+# Terra: Blitz Pummel
+until 7BC2 == 05 3000
+press down 2
+until 890F == 01 60
+press a 2
+until 7BC2 == 3D 300
+wait 4
+press left 2
+wait 4
+press right 2
+wait 4
+press left 2
+wait 4
+poke 00BE 49
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 41
+poke 3C00 FFFFFFFF
+wait 400
+dump b1_a01
+# Terra: Blitz Aura Bolt
+until 7BC2 == 05 3000
+press down 2
+until 890F == 01 60
+press a 2
+until 7BC2 == 3D 300
+wait 4
+press down 2
+wait 4
+press down+left 2
+wait 4
+press left 2
+wait 4
+poke 00BE 59
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 51
+poke 3C00 FFFFFFFF
+wait 400
+# Terra: Blitz Suplex
+until 7BC2 == 05 3000
+press down 2
+until 890F == 01 60
+press a 2
+until 7BC2 == 3D 300
+wait 4
+press x 2
+wait 4
+press y 2
+wait 4
+press down 2
+wait 4
+press up 2
+wait 4
+poke 00BE 69
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 61
+poke 3C00 FFFFFFFF
+wait 400
+dump b1_a03
+# Terra: Blitz Fire Dance
+until 7BC2 == 05 3000
+press down 2
+until 890F == 01 60
+press a 2
+until 7BC2 == 3D 300
+wait 4
+press left 2
+wait 4
+press down+left 2
+wait 4
+press down 2
+wait 4
+press down+right 2
+wait 4
+press right 2
+wait 4
+poke 00BE 79
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 71
+poke 3C00 FFFFFFFF
+wait 400
+# Terra: Blitz Mantra
+until 7BC2 == 05 3000
+press down 2
+until 890F == 01 60
+press a 2
+until 7BC2 == 3D 300
+wait 4
+press r 2
+wait 4
+press l 2
+wait 4
+press r 2
+wait 4
+press l 2
+wait 4
+press x 2
+wait 4
+press y 2
+wait 4
+poke 00BE 89
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 81
+poke 3C00 FFFFFFFF
+wait 400
+dump b1_a05
+# Terra: Blitz Air Blade
+until 7BC2 == 05 3000
+press down 2
+until 890F == 01 60
+press a 2
+until 7BC2 == 3D 300
+wait 4
+press up 2
+wait 4
+press up+right 2
+wait 4
+press right 2
+wait 4
+press down+right 2
+wait 4
+press down 2
+wait 4
+press down+left 2
+wait 4
+press left 2
+wait 4
+poke 00BE 99
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 91
+poke 3C00 FFFFFFFF
+wait 400
+# Terra: Blitz Bum Rush
+until 7BC2 == 05 3000
+press down 2
+until 890F == 01 60
+press a 2
+until 7BC2 == 3D 300
+wait 4
+press left 2
+wait 4
+press up+left 2
+wait 4
+press up 2
+wait 4
+press up+right 2
+wait 4
+press right 2
+wait 4
+press down+right 2
+wait 4
+press down 2
+wait 4
+press down+left 2
+wait 4
+press left 2
+wait 4
+poke 00BE A9
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE A1
+poke 3C00 FFFFFFFF
+wait 400
+dump b1_a07
+# Terra: Item, Elixir; in the target select right (party side, normal battle: no move), left (to the guards), left, right
+until 7BC2 == 05 3000
+press down 2
+until 890F == 01 60
+press down 2
+until 890F == 02 60
+press a 2
+until 7BC2 == 0A 300
+press a 2
+until 7B02 == 01 60
+press a 2
+until 7BC2 == 38 300
+press right 2
+wait 6
+press left 2
+wait 6
+press left 2
+wait 6
+press right 2
+wait 6
+poke 00BE B9
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE B1
+poke 3C00 FFFFFFFF
+wait 400
+dump b1_elixir
+# Terra: Blitz Spiraler, which removes her; the guards get the dead status by poke just before, and the Spiraler
+# action is the action after which CheckBattleEnd sees it (without an action the poke does not end the battle)
+until 7BC2 == 05 3000
+poke 3EF0 80008000
+press down 2
+until 890F == 01 60
+press a 2
+until 7BC2 == 3D 300
+wait 4
+press r 2
+wait 4
+press l 2
+wait 4
+press x 2
+wait 4
+press y 2
+wait 4
+press right 2
+wait 4
+press left 2
+wait 4
+poke 00BE C9
+press a 2
+until 628D == 01 3000
+dump b1_victory
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+until16 1501 == 0182 1200
+until 0082 == 13 3000
+until16 00E5 == 0000 600
+until 00E7 == CA 100
+wait 60
+until 106A == 21 900
+dump b1_after
+quit

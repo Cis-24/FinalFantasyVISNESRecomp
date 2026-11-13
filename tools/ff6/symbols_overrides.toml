@@ -420,6 +420,123 @@ entry_m = 1
 entry_x = 1
 note = "Landing by JMP from the CheckBattleEnd table dispatch (C247F8); function boundary instead of a miss entry (r17, Warp)"
 
+[[func]]
+name = "GetTargetCursorPosition"
+addr = "71be"
+bank = 0xc1
+emit = true
+entry_m = 1
+entry_x = 0
+note = "Battle target cursor, reached from C172D3, C1730D in r23 (call_gap miss)"
+
+[[func]]
+name = "key_target_left"
+addr = "7733"
+bank = 0xc1
+emit = true
+entry_m = 1
+entry_x = 0
+note = "Battle target cursor, reached from C16EF5 in r23 (call_gap miss)"
+
+[[func]]
+name = "key_target_right"
+addr = "774a"
+bank = 0xc1
+emit = true
+entry_m = 1
+entry_x = 0
+note = "Battle target cursor, reached from C16EFF in r23 (call_gap miss)"
+
+[[func]]
+name = "get_no"
+addr = "7372"
+bank = 0xc1
+emit = true
+entry_m = 1
+entry_x = 0
+note = "Battle target cursor, reached from C171A3, C17560, C17586 in r23 (call_gap miss)"
+
+[[func]]
+name = "GetAttackerCursorPosition"
+addr = "719b"
+bank = 0xc1
+emit = true
+entry_m = 1
+entry_x = 0
+note = "Battle target cursor, reached from C172CE, C17308 in r23 (call_gap miss)"
+
+[[func]]
+name = "get_mon_length"
+addr = "7213"
+bank = 0xc1
+emit = true
+entry_m = 1
+entry_x = 0
+note = "Battle target cursor, reached from C17302, C1733E in r23 (call_gap miss)"
+
+[[func]]
+name = "SelectMonsterRight"
+addr = "7308"
+bank = 0xc1
+emit = true
+entry_m = 1
+entry_x = 0
+note = "Battle target cursor, reached from C17554 in r23 (call_gap miss)"
+
+[[func]]
+name = "SelectMonsterLeft"
+addr = "72ce"
+bank = 0xc1
+emit = true
+entry_m = 1
+entry_x = 0
+note = "Battle target cursor, reached from C1757A in r23 (call_gap miss)"
+
+[[func]]
+name = "get_r_mon_set"
+addr = "7554"
+bank = 0xc1
+emit = true
+entry_m = 1
+entry_x = 0
+note = "Battle target cursor, reached from C175A3 in r23 (call_gap miss)"
+
+[[func]]
+name = "CharTargetSelectLeft_Normal"
+addr = "74bf"
+bank = 0xc1
+emit = true
+entry_m = 1
+entry_x = 0
+note = "Landing by JMP from the target cursor dispatch (C1773F, character target left, normal and pincer battle); function boundary instead of a miss entry (r23)"
+
+[[func]]
+name = "MonsterTargetSelectLeft_Normal"
+addr = "7666"
+bank = 0xc1
+emit = true
+entry_m = 1
+entry_x = 0
+note = "Landing by JMP from the target cursor dispatch (C17747, monster target left, normal battle); function boundary instead of a miss entry (r23)"
+
+[[func]]
+name = "CharTargetSelectRight_Normal"
+addr = "7438"
+bank = 0xc1
+emit = true
+entry_m = 1
+entry_x = 0
+note = "Landing by JMP from the target cursor dispatch (C17756, character target right, normal battle); function boundary instead of a miss entry (r23)"
+
+[[func]]
+name = "MonsterTargetSelectRight_Normal"
+addr = "75a3"
+bank = 0xc1
+emit = true
+entry_m = 1
+entry_x = 0
+note = "Landing by JMP from the target cursor dispatch (C1775E, monster target right, normal battle); function boundary instead of a miss entry (r23)"
+
 # >>> BEGIN promote_misses (generiert, nicht von Hand aendern)
 [[func]]
 name = "DecTimersMenuBattle_ext"
