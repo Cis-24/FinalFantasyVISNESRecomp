@@ -4,6 +4,12 @@ Every change to `validation/expected/*.toml` (events, dump hashes) needs a justi
 entry here (PLAN 5.3). The expectations are written with
 `bash tools/ff6/regress.sh --quick --update` and checked without `--update`.
 
+## 2026-11-13: New route r21_battle_summons, expectation `r21_battle_summons.toml` added, existing expectations unchanged
+- `validation/routes/r21_battle_summons.txt`: Terra summons all 27 espers through the esper window of the Magic menu in three battles against the Narshe guards (the first esper of each battle equipped via `$161E`, the others set in the battle state as `ValidateSpellList` fills it at init); Shoat and Odin end battles 1 and 2, battle 3 ends with Ragnarok, Raiden and one Fight. Co-sim A vs B: no lasting divergence over 55353 checkpoints (634 transients). It reaches 79 further dispatch targets (611 to 690 of 1079, `docs/battle_dispatch_coverage.md`), most of them in the animation scripts. No snes9x reference.
+- 0 ROM misses, no tripwires, no recomp change; `src/gen` stays `2d2de2700d93203d`. `regress.sh --full --update` rewrote the other expectations without a diff, 713 PASS, 0 FAIL (log `work/logs/r21_full_update.txt`).
+- Battles 1 and 3 start after a wait of 30 frames, battle 2 after 40: with 30 the co-sim diverges for good at the start of battle 2 (the battle start phase, see docs/STATUS.md, "r17 battle start phase").
+- No other expectation changed.
+
 ## 2026-11-13: New route r20_battle_bosses, expectation `r20_battle_bosses.toml` added, existing expectations unchanged
 - `validation/routes/r20_battle_bosses.txt`: six boss battles (battle ids 387, 452, 444, 462, 440, 460 of `BattleMonsters`; Ultros, Sr. Behemoth, Umaro and three more) in which the bosses run their AI scripts and dialog while the party's ATB is held at 0 and A is pressed once a second; Ultros is then beaten with Fights, the others get the dead status by poke. One ROM miss (`WaitDlgScroll`, `C15E1C`, call gap from the dialog page wait) resolved by a hand entry in `symbols_overrides.toml`; `src/gen` `2d2de2700d93203d`. Co-sim A vs B: no lasting divergence over 39097 checkpoints (296 transients). No tripwires, `regress.sh --full --update` 710 PASS, all old expectations byte-identical. No snes9x reference. +48 dispatch targets (611 of 1079, see `docs/battle_dispatch_coverage.md`).
 
