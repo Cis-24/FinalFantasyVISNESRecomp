@@ -9864,7 +9864,10 @@ note = "Battle target cursor, reached from C175A3 in r23 (call_gap miss)"
 name = "get_l_mon_set"
 addr = "757a"
 bank = 0xc1
-emit = false
+emit = true
+entry_m = 1
+entry_x = 0
+note = "Battle target cursor (back, pincer and side battle types), reached from C17669, C176A7, C176FE in r25 (call_gap miss)"
 
 [[func]]
 name = "MonsterTargetSelectRight_Normal"
@@ -9987,13 +9990,19 @@ note = "Miss-Promotion, 0 Treffer"
 name = "get_gr2_right_bit"
 addr = "793a"
 bank = 0xc1
-emit = false
+emit = true
+entry_m = 1
+entry_x = 0
+note = "Battle target cursor (back, pincer and side battle types), reached from C17502 in r25 (call_gap miss)"
 
 [[func]]
 name = "get_gr1_up_bit"
 addr = "7940"
 bank = 0xc1
-emit = false
+emit = true
+entry_m = 1
+entry_x = 0
+note = "Battle target cursor (back, pincer and side battle types), reached from C17689, C175FA in r25 (call_gap miss)"
 
 [[func]]
 name = "get_gr1_down_bit"
@@ -10017,7 +10026,10 @@ emit = false
 name = "get_gr3_up_bit"
 addr = "7958"
 bank = 0xc1
-emit = false
+emit = true
+entry_m = 1
+entry_x = 0
+note = "Battle target cursor (back, pincer and side battle types), reached from C1764E in r25 (call_gap miss)"
 
 [[func]]
 name = "get_gr3_down_bit"

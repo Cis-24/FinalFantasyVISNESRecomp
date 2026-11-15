@@ -1,0 +1,695 @@
+# r25: random actions of a muddled member, the commands Shock, Health and Possess, the target cursor in the back,
+# pincer and side attack, and running away (PLAN phase 8). Three battles against the two Narshe guards, entered like
+# r16 to r24 (event at $7E:1FF7), with the battle type forced through `forcepoke 201F` to back (1), pincer (2) and
+# side (3). Battle 1 (back): Terra uses Shock and Health, Wedge and Vicks fight once, Terra uses an Elixir with the
+# target cursor moved right, left, left, right, right, left, left, right. Battle 2 (pincer): Vicks uses an Elixir with
+# the same cursor moves, Wedge (Ashura) enters Blitz Pummel, Terra casts Aqua Rake; then Terra alone is muddled (status
+# poked once a second) for 60 seconds. RandCharAction runs the RandCmdTbl entry of each of her four commands (Magic,
+# X-Magic, Morph, Lore); after 20 seconds her battle command list ($7E:202E) is poked to Bushido, Blitz, Magitek and
+# Tools, after 40 seconds to Rage, Dance, Fight and Fight. Battle 3 (side): Vicks and Wedge fight, Terra uses an
+# Elixir with the cursor and Possess on a guard, then the party holds L and R and runs (the run difficulty $3A3B is 0
+# in a side attack). Possess removes the possessor from the party after the battle (battle_end.asm RemoveChar, as for
+# the ghosts), so it comes in the last battle. Battles 1 and 2 end with the dead status poked on the guards and one
+# more action (Terra's Elixir, Terra's next random action), after which CheckBattleEnd sees the poke. Wedge and Vicks
+# are held at ATB 0 after their first menu: a gauge forced full stays full after the input and sets $3AA0.2 again
+# (atb.asm @11ea), so the advance wait of that member never ends; only Terra's gauge runs. Morph is enabled through
+# $1DD1.2. The menu order (who opens first) is checked with `until 62CA`. A wait of 30 frames precedes each battle
+# start (see docs/STATUS.md, "r17 battle start phase").
+# Generated with work/routes/r25_gen.py (not versioned).
+until 0019 == 09 6000
+wait 60
+press a 2
+until 0082 == 12 8000
+until 00D3 == 01 4000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 0019 == 02 3000
+wait 120
+press a 2
+until 0082 == 13 20000
+until 00D3 == 01 1500
+press a 2
+until16 00E5 == 0000 3000
+until 00E7 == CA 100
+wait 60
+until 106A == 21 60
+# Party: HP/MP 999. Lores Aqua Rake, Aero, Big Guard, Pearl Wind; all Blitzes but Spiraler; all Bushido levels;
+# morph gauge full. Inventory: Elixir, NoiseBlaster, Bio Blaster, Flash, Drill, AutoCrossbow.
+poke 1609 E703E703E703E703
+poke 161E FF
+poke 180F E703E703E703E703
+poke 1834 E703E703E703E703
+poke 1D28 BF
+poke 1D29 580100
+poke 1CF7 FF
+poke 1CF6 FF
+poke 1869 EEA3A4A5A8AA
+poke 1969 090101010101
+# Morph: $1DD1.2 enables the command (copied to w7e3eb0 + 12, battle/init.asm:43; else InitCmdList removes it)
+poke 1DD1 04
+# Battle b1
+poke 1614 00001B1A0100
+poke 181A 000000010101
+poke 183F 000000010101
+poke 161F FFFF
+poke 1825 FFFF
+poke 184A FFFF
+poke 1609 E703E703E703E703
+poke 180F E703E703E703E703
+poke 1834 E703E703E703E703
+wait 30
+poke 1FF7 4D013F96FE
+poke 05F4 F71F7E
+poke 0594 0000CA
+poke 05C7 01
+poke 00E5 F71F7E0300
+until 8233 == 3F 300
+forcepoke 201F 01
+poke 021B 00030A00
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE EE
+poke 3C00 FFFFFFFF
+poke 3C28 FFFFFFFF
+forcepoke 3224 00000000
+forcepoke 321A 00000000
+forcepoke 3C08 E703
+forcepoke 3BF4 E703
+dump b1_start
+# Terra: Shock; then Wedge and Vicks: Fight
+press a 2
+until 7BC2 == 38 300
+poke 00BE 19
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 11
+poke 3C00 FFFFFFFF
+press a 2
+until 7BC2 == 38 300
+poke 00BE 29
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 21
+press a 2
+until 7BC2 == 38 300
+poke 00BE 39
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 31
+wait 400
+dump b1_shock
+# Terra: Health
+until 7BC2 == 05 3000
+press down 2
+until 890F == 01 60
+press a 2
+until 7BC2 == 38 300
+poke 00BE 49
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 41
+wait 400
+dump b1_health
+# Terra: Item, Elixir; target cursor moved right and left in the back attack
+until 7BC2 == 05 3000
+press down 2
+until 890F == 01 60
+press down 2
+until 890F == 02 60
+press a 2
+until 7BC2 == 0A 300
+press a 2
+until 7B02 == 01 60
+press a 2
+until 7BC2 == 38 300
+press right 2
+wait 8
+press left 2
+wait 8
+press left 2
+wait 8
+press right 2
+wait 8
+press right 2
+wait 8
+press left 2
+wait 8
+press left 2
+wait 8
+press right 2
+wait 8
+poke 00BE 59
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE 51
+poke 3C00 FFFFFFFF
+wait 400
+dump b1_elixir
+# the guards are set to 1 HP and Terra's Shock kills both (Wedge and Vicks are held at ATB 0); an end through
+# the dead status poke and an Elixir split the co-sim at the victory song transfer (docs/STATUS.md)
+until 7BC2 == 05 3000
+until 62CA == 00 60
+poke 3C00 01000100
+press a 2
+until 7BC2 == 38 300
+poke 00BE 69
+press a 2
+until 628D == 01 3000
+dump b1_victory
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+until16 1501 == 0182 1200
+until 0082 == 13 3000
+until16 00E5 == 0000 600
+until 00E7 == CA 100
+wait 60
+until 106A == 21 900
+dump b1_after
+# Battle b2
+poke 1614 00000217030C
+poke 181A 0000070A1D09
+poke 183F 000000010101
+poke 161F FFFF
+poke 1825 2BFF
+poke 184A FFFF
+poke 1609 E703E703E703E703
+poke 180F E703E703E703E703
+poke 1834 E703E703E703E703
+forcepoke 321A FFFFFFFF
+wait 30
+poke 1FF7 4D013F96FE
+poke 05F4 F71F7E
+poke 0594 0000CA
+poke 05C7 01
+poke 00E5 F71F7E0300
+until 8233 == 3F 300
+forcepoke 201F 02
+poke 021B 00030A00
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE EE
+poke 3C00 FFFFFFFF
+poke 3C28 FFFFFFFF
+forcepoke 3224 00000000
+forcepoke 321A 00000000
+forcepoke 3C08 E703
+forcepoke 3BF4 E703
+dump b2_start
+# Wedge and Vicks start with full ATB (forced before the battle) and their menus come first, Vicks before Wedge;
+# Vicks: Item, Elixir with the cursor in the pincer attack; Wedge: Blitz Pummel; then Terra: Lore Aqua Rake
+until 62CA == 02 60
+press down 2
+until 8911 == 01 60
+press a 2
+until 7BC2 == 0A 300
+press a 2
+until 7B02 == 01 60
+press a 2
+until 7BC2 == 38 300
+press right 2
+wait 8
+press left 2
+wait 8
+press left 2
+wait 8
+press right 2
+wait 8
+press right 2
+wait 8
+press left 2
+wait 8
+press left 2
+wait 8
+press right 2
+wait 8
+poke 00BE 79
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+until 62CA == 01 60
+poke 00BE 71
+poke 3C00 FFFFFFFF
+press down 2
+until 8910 == 01 60
+press a 2
+until 7BC2 == 3D 300
+wait 4
+press left 2
+wait 4
+press right 2
+wait 4
+press left 2
+wait 4
+poke 00BE 89
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+until 62CA == 00 3000
+poke 00BE 81
+poke 3C00 FFFFFFFF
+press down 2
+until 890F == 01 60
+press down 2
+until 890F == 02 60
+press down 2
+until 890F == 03 60
+press a 2
+until 7BC2 == 1B 300
+press down 2
+until 8927 == 01 60
+press down 2
+until 8927 == 02 60
+press down 2
+until 8927 == 03 60
+press a 2
+until 7BC2 == 38 300
+poke 00BE 99
+press a 2
+until 7BCB == 00 3000
+poke 00BE 91
+# Terra muddled (status 2 $20; RandCharAction runs the RandCmdTbl entry of each of her four commands); status
+# and HP restored once a second. After a third of the time her battle command list ($202E, 3 bytes per command)
+# gets Wedge's commands (Bushido, Blitz, Magitek, Tools), after two thirds Rage, Dance, Fight, Fight
+poke 3EE4 002000000000
+poke 3BF4 0F270F270F27
+poke 3C00 FFFFFFFF
+wait 60
+poke 3EE4 002000000000
+poke 3BF4 0F270F270F27
+poke 3C00 FFFFFFFF
+wait 60
+poke 3EE4 002000000000
+poke 3BF4 0F270F270F27
+poke 3C00 FFFFFFFF
+wait 60
+poke 3EE4 002000000000
+poke 3BF4 0F270F270F27
+poke 3C00 FFFFFFFF
+wait 60
+poke 3EE4 002000000000
+poke 3BF4 0F270F270F27
+poke 3C00 FFFFFFFF
+wait 60
+poke 3EE4 002000000000
+poke 3BF4 0F270F270F27
+poke 3C00 FFFFFFFF
+wait 60
+poke 3EE4 002000000000
+poke 3BF4 0F270F270F27
+poke 3C00 FFFFFFFF
+wait 60
+poke 3EE4 002000000000
+poke 3BF4 0F270F270F27
+poke 3C00 FFFFFFFF
+wait 60
+poke 3EE4 002000000000
+poke 3BF4 0F270F270F27
+poke 3C00 FFFFFFFF
+wait 60
+poke 3EE4 002000000000
+poke 3BF4 0F270F270F27
+poke 3C00 FFFFFFFF
+wait 60
+dump b2_r09
+poke 3EE4 002000000000
+poke 3BF4 0F270F270F27
+poke 3C00 FFFFFFFF
+wait 60
+poke 3EE4 002000000000
+poke 3BF4 0F270F270F27
+poke 3C00 FFFFFFFF
+wait 60
+poke 3EE4 002000000000
+poke 3BF4 0F270F270F27
+poke 3C00 FFFFFFFF
+wait 60
+poke 3EE4 002000000000
+poke 3BF4 0F270F270F27
+poke 3C00 FFFFFFFF
+wait 60
+poke 3EE4 002000000000
+poke 3BF4 0F270F270F27
+poke 3C00 FFFFFFFF
+wait 60
+poke 3EE4 002000000000
+poke 3BF4 0F270F270F27
+poke 3C00 FFFFFFFF
+wait 60
+poke 3EE4 002000000000
+poke 3BF4 0F270F270F27
+poke 3C00 FFFFFFFF
+wait 60
+poke 3EE4 002000000000
+poke 3BF4 0F270F270F27
+poke 3C00 FFFFFFFF
+wait 60
+poke 3EE4 002000000000
+poke 3BF4 0F270F270F27
+poke 3C00 FFFFFFFF
+wait 60
+poke 3EE4 002000000000
+poke 3BF4 0F270F270F27
+poke 3C00 FFFFFFFF
+wait 60
+dump b2_r19
+poke 202E 0703FF0A05FF1D0EFF0904FF
+poke 3EE4 002000000000
+poke 3BF4 0F270F270F27
+poke 3C00 FFFFFFFF
+wait 60
+poke 3EE4 002000000000
+poke 3BF4 0F270F270F27
+poke 3C00 FFFFFFFF
+wait 60
+poke 3EE4 002000000000
+poke 3BF4 0F270F270F27
+poke 3C00 FFFFFFFF
+wait 60
+poke 3EE4 002000000000
+poke 3BF4 0F270F270F27
+poke 3C00 FFFFFFFF
+wait 60
+poke 3EE4 002000000000
+poke 3BF4 0F270F270F27
+poke 3C00 FFFFFFFF
+wait 60
+poke 3EE4 002000000000
+poke 3BF4 0F270F270F27
+poke 3C00 FFFFFFFF
+wait 60
+poke 3EE4 002000000000
+poke 3BF4 0F270F270F27
+poke 3C00 FFFFFFFF
+wait 60
+poke 3EE4 002000000000
+poke 3BF4 0F270F270F27
+poke 3C00 FFFFFFFF
+wait 60
+poke 3EE4 002000000000
+poke 3BF4 0F270F270F27
+poke 3C00 FFFFFFFF
+wait 60
+poke 3EE4 002000000000
+poke 3BF4 0F270F270F27
+poke 3C00 FFFFFFFF
+wait 60
+dump b2_r29
+poke 3EE4 002000000000
+poke 3BF4 0F270F270F27
+poke 3C00 FFFFFFFF
+wait 60
+poke 3EE4 002000000000
+poke 3BF4 0F270F270F27
+poke 3C00 FFFFFFFF
+wait 60
+poke 3EE4 002000000000
+poke 3BF4 0F270F270F27
+poke 3C00 FFFFFFFF
+wait 60
+poke 3EE4 002000000000
+poke 3BF4 0F270F270F27
+poke 3C00 FFFFFFFF
+wait 60
+poke 3EE4 002000000000
+poke 3BF4 0F270F270F27
+poke 3C00 FFFFFFFF
+wait 60
+poke 3EE4 002000000000
+poke 3BF4 0F270F270F27
+poke 3C00 FFFFFFFF
+wait 60
+poke 3EE4 002000000000
+poke 3BF4 0F270F270F27
+poke 3C00 FFFFFFFF
+wait 60
+poke 3EE4 002000000000
+poke 3BF4 0F270F270F27
+poke 3C00 FFFFFFFF
+wait 60
+poke 3EE4 002000000000
+poke 3BF4 0F270F270F27
+poke 3C00 FFFFFFFF
+wait 60
+poke 3EE4 002000000000
+poke 3BF4 0F270F270F27
+poke 3C00 FFFFFFFF
+wait 60
+dump b2_r39
+poke 202E 1008FF1309FF000041000041
+poke 3EE4 002000000000
+poke 3BF4 0F270F270F27
+poke 3C00 FFFFFFFF
+wait 60
+poke 3EE4 002000000000
+poke 3BF4 0F270F270F27
+poke 3C00 FFFFFFFF
+wait 60
+poke 3EE4 002000000000
+poke 3BF4 0F270F270F27
+poke 3C00 FFFFFFFF
+wait 60
+poke 3EE4 002000000000
+poke 3BF4 0F270F270F27
+poke 3C00 FFFFFFFF
+wait 60
+poke 3EE4 002000000000
+poke 3BF4 0F270F270F27
+poke 3C00 FFFFFFFF
+wait 60
+poke 3EE4 002000000000
+poke 3BF4 0F270F270F27
+poke 3C00 FFFFFFFF
+wait 60
+poke 3EE4 002000000000
+poke 3BF4 0F270F270F27
+poke 3C00 FFFFFFFF
+wait 60
+poke 3EE4 002000000000
+poke 3BF4 0F270F270F27
+poke 3C00 FFFFFFFF
+wait 60
+poke 3EE4 002000000000
+poke 3BF4 0F270F270F27
+poke 3C00 FFFFFFFF
+wait 60
+poke 3EE4 002000000000
+poke 3BF4 0F270F270F27
+poke 3C00 FFFFFFFF
+wait 60
+dump b2_r49
+poke 3EE4 002000000000
+poke 3BF4 0F270F270F27
+poke 3C00 FFFFFFFF
+wait 60
+poke 3EE4 002000000000
+poke 3BF4 0F270F270F27
+poke 3C00 FFFFFFFF
+wait 60
+poke 3EE4 002000000000
+poke 3BF4 0F270F270F27
+poke 3C00 FFFFFFFF
+wait 60
+poke 3EE4 002000000000
+poke 3BF4 0F270F270F27
+poke 3C00 FFFFFFFF
+wait 60
+poke 3EE4 002000000000
+poke 3BF4 0F270F270F27
+poke 3C00 FFFFFFFF
+wait 60
+poke 3EE4 002000000000
+poke 3BF4 0F270F270F27
+poke 3C00 FFFFFFFF
+wait 60
+poke 3EE4 002000000000
+poke 3BF4 0F270F270F27
+poke 3C00 FFFFFFFF
+wait 60
+poke 3EE4 002000000000
+poke 3BF4 0F270F270F27
+poke 3C00 FFFFFFFF
+wait 60
+poke 3EE4 002000000000
+poke 3BF4 0F270F270F27
+poke 3C00 FFFFFFFF
+wait 60
+poke 3EE4 002000000000
+poke 3BF4 0F270F270F27
+poke 3C00 FFFFFFFF
+wait 60
+dump b2_r59
+# the guards get the dead status by poke; Terra's next random action ends the battle
+poke 3EE4 002000000000
+poke 3BF4 0F270F270F27
+poke 3EF0 80008000
+until 628D == 01 3000
+dump b2_victory
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+until16 1501 == 0182 1200
+until 0082 == 13 3000
+until16 00E5 == 0000 600
+until 00E7 == CA 100
+wait 60
+until 106A == 21 900
+dump b2_after
+# Battle b3
+poke 1614 000000011C00
+poke 181A 000000010101
+poke 183F 000000010101
+poke 161F FFFF
+poke 1825 FFFF
+poke 184A FFFF
+poke 1609 E703E703E703E703
+poke 180F E703E703E703E703
+poke 1834 E703E703E703E703
+forcepoke 321A FFFFFFFF
+wait 30
+poke 1FF7 4D013F96FE
+poke 05F4 F71F7E
+poke 0594 0000CA
+poke 05C7 01
+poke 00E5 F71F7E0300
+until 8233 == 3F 300
+forcepoke 201F 03
+poke 021B 00030A00
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE EE
+poke 3C00 FFFFFFFF
+poke 3C28 FFFFFFFF
+forcepoke 3224 00000000
+forcepoke 321A 00000000
+forcepoke 3C08 E703
+forcepoke 3BF4 E703
+dump b3_start
+# Vicks and Wedge (full ATB at the start, menus first): Fight; then Terra: Item, Elixir with the cursor in the
+# side attack
+until 62CA == 02 60
+press a 2
+until 7BC2 == 38 300
+poke 00BE A9
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+until 62CA == 01 60
+poke 00BE A1
+press a 2
+until 7BC2 == 38 300
+poke 00BE B9
+press a 2
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+until 62CA == 00 3000
+poke 00BE B1
+poke 3C00 FFFFFFFF
+press down 2
+until 890F == 01 60
+press a 2
+until 7BC2 == 0A 300
+press a 2
+until 7B02 == 01 60
+press a 2
+until 7BC2 == 38 300
+press right 2
+wait 8
+press left 2
+wait 8
+press left 2
+wait 8
+press right 2
+wait 8
+press right 2
+wait 8
+press left 2
+wait 8
+press left 2
+wait 8
+press right 2
+wait 8
+poke 00BE C9
+press a 2
+until 7BCB == 00 3000
+poke 3C00 FFFFFFFF
+wait 200
+dump b3_elixir
+# Terra: Possess on a guard
+until 7BC2 == 05 3000
+until 62CA == 00 60
+press down 2
+until 890F == 01 60
+press down 2
+until 890F == 02 60
+press a 2
+until 7BC2 == 38 300
+poke 00BE D9
+press a 2
+until 7BCB == 00 3000
+wait 400
+dump b3_possess
+# the party runs: L and R held (CheckRunAway; the run difficulty $3A3B is 0 in a side attack)
+press l+r 900
+until 0082 == 13 3000
+until 106A == 21 3000
+dump b3_after
+quit
