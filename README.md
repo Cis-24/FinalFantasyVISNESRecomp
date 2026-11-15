@@ -28,13 +28,19 @@ Work in progress; not yet playable from start to finish.
   player commands (Fight, Magic, Summon, Item, Steal, SwdTech, Throw, Tools,
   Blitz, Sketch, Slot, Dance; Lore, X-Magic, Morph, Revert, Runic, Capture,
   Jump, Control, Mimic, GP Rain, Rage, Row, Def) run through to the victory
-  and back to the field. Further battle routes cover different battle types,
-  monster AI and most of the spells.
+  and back to the field. Further battle routes cover the back, pincer and
+  side attack, every spell and all 27 espers, level ups with esper bonuses,
+  the eight Blitzes, weapons, tools, items and lores with special effects,
+  monster AI and enemy attacks (boss battles with dialog among them), a
+  muddled character's random actions, Shock, Health, Possess and running
+  away.
 
 Validated routes (`validation/routes`): boot to title, new game to Narshe,
 field walk, menu tour, first battle, battle commands (two routes), field
 modes, doors, menu scrolling, battle types, monster AI, spells (two
-routes). Each route replays fixed input and compares memory, video memory
+routes), level ups, enemy attacks, boss battles, summons, weapon, tool,
+item and lore effects, Blitzes, monster special attacks, muddled random
+actions. Each route replays fixed input and compares memory, video memory
 and the frame buffer at checkpoints. Known and
 explained differences from the reference are masked in
 `validation/masks.toml`, each with a reason.
