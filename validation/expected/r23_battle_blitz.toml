@@ -97,7 +97,7 @@ discoveries = 265
 rom = 0
 allowlist = 4
 wram = 261
-interpreted = 242468790
+interpreted = 242468787
 
 [dump.b1_a01]
 wram = "158cec2f65c0d51ba34ab50a078181b89be5c2701e06122a8c5c1c1e9c159e1e"

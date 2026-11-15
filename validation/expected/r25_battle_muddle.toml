@@ -130,11 +130,11 @@ events = [
 ]
 
 [miss]  # nur gemeldet, nicht entscheidend
-discoveries = 272
-rom = 7
+discoveries = 265
+rom = 0
 allowlist = 4
 wram = 261
-interpreted = 257044003
+interpreted = 257043603
 
 [dump.b1_after]
 wram = "521e16e3143eab9963dd9e8384937fae7b1bc6d76330c1d5ef36d7b93a0d2f68"
