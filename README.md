@@ -41,10 +41,10 @@ field walk, menu tour, first battle, battle commands (two routes), field
 modes, doors, menu scrolling, battle types, monster AI, spells (two
 routes), level ups, enemy attacks, boss battles, summons, weapon, tool,
 item and lore effects, Blitzes, monster special attacks, muddled random
-actions, Umaro and Bushido, monster attack effects. Each route replays fixed input and compares memory, video memory
-and the frame buffer at checkpoints. Known and
-explained differences from the reference are masked in
-`validation/masks.toml`, each with a reason.
+actions, Umaro and Bushido, monster attack effects. Each route replays
+fixed input and compares memory, video memory and the frame buffer at
+checkpoints. Known and explained differences from the reference are
+masked in `validation/masks.toml`, each with a reason.
 
 Battles depend on lag frames (ATB and random numbers), so they are compared
 against the reference per scene, with the timing dependent values masked.
@@ -119,7 +119,11 @@ than mis-executing ten frames in.
 - `python tools/ff6/miss_report.py <run>` lists code a run reached that has no
   native translation yet. These misses are resolved before anything new.
 - `recomp/symbols.toml` names routines and decides which ones become native
-  code; `tools/regen.sh` syncs it into the bank configs.
+  code; `tools/regen.sh` syncs it into the bank configs. The file itself is
+  generated: `python tools/ff6/symbols_sync.py` merges
+  `tools/ff6/symbols_import.toml` (from the disassembly) with the hand
+  entries in `tools/ff6/symbols_overrides.toml`, so a new hand entry needs
+  a sync before the next regen.
 - `tools/ff6/cosim/` builds the reference side of the co-simulation and
   drives the comparison (`cosim.sh`); the game side is the normal build
   configured with `-DSNES_COSIM=ON`.
@@ -142,8 +146,10 @@ Never synthesise a result to get past uncovered code, and never edit
 | `recomp-ui/` | Launcher submodule |
 | `tools/` | `regen.sh`, the ROM → C pipeline; `tools/ff6/` holds the project's own tools |
 | `validation/` | Input routes, expected results, masks and the miss allowlist |
+| `docs/` | Development log (`docs/STATUS.md`) and notes |
 | `patches/snesrecomp/` | Framework fixes carried by the submodule fork |
 | `scripts/` | `package_release.sh`, the player-facing zip |
+| `mods/preloaded/` | Reviewed, default-disabled mod packages shipped with a build (none yet) |
 | `framework_pins.txt` | Exact framework commits this project builds against |
 
 ## Multiplayer
