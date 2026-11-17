@@ -52,8 +52,9 @@ recompiled build and the framework's reference interpreter side by side
 with the same input and the same route script writes, and compares their
 memory after every frame. For this the generated code charges every memory
 access at the speed of its address, as the interpreter does, so both sides
-keep the same CPU timing. The battle routes run through it without a lasting
-difference.
+keep the same CPU timing. The battle routes and the menu tour (up to its
+console reset, which the interpreter side cannot replay) run through it
+without a lasting difference.
 
 ## ROM identity
 

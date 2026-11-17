@@ -31,7 +31,8 @@
 # The script copy (WS/work/cosim/route_<r>.txt) drops dump lines (A and A2 would write their
 # dumps into one directory); the pokes stay, so the battle routes set up their scene and run
 # the course of the regression route.
-# MAX defaults to the frame of the script's quit in pass 1 minus 2 (A exits at quit).
+# MAX defaults to the frame of the script's quit in pass 1 minus 2 (A exits at quit); in a route
+# with a reset, to the frame of the last script step before the first reset (B has no reset).
 # COSIM_A_ENV and COSIM_B_ENV apply to pass 2, ROUTE_CMP_ARGS="..." adds route_cmp.py options
 # (e.g. "--watch 0x131E,0x47 --watch-range 3640-3700"), ROUTE_REUSE_INPUT=1 skips pass 1 when
 # its input log and log file exist. Logs: cosim_route1_<r>.txt and cosim_route_<r>.txt in
@@ -140,6 +141,15 @@ if [ "$mode" = route ]; then
   summary "$LOG1" | grep -v FATAL
   if grep -q 'FIRST DIVERGENCE' "$LOG1" || [ -z "$QF" ] || [ ! -s "$IN" ] || [ ! -f "$PK" ]; then
     echo "route $r: pass 1 FAIL"; exit 1
+  fi
+  # A route with a reset (r04) restarts the script's frame counter there, so the quit frame
+  # is no length, and B cannot replay a console reset: compare up to the frame of the last
+  # script step before the first reset.
+  RF=$(awk '/console reset/ { print f; exit }
+            /script f=[0-9]+/ { match($0, /f=[0-9]+/); f = substr($0, RSTART + 2, RLENGTH - 2) }' "$LOG1")
+  if [ -n "$RF" ]; then
+    echo "pass 1: console reset after script f=$RF, pass 2 ends there"
+    MAX=${MAX:-$RF}
   fi
   MAX=${MAX:-$((QF - 2))}
   # Pass 2: A plays the script, B replays A's input and script writes; WRAM with the
