@@ -33,14 +33,15 @@ Work in progress; not yet playable from start to finish.
   the eight Blitzes, weapons, tools, items and lores with special effects,
   monster AI and enemy attacks (boss battles with dialog among them), a
   muddled character's random actions, Shock, Health, Possess, running
-  away, Umaro's attacks, the higher Bushido levels and a Rage.
+  away, Umaro's attacks, the higher Bushido levels, a Rage, and monster
+  attacks such as Escape, Launcher, Engulf and Bababreath.
 
 Validated routes (`validation/routes`): boot to title, new game to Narshe,
 field walk, menu tour, first battle, battle commands (two routes), field
 modes, doors, menu scrolling, battle types, monster AI, spells (two
 routes), level ups, enemy attacks, boss battles, summons, weapon, tool,
 item and lore effects, Blitzes, monster special attacks, muddled random
-actions, Umaro and Bushido. Each route replays fixed input and compares memory, video memory
+actions, Umaro and Bushido, monster attack effects. Each route replays fixed input and compares memory, video memory
 and the frame buffer at checkpoints. Known and
 explained differences from the reference are masked in
 `validation/masks.toml`, each with a reason.

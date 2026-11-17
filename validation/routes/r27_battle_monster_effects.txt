@@ -1,0 +1,872 @@
+# r27: monster attacks with special effects that no route reached before (PLAN phase 8): Escape, Launcher, Fallen One,
+# Evil Toot, Engulf and Bababreath. Six battles (the Dobermans first, since only in a later battle the whole party
+# starts with a full gauge and can fight) entered through the battle event at $7E:1FF7 (group 1, battle type forced to
+# normal before the event); the formation the event draws into $11E0 is replaced by `pokefor 11E0` before the battle
+# init reads it (field/event.asm EventBattle, battle/init_2.asm LoadBattleProp), so formations without an event battle
+# group can be fought: Doberman x2 (46; one is killed by poke, the other runs with Escape when it is alone), Proto
+# Armor (402; alone it draws Launcher, Schiller or Tek Laser), Doom Drgn (300; Fallen One, one in three, as the
+# counter to each of the party's three Fights), Critic and three Pan Doras (315; Evil Toot in their first and third
+# turn), Zone Eater (501; Engulf, a short window so that not everyone is engulfed) and Phunbaba 3 (422; HP below
+# 15360, so the first Fight draws Bababreath twice and ends the battle). Bababreath removes its targets from the party
+# after the battle (battle_end.asm UpdateSRAM, as for Possess), so Phunbaba comes last. The party's ATB is held at 0
+# once the first menu is open; where the party has to hit, A is pressed so the open menu fights once. Party HP is 9999
+# and its status is cleared once a second. Battles that the monsters do not end are ended with the dead status poked
+# on them. A wait of 30 frames precedes each battle start (see docs/STATUS.md, "r17 battle start phase").
+# Generated with work/routes/r27_gen.py (not versioned).
+until 0019 == 09 6000
+wait 60
+press a 2
+until 0082 == 12 8000
+until 00D3 == 01 4000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 0019 == 02 3000
+wait 120
+press a 2
+until 0082 == 13 20000
+until 00D3 == 01 1500
+press a 2
+until16 00E5 == 0000 3000
+until 00E7 == CA 100
+wait 60
+until 106A == 21 60
+# Party: HP/MP 999. Terra: Fight, Magic. Wedge and Vicks: Fight.
+poke 1609 E703E703E703E703
+poke 1614 000000020101
+poke 161E 00
+poke 180F E703E703E703E703
+poke 181A 000000010101
+poke 1834 E703E703E703E703
+poke 183F 000000010101
+poke 1A97 FF
+# Battle: formation 46. Doberman x2: one killed by poke, the other runs (Escape) when alone
+wait 30
+poke 1609 E703E703E703E703
+poke 180F E703E703E703E703
+poke 1834 E703E703E703E703
+forcepoke 201F 00
+poke 1FF7 4D013F96FE
+poke 05F4 F71F7E
+poke 0594 0000CA
+poke 05C7 01
+poke 00E5 F71F7E0300
+pokefor 11E0 2E00 90
+poke 021B 00030A00
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+forcepoke 3218 0000000000000000
+poke 3BFC 1027
+poke 3C00 1027
+poke 3C24 1027
+poke 3C28 1027
+poke 3C1C 0F270F270F27
+poke 3EEC 8000
+dump b46_start
+until 0082 == 13 6000
+until16 00E5 == 0000 600
+until 00E7 == CA 100
+wait 60
+until 106A == 21 900
+dump b46_after
+# Battle: formation 300. Doom Drgn: Fallen One (one in three) as the counter to each of the three Fights
+wait 30
+forcepoke 3218 FFFFFFFFFFFFFFFF
+poke 1609 E703E703E703E703
+poke 180F E703E703E703E703
+poke 1834 E703E703E703E703
+forcepoke 201F 00
+poke 1FF7 4D013F96FE
+poke 05F4 F71F7E
+poke 0594 0000CA
+poke 05C7 01
+poke 00E5 F71F7E0300
+pokefor 11E0 2C01 90
+poke 021B 00030A00
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+forcepoke 3218 0000000000000000
+poke 3BFC 204E
+poke 3C24 204E
+poke 3C1C 0F270F270F27
+dump b300_start
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+dump b300_p0
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+dump b300_p1
+poke 3EEC 8000
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+dump b300_pre
+until 628D == 01 6000
+dump b300_victory
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+until16 1501 == 0182 1200
+until 0082 == 13 6000
+until16 00E5 == 0000 600
+until 00E7 == CA 100
+wait 60
+until 106A == 21 900
+dump b300_after
+# Battle: formation 402. Proto Armor alone: Launcher, Schiller or Tek Laser
+wait 30
+forcepoke 3218 FFFFFFFFFFFFFFFF
+poke 1609 E703E703E703E703
+poke 180F E703E703E703E703
+poke 1834 E703E703E703E703
+forcepoke 201F 00
+poke 1FF7 4D013F96FE
+poke 05F4 F71F7E
+poke 0594 0000CA
+poke 05C7 01
+poke 00E5 F71F7E0300
+pokefor 11E0 9201 90
+poke 021B 00030A00
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+forcepoke 3218 0000000000000000
+poke 3BFC 204E
+poke 3C24 204E
+poke 3C1C 0F270F270F27
+dump b402_start
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+dump b402_p0
+poke 3EEC 8000
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+dump b402_pre
+until 628D == 01 6000
+dump b402_victory
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+until16 1501 == 0182 1200
+until 0082 == 13 6000
+until16 00E5 == 0000 600
+until 00E7 == CA 100
+wait 60
+until 106A == 21 900
+dump b402_after
+# Battle: formation 315. Critic and three Pan Doras: Evil Toot
+wait 30
+forcepoke 3218 FFFFFFFFFFFFFFFF
+poke 1609 E703E703E703E703
+poke 180F E703E703E703E703
+poke 1834 E703E703E703E703
+forcepoke 201F 00
+poke 1FF7 4D013F96FE
+poke 05F4 F71F7E
+poke 0594 0000CA
+poke 05C7 01
+poke 00E5 F71F7E0300
+pokefor 11E0 3B01 90
+poke 021B 00030A00
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+forcepoke 3218 0000000000000000
+poke 3BFC 204E
+poke 3C00 204E
+poke 3C02 204E
+poke 3C04 204E
+poke 3C24 204E
+poke 3C28 204E
+poke 3C2A 204E
+poke 3C2C 204E
+poke 3C1C 0F270F270F27
+dump b315_start
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+dump b315_p0
+poke 3EEC 8000
+poke 3EF0 8000
+poke 3EF2 8000
+poke 3EF4 8000
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+dump b315_pre
+until 628D == 01 6000
+dump b315_victory
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+until16 1501 == 0182 1200
+until 0082 == 13 6000
+until16 00E5 == 0000 600
+until 00E7 == CA 100
+wait 60
+until 106A == 21 900
+dump b315_after
+# Battle: formation 501. Zone Eater: Engulf
+wait 30
+forcepoke 3218 FFFFFFFFFFFFFFFF
+poke 1609 E703E703E703E703
+poke 180F E703E703E703E703
+poke 1834 E703E703E703E703
+forcepoke 201F 00
+poke 1FF7 4D013F96FE
+poke 05F4 F71F7E
+poke 0594 0000CA
+poke 05C7 01
+poke 00E5 F71F7E0300
+pokefor 11E0 F501 90
+poke 021B 00030A00
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+forcepoke 3218 0000000000000000
+poke 3BFC 204E
+poke 3C24 204E
+poke 3C1C 0F270F270F27
+dump b501_start
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+dump b501_p0
+poke 3EEC 8000
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+dump b501_pre
+until 628D == 01 6000
+dump b501_victory
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+until16 1501 == 0182 1200
+until 0082 == 13 6000
+until16 00E5 == 0000 600
+until 00E7 == CA 100
+wait 60
+until 106A == 21 900
+dump b501_after
+# Battle: formation 422. Phunbaba 3 at 10000 HP: Bababreath twice as the counter to the first Fight, then the battle ends
+wait 30
+forcepoke 3218 FFFFFFFFFFFFFFFF
+poke 1609 E703E703E703E703
+poke 180F E703E703E703E703
+poke 1834 E703E703E703E703
+forcepoke 201F 00
+poke 1FF7 4D013F96FE
+poke 05F4 F71F7E
+poke 0594 0000CA
+poke 05C7 01
+poke 00E5 F71F7E0300
+pokefor 11E0 A601 90
+poke 021B 00030A00
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+forcepoke 3218 0000000000000000
+poke 3BFC 1027
+poke 3C24 1027
+poke 3C1C 0F270F270F27
+dump b422_start
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+dump b422_p0
+until 0082 == 13 6000
+until16 00E5 == 0000 600
+until 00E7 == CA 100
+wait 60
+until 106A == 21 900
+dump b422_after
+quit

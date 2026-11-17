@@ -16701,7 +16701,10 @@ note = "Landing by JMP from the CheckBattleEnd table dispatch (C247F8); function
 name = "BattleEnd_04"
 addr = "48a1"
 bank = 0xc2
-emit = false
+emit = true
+entry_m = 1
+entry_x = 1
+note = "Landing by JMP from the CheckBattleEnd table dispatch (C247F8); function boundary instead of a miss entry (r27, Phunbaba's end_battle)"
 
 [[func]]
 name = "ShadowLeaves"
