@@ -1,0 +1,697 @@
+# r31: block animations, the boomerang hit, the long Atma Weapon, a monster's Steal and a monster's Jump (PLAN phase
+# 8, the animation script gap). Four battles entered through the battle event at $7E:1FF7 (group 1, battle type
+# forced to normal before the event). Battle 1, the Narshe guards: Terra holds a Main Gauche, Wedge a Rune Edge and
+# Vicks wears the Zephyr Cape (equipment set in SRAM before the event), and each member's MagicEvade ($3B55 + 2 *
+# slot) is held at 0, so every attack of the guards misses and shows the knife, sword or cape block animation. The
+# hit check reads MagicEvade for physical attacks as well (battle/check_hit.asm, BUGFIX_EVADE off), so Evade itself
+# does nothing. Battle 2, the guards: Terra fights with a Boomerang, Wedge with the Atma Weapon at level 99 ($3B1A,
+# full HP: more than 1000 damage selects the long blade, battle/calc_dmg.asm UltimaEffect) and Vicks with a Full
+# Moon. Battle 3, Ursus alone (formation 265, forced through `pokefor 11E0` as in r27): Steal in its first turn,
+# Escape in its second, which ends the battle. Battle 4, four Reach Frogs (324), three killed by poke: Jump in the
+# second turn. The party's ATB is held at 0 once the first menu is open; in battle 2, A is pressed so the open menus
+# fight. Party HP is 9999 and its status is cleared once a second; monster HP is set to 20000. Battles 1, 2 and 4 end
+# with the dead status poked on the monsters. A wait of 30 frames precedes each battle start (see docs/STATUS.md, "r17
+# battle start phase").
+# Generated with work/routes/r31_gen.py (not versioned).
+until 0019 == 09 6000
+wait 60
+press a 2
+until 0082 == 12 8000
+until 00D3 == 01 4000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 0019 == 02 3000
+wait 120
+press a 2
+until 0082 == 13 20000
+until 00D3 == 01 1500
+press a 2
+until16 00E5 == 0000 3000
+until 00E7 == CA 100
+wait 60
+until 106A == 21 60
+# Party: HP/MP 999. Terra: Fight, Magic. Wedge and Vicks: Fight.
+poke 1609 E703E703E703E703
+poke 1614 000000020101
+poke 161E 00
+poke 180F E703E703E703E703
+poke 181A 000000010101
+poke 1834 E703E703E703E703
+poke 183F 000000010101
+poke 1A97 FF
+# Battle block: the guards attack; Terra (Main Gauche), Wedge (Rune Edge) and Vicks (Zephyr Cape) evade every hit (MagicEvade $3B55 + 2 * slot = 0, which the hit check uses for physical attacks as well) and block with knife, sword and cape
+wait 30
+poke 161F 02FF
+poke 1623 FFFF
+poke 1825 0CFF
+poke 1829 FFFF
+poke 184A FFFF
+poke 184E C0FF
+poke 1609 E703E703E703E703
+poke 180F E703E703E703E703
+poke 1834 E703E703E703E703
+forcepoke 201F 00
+poke 1FF7 4D013F96FE
+poke 05F4 F71F7E
+poke 0594 0000CA
+poke 05C7 01
+poke 00E5 F71F7E0300
+poke 021B 00030A00
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+forcepoke 3218 0000000000000000
+poke 3C00 204E
+poke 3C02 204E
+poke 3C28 204E
+poke 3C2A 204E
+poke 3C1C 0F270F270F27
+poke 3B55 00
+poke 3B57 00
+poke 3B59 00
+dump b_block_start
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+poke 3B55 00
+poke 3B57 00
+poke 3B59 00
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+poke 3B55 00
+poke 3B57 00
+poke 3B59 00
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+poke 3B55 00
+poke 3B57 00
+poke 3B59 00
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+poke 3B55 00
+poke 3B57 00
+poke 3B59 00
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+poke 3B55 00
+poke 3B57 00
+poke 3B59 00
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+poke 3B55 00
+poke 3B57 00
+poke 3B59 00
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+poke 3B55 00
+poke 3B57 00
+poke 3B59 00
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+poke 3B55 00
+poke 3B57 00
+poke 3B59 00
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+poke 3B55 00
+poke 3B57 00
+poke 3B59 00
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+poke 3B55 00
+poke 3B57 00
+poke 3B59 00
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+poke 3B55 00
+poke 3B57 00
+poke 3B59 00
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+poke 3B55 00
+poke 3B57 00
+poke 3B59 00
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+poke 3B55 00
+poke 3B57 00
+poke 3B59 00
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+poke 3B55 00
+poke 3B57 00
+poke 3B59 00
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+poke 3B55 00
+poke 3B57 00
+poke 3B59 00
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+poke 3B55 00
+poke 3B57 00
+poke 3B59 00
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+poke 3B55 00
+poke 3B57 00
+poke 3B59 00
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+poke 3B55 00
+poke 3B57 00
+poke 3B59 00
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+poke 3B55 00
+poke 3B57 00
+poke 3B59 00
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+poke 3B55 00
+poke 3B57 00
+poke 3B59 00
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+poke 3B55 00
+poke 3B57 00
+poke 3B59 00
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+poke 3B55 00
+poke 3B57 00
+poke 3B59 00
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+poke 3B55 00
+poke 3B57 00
+poke 3B59 00
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+poke 3B55 00
+poke 3B57 00
+poke 3B59 00
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+poke 3B55 00
+poke 3B57 00
+poke 3B59 00
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+poke 3B55 00
+poke 3B57 00
+poke 3B59 00
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+poke 3B55 00
+poke 3B57 00
+poke 3B59 00
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+poke 3B55 00
+poke 3B57 00
+poke 3B59 00
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+poke 3B55 00
+poke 3B57 00
+poke 3B59 00
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+poke 3B55 00
+poke 3B57 00
+poke 3B59 00
+wait 60
+dump b_block_p0
+poke 3EF0 8000
+poke 3EF2 8000
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+dump b_block_pre
+until 628D == 01 6000
+dump b_block_victory
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+until16 1501 == 0182 1200
+until 0082 == 13 6000
+until16 00E5 == 0000 600
+until 00E7 == CA 100
+wait 60
+until 106A == 21 900
+dump b_block_after
+# Battle weapons: Terra (Boomerang), Wedge (Atma Weapon, level 99 in battle, full HP: damage above 1000 gives the long blade) and Vicks (Full Moon) fight once each
+wait 30
+forcepoke 3218 FFFFFFFFFFFFFFFF
+poke 161F 47FF
+poke 1623 FFFF
+poke 1825 1CFF
+poke 1829 FFFF
+poke 184A 45FF
+poke 184E FFFF
+poke 1609 E703E703E703E703
+poke 180F E703E703E703E703
+poke 1834 E703E703E703E703
+forcepoke 201F 00
+poke 1FF7 4D013F96FE
+poke 05F4 F71F7E
+poke 0594 0000CA
+poke 05C7 01
+poke 00E5 F71F7E0300
+poke 021B 00030A00
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+forcepoke 3218 0000000000000000
+poke 3C00 204E
+poke 3C02 204E
+poke 3C28 204E
+poke 3C2A 204E
+poke 3C1C 0F270F270F27
+poke 3B1A 63
+dump b_weapons_start
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+dump b_weapons_p0
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+dump b_weapons_p1
+poke 3EF0 8000
+poke 3EF2 8000
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+dump b_weapons_pre
+until 628D == 01 6000
+dump b_weapons_victory
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+until16 1501 == 0182 1200
+until 0082 == 13 6000
+until16 00E5 == 0000 600
+until 00E7 == CA 100
+wait 60
+until 106A == 21 900
+dump b_weapons_after
+# Battle ursus: Ursus alone: Steal (two in three) in its first turn, Escape in its second
+wait 30
+forcepoke 3218 FFFFFFFFFFFFFFFF
+poke 1609 E703E703E703E703
+poke 180F E703E703E703E703
+poke 1834 E703E703E703E703
+forcepoke 201F 00
+poke 1FF7 4D013F96FE
+poke 05F4 F71F7E
+poke 0594 0000CA
+poke 05C7 01
+poke 00E5 F71F7E0300
+pokefor 11E0 0901 90
+poke 021B 00030A00
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+forcepoke 3218 0000000000000000
+poke 3BFC 204E
+poke 3C24 204E
+poke 3C1C 0F270F270F27
+dump b_ursus_start
+until 0082 == 13 6000
+until16 00E5 == 0000 600
+until 00E7 == CA 100
+wait 60
+until 106A == 21 900
+dump b_ursus_after
+# Battle frog: Reach Frog, three of the four killed by poke: Jump in its second turn
+wait 30
+forcepoke 3218 FFFFFFFFFFFFFFFF
+poke 1609 E703E703E703E703
+poke 180F E703E703E703E703
+poke 1834 E703E703E703E703
+forcepoke 201F 00
+poke 1FF7 4D013F96FE
+poke 05F4 F71F7E
+poke 0594 0000CA
+poke 05C7 01
+poke 00E5 F71F7E0300
+pokefor 11E0 4401 90
+poke 021B 00030A00
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+forcepoke 3218 0000000000000000
+poke 3C00 204E
+poke 3C02 204E
+poke 3C04 204E
+poke 3C06 204E
+poke 3C28 204E
+poke 3C2A 204E
+poke 3C2C 204E
+poke 3C2E 204E
+poke 3C1C 0F270F270F27
+poke 3EF2 8000
+poke 3EF4 8000
+poke 3EF6 8000
+dump b_frog_start
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+dump b_frog_p0
+poke 3EF0 8000
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+dump b_frog_pre
+until 628D == 01 6000
+dump b_frog_victory
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+until16 1501 == 0182 1200
+until 0082 == 13 6000
+until16 00E5 == 0000 600
+until 00E7 == CA 100
+wait 60
+until 106A == 21 900
+dump b_frog_after
+quit
