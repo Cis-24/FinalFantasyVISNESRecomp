@@ -1,0 +1,680 @@
+# r29: battle backgrounds with an effect and two desperation attacks (PLAN phase 8, UpdateBattleBG and the
+# animation script gap). Seven battles against the two Narshe guards, entered through the battle event at $7E:1FF7
+# (group 1) like r16 to r28, each with the battle background set in the event (4D 01 <bg>: the low six bits of the
+# second byte, field/event.asm EventCmd_4d) to one of the backgrounds with an update function in UpdateBattleBGTbl
+# (btlgfx/battle_bg_2.asm): $07 falling through the clouds, $0D raft on a river, $0F top of the train car ($21 shares
+# its function), $1F waterfall, $2C Magitek train car, $2E Cyan's dream world, $36 final Kefka. Everyone has Fight as
+# the only command. In the first battle Wedge and Vicks are made Locke and Sabin for the desperation attack (battle
+# actor number $3ED8 + slot set by poke to $01 and $05 once the battle runs, restored before it ends), are held near
+# fatal (HP 50 of 999 and the status bit, $3EE5 + slot) with the turn counter $3A3F at 3, and fight until Mirager and
+# TigerBreak have both fired (battle/battle_cmd.asm command $00: one in 16 per Fight, once per battle, $3F2F). Terra's
+# ATB is forced full before each battle so that her menu comes first, and held at 0 once it is open; she fights once.
+# Wedge's and Vicks' gauges are never touched (see docs/STATUS.md, r28 finding 2). The guards are held at ATB 0, their
+# HP is refreshed and they are immune to the dead and petrify status. A battle ends with the dead status poked on the
+# guards, seen by CheckBattleEnd after the next action. A wait of 30 frames precedes each battle start (see
+# docs/STATUS.md, "r17 battle start phase").
+# Generated with work/routes/r29_gen.py (not versioned).
+until 0019 == 09 6000
+wait 60
+press a 2
+until 0082 == 12 8000
+until 00D3 == 01 4000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 0019 == 02 3000
+wait 120
+press a 2
+until 0082 == 13 20000
+until 00D3 == 01 1500
+press a 2
+until16 00E5 == 0000 3000
+until 00E7 == CA 100
+wait 60
+until 106A == 21 60
+# Party: HP/MP 999, Fight as the only command
+poke 1609 E703E703E703E703
+poke 180F E703E703E703E703
+poke 1834 E703E703E703E703
+# Battle 1: $07 falling through the clouds; Wedge as Locke (Mirager), Vicks as Sabin (TigerBreak)
+poke 1614 000000FFFFFF
+poke 181A 000000FFFFFF
+poke 183F 000000FFFFFF
+poke 1609 E703E703E703E703
+poke 180F E703E703E703E703
+poke 1834 E703E703E703E703
+forcepoke 3218 FFFF
+wait 30
+forcepoke 201F 00
+poke 1FF7 4D010796FE
+poke 05F4 F71F7E
+poke 0594 0000CA
+poke 05C7 01
+poke 00E5 F71F7E0300
+poke 021B 00030A00
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE EE
+# Terra's menu is open: hold her
+forcepoke 3218 0000
+poke 3C00 FFFFFFFF
+poke 3C28 FFFFFFFF
+forcepoke 3224 00000000
+poke 3328 3F
+poke 332A 3F
+dump b1_start
+# Terra: Fight
+until 62CA == 00 60
+press a 2
+until 7BC2 == 38 300
+poke 00BE 19
+press a 2
+until 7BCB == 00 3000
+# Wedge (slot 1) as Locke and Vicks (slot 2) as Sabin, near fatal, turn counter at 3; they fight on
+poke 3EDA 01
+poke 3EDC 05
+poke 3A3F 03
+poke 3C00 FFFFFFFF
+poke 3BF6 32003200
+poke 3EE7 02
+poke 3EE9 02
+press a 2
+pokefor 00BE 8B 26
+press a 2
+pokefor 00BE 8B 26
+press a 2
+pokefor 00BE 8B 26
+press a 2
+pokefor 00BE 8B 26
+poke 3C00 FFFFFFFF
+poke 3BF6 32003200
+poke 3EE7 02
+poke 3EE9 02
+press a 2
+pokefor 00BE 8B 26
+press a 2
+pokefor 00BE 8B 26
+press a 2
+pokefor 00BE 8B 26
+press a 2
+pokefor 00BE 8B 26
+poke 3C00 FFFFFFFF
+poke 3BF6 32003200
+poke 3EE7 02
+poke 3EE9 02
+press a 2
+pokefor 00BE 8B 26
+press a 2
+pokefor 00BE 8B 26
+press a 2
+pokefor 00BE 8B 26
+press a 2
+pokefor 00BE 8B 26
+poke 3C00 FFFFFFFF
+poke 3BF6 32003200
+poke 3EE7 02
+poke 3EE9 02
+press a 2
+pokefor 00BE 8B 26
+press a 2
+pokefor 00BE 8B 26
+press a 2
+pokefor 00BE 8B 26
+press a 2
+pokefor 00BE 8B 26
+poke 3C00 FFFFFFFF
+poke 3BF6 32003200
+poke 3EE7 02
+poke 3EE9 02
+press a 2
+pokefor 00BE 8B 26
+press a 2
+pokefor 00BE 8B 26
+press a 2
+pokefor 00BE 8B 26
+press a 2
+pokefor 00BE 8B 26
+poke 3C00 FFFFFFFF
+poke 3BF6 32003200
+poke 3EE7 02
+poke 3EE9 02
+press a 2
+pokefor 00BE 8B 26
+press a 2
+pokefor 00BE 8B 26
+press a 2
+pokefor 00BE 8B 26
+press a 2
+pokefor 00BE 8B 26
+poke 3C00 FFFFFFFF
+poke 3BF6 32003200
+poke 3EE7 02
+poke 3EE9 02
+press a 2
+pokefor 00BE 8B 26
+press a 2
+pokefor 00BE 8B 26
+press a 2
+pokefor 00BE 8B 26
+press a 2
+pokefor 00BE 8B 26
+poke 3C00 FFFFFFFF
+poke 3BF6 32003200
+poke 3EE7 02
+poke 3EE9 02
+press a 2
+pokefor 00BE 8B 26
+press a 2
+pokefor 00BE 8B 26
+press a 2
+pokefor 00BE 8B 26
+press a 2
+pokefor 00BE 8B 26
+poke 3C00 FFFFFFFF
+poke 3BF6 32003200
+poke 3EE7 02
+poke 3EE9 02
+press a 2
+pokefor 00BE 8B 26
+press a 2
+pokefor 00BE 8B 26
+press a 2
+pokefor 00BE 8B 26
+press a 2
+pokefor 00BE 8B 26
+poke 3C00 FFFFFFFF
+poke 3BF6 32003200
+poke 3EE7 02
+poke 3EE9 02
+press a 2
+pokefor 00BE 8B 26
+press a 2
+pokefor 00BE 8B 26
+press a 2
+pokefor 00BE 8B 26
+press a 2
+pokefor 00BE 8B 26
+dump b1_f039
+# restore the actor numbers of Wedge and Vicks and the party's HP
+poke 3EDA 20
+poke 3EDC 21
+poke 3BF4 E703E703E703
+poke 3EE7 00
+poke 3EE9 00
+dump b1_fought
+# the guards get the dead status by poke; the next action ends the battle
+poke 3EF0 80008000
+press a 2
+wait 28
+press a 2
+wait 28
+press a 2
+wait 28
+press a 2
+wait 28
+press a 2
+wait 28
+press a 2
+wait 28
+press a 2
+wait 28
+press a 2
+wait 28
+until 628D == 01 3000
+dump b1_victory
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+until16 1501 == 0182 1200
+until 0082 == 13 3000
+until16 00E5 == 0000 600
+until 00E7 == CA 100
+wait 60
+until 106A == 21 900
+dump b1_after
+# Battle 2: $0D raft on a river
+poke 1614 000000FFFFFF
+poke 181A 000000FFFFFF
+poke 183F 000000FFFFFF
+poke 1609 E703E703E703E703
+poke 180F E703E703E703E703
+poke 1834 E703E703E703E703
+forcepoke 3218 FFFF
+wait 30
+forcepoke 201F 00
+poke 1FF7 4D010D96FE
+poke 05F4 F71F7E
+poke 0594 0000CA
+poke 05C7 01
+poke 00E5 F71F7E0300
+poke 021B 00030A00
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE EE
+# Terra's menu is open: hold her
+forcepoke 3218 0000
+poke 3C00 FFFFFFFF
+poke 3C28 FFFFFFFF
+forcepoke 3224 00000000
+poke 3328 3F
+poke 332A 3F
+dump b2_start
+# Terra: Fight
+until 62CA == 00 60
+press a 2
+until 7BC2 == 38 300
+poke 00BE 29
+press a 2
+until 7BCB == 00 3000
+# the guards get the dead status by poke; the next action ends the battle
+poke 3EF0 80008000
+until 628D == 01 3000
+dump b2_victory
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+until16 1501 == 0182 1200
+until 0082 == 13 3000
+until16 00E5 == 0000 600
+until 00E7 == CA 100
+wait 60
+until 106A == 21 900
+dump b2_after
+# Battle 3: $0F top of the train car
+poke 1614 000000FFFFFF
+poke 181A 000000FFFFFF
+poke 183F 000000FFFFFF
+poke 1609 E703E703E703E703
+poke 180F E703E703E703E703
+poke 1834 E703E703E703E703
+forcepoke 3218 FFFF
+wait 30
+forcepoke 201F 00
+poke 1FF7 4D010F96FE
+poke 05F4 F71F7E
+poke 0594 0000CA
+poke 05C7 01
+poke 00E5 F71F7E0300
+poke 021B 00030A00
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE EE
+# Terra's menu is open: hold her
+forcepoke 3218 0000
+poke 3C00 FFFFFFFF
+poke 3C28 FFFFFFFF
+forcepoke 3224 00000000
+poke 3328 3F
+poke 332A 3F
+dump b3_start
+# Terra: Fight
+until 62CA == 00 60
+press a 2
+until 7BC2 == 38 300
+poke 00BE 39
+press a 2
+until 7BCB == 00 3000
+# the guards get the dead status by poke; the next action ends the battle
+poke 3EF0 80008000
+until 628D == 01 3000
+dump b3_victory
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+until16 1501 == 0182 1200
+until 0082 == 13 3000
+until16 00E5 == 0000 600
+until 00E7 == CA 100
+wait 60
+until 106A == 21 900
+dump b3_after
+# Battle 4: $1F waterfall
+poke 1614 000000FFFFFF
+poke 181A 000000FFFFFF
+poke 183F 000000FFFFFF
+poke 1609 E703E703E703E703
+poke 180F E703E703E703E703
+poke 1834 E703E703E703E703
+forcepoke 3218 FFFF
+wait 30
+forcepoke 201F 00
+poke 1FF7 4D011F96FE
+poke 05F4 F71F7E
+poke 0594 0000CA
+poke 05C7 01
+poke 00E5 F71F7E0300
+poke 021B 00030A00
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE EE
+# Terra's menu is open: hold her
+forcepoke 3218 0000
+poke 3C00 FFFFFFFF
+poke 3C28 FFFFFFFF
+forcepoke 3224 00000000
+poke 3328 3F
+poke 332A 3F
+dump b4_start
+# Terra: Fight
+until 62CA == 00 60
+press a 2
+until 7BC2 == 38 300
+poke 00BE 49
+press a 2
+until 7BCB == 00 3000
+# the guards get the dead status by poke; the next action ends the battle
+poke 3EF0 80008000
+until 628D == 01 3000
+dump b4_victory
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+until16 1501 == 0182 1200
+until 0082 == 13 3000
+until16 00E5 == 0000 600
+until 00E7 == CA 100
+wait 60
+until 106A == 21 900
+dump b4_after
+# Battle 5: $2C Magitek train car
+poke 1614 000000FFFFFF
+poke 181A 000000FFFFFF
+poke 183F 000000FFFFFF
+poke 1609 E703E703E703E703
+poke 180F E703E703E703E703
+poke 1834 E703E703E703E703
+forcepoke 3218 FFFF
+wait 30
+forcepoke 201F 00
+poke 1FF7 4D012C96FE
+poke 05F4 F71F7E
+poke 0594 0000CA
+poke 05C7 01
+poke 00E5 F71F7E0300
+poke 021B 00030A00
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE EE
+# Terra's menu is open: hold her
+forcepoke 3218 0000
+poke 3C00 FFFFFFFF
+poke 3C28 FFFFFFFF
+forcepoke 3224 00000000
+poke 3328 3F
+poke 332A 3F
+dump b5_start
+# Terra: Fight
+until 62CA == 00 60
+press a 2
+until 7BC2 == 38 300
+poke 00BE 59
+press a 2
+until 7BCB == 00 3000
+# the guards get the dead status by poke; the next action ends the battle
+poke 3EF0 80008000
+until 628D == 01 3000
+dump b5_victory
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+until16 1501 == 0182 1200
+until 0082 == 13 3000
+until16 00E5 == 0000 600
+until 00E7 == CA 100
+wait 60
+until 106A == 21 900
+dump b5_after
+# Battle 6: $2E Cyan's dream world
+poke 1614 000000FFFFFF
+poke 181A 000000FFFFFF
+poke 183F 000000FFFFFF
+poke 1609 E703E703E703E703
+poke 180F E703E703E703E703
+poke 1834 E703E703E703E703
+forcepoke 3218 FFFF
+wait 30
+forcepoke 201F 00
+poke 1FF7 4D012E96FE
+poke 05F4 F71F7E
+poke 0594 0000CA
+poke 05C7 01
+poke 00E5 F71F7E0300
+poke 021B 00030A00
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE EE
+# Terra's menu is open: hold her
+forcepoke 3218 0000
+poke 3C00 FFFFFFFF
+poke 3C28 FFFFFFFF
+forcepoke 3224 00000000
+poke 3328 3F
+poke 332A 3F
+dump b6_start
+# Terra: Fight
+until 62CA == 00 60
+press a 2
+until 7BC2 == 38 300
+poke 00BE 69
+press a 2
+until 7BCB == 00 3000
+# the guards get the dead status by poke; the next action ends the battle
+poke 3EF0 80008000
+until 628D == 01 3000
+dump b6_victory
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+until16 1501 == 0182 1200
+until 0082 == 13 3000
+until16 00E5 == 0000 600
+until 00E7 == CA 100
+wait 60
+until 106A == 21 900
+dump b6_after
+# Battle 7: $36 final Kefka
+poke 1614 000000FFFFFF
+poke 181A 000000FFFFFF
+poke 183F 000000FFFFFF
+poke 1609 E703E703E703E703
+poke 180F E703E703E703E703
+poke 1834 E703E703E703E703
+forcepoke 3218 FFFF
+wait 30
+forcepoke 201F 00
+poke 1FF7 4D013696FE
+poke 05F4 F71F7E
+poke 0594 0000CA
+poke 05C7 01
+poke 00E5 F71F7E0300
+poke 021B 00030A00
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE EE
+# Terra's menu is open: hold her
+forcepoke 3218 0000
+poke 3C00 FFFFFFFF
+poke 3C28 FFFFFFFF
+forcepoke 3224 00000000
+poke 3328 3F
+poke 332A 3F
+dump b7_start
+# Terra: Fight
+until 62CA == 00 60
+press a 2
+until 7BC2 == 38 300
+poke 00BE 79
+press a 2
+until 7BCB == 00 3000
+# the guards get the dead status by poke; the next action ends the battle
+poke 3EF0 80008000
+until 628D == 01 3000
+dump b7_victory
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+until16 1501 == 0182 1200
+until 0082 == 13 3000
+until16 00E5 == 0000 600
+until 00E7 == CA 100
+wait 60
+until 106A == 21 900
+dump b7_after
+quit
