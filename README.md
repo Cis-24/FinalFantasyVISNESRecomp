@@ -28,22 +28,25 @@ Work in progress; not yet playable from start to finish.
   player commands (Fight, Magic, Summon, Item, Steal, SwdTech, Throw, Tools,
   Blitz, Sketch, Slot, Dance; Lore, X-Magic, Morph, Revert, Runic, Capture,
   Jump, Control, Mimic, GP Rain, Rage, Row, Def) run through to the victory
-  and back to the field. Further battle routes cover the back, pincer and
-  side attack, every spell and all 27 espers, level ups with esper bonuses,
-  the eight Blitzes, weapons, tools, items and lores with special effects,
-  monster AI and enemy attacks (boss battles with dialog among them), a
-  muddled character's random actions, Shock, Health, Possess, running
-  away, Umaro's attacks, the higher Bushido levels, a Rage, monster
-  attacks such as Escape, Launcher, Engulf and Bababreath, and the dances
-  on their own battle backgrounds together with more Rages, Magitek
-  attacks and curing items, and the animated battle backgrounds (clouds,
-  river, train, waterfall, Cyan's dream, the last battle) with Locke's
-  and Sabin's desperation attacks, and monster attacks with animations
-  of their own (TekBarrier, Soul Out, WaveCannon, Shock Wave, Delta Hit,
-  and Final Kefka's Goner and Hyperdrive), and the knife, sword and cape
-  block animations, boomerangs, the long Atma Weapon and a monster's
-  Steal and Jump, and Setzer's Slot with H-Bomb together with the equip
-  window of the battle item menu.
+  and back to the field. Further battle routes cover:
+  - the back, pincer and side attack, running away;
+  - every spell, all 27 espers and level ups with esper bonuses;
+  - the eight Blitzes, the higher Bushido levels, Umaro's attacks, Locke's
+    and Sabin's desperation attacks, the dances on their own battle
+    backgrounds, Rages, Magitek attacks, and Setzer's Slot with H-Bomb;
+  - weapons, tools, items and lores with special effects, boomerangs, the
+    long Atma Weapon, and the knife, sword and cape block animations;
+  - monster AI and enemy attacks, boss battles with dialog, monster
+    attacks with special effects (Escape, Launcher, Engulf, Bababreath)
+    or animations of their own (TekBarrier, Soul Out, WaveCannon, Shock
+    Wave, Delta Hit, Final Kefka's Goner and Hyperdrive), and a monster's
+    Steal and Jump;
+  - a muddled character's random actions, Shock, Health and Possess;
+  - the animated battle backgrounds (clouds, river, train, waterfall,
+    Cyan's dream, the last battle) and the equip window of the battle
+    item menu.
+- What is left in battle is mostly rarely used code: boss death and
+  other scripted animations, and monsters that change the formation.
 
 Validated routes (`validation/routes`): boot to title, new game to Narshe,
 field walk, menu tour, first battle, battle commands (two routes), field
