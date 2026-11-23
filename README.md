@@ -38,7 +38,9 @@ Work in progress; not yet playable from start to finish.
   on their own battle backgrounds together with more Rages, Magitek
   attacks and curing items, and the animated battle backgrounds (clouds,
   river, train, waterfall, Cyan's dream, the last battle) with Locke's
-  and Sabin's desperation attacks.
+  and Sabin's desperation attacks, and monster attacks with animations
+  of their own (TekBarrier, Soul Out, WaveCannon, Shock Wave, Delta Hit,
+  and Final Kefka's Goner and Hyperdrive).
 
 Validated routes (`validation/routes`): boot to title, new game to Narshe,
 field walk, menu tour, first battle, battle commands (two routes), field
@@ -46,7 +48,7 @@ modes, doors, menu scrolling, battle types, monster AI, spells (two
 routes), level ups, enemy attacks, boss battles, summons, weapon, tool,
 item and lore effects, Blitzes, monster special attacks, muddled random
 actions, Umaro and Bushido, monster attack effects, dances, animated
-battle backgrounds. Each route replays
+battle backgrounds, monster attack animations. Each route replays
 fixed input and compares memory, video memory and the frame buffer at
 checkpoints. Known and explained differences from the reference are
 masked in `validation/masks.toml`, each with a reason.

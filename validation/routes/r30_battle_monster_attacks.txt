@@ -1,0 +1,1140 @@
+# r30: monster attacks with an animation init (ExecAnimType) or animation sub-commands (magic_code00) that no route
+# reached before (PLAN phase 8, the animation script gap): TekBarrier, Soul Out, WaveCannon, the monster side of
+# Shock Wave, Delta Hit, Goner and Hyperdrive. Six battles entered through the battle event at $7E:1FF7 (group 1,
+# battle type forced to normal before the event) with the formation forced through `pokefor 11E0` as in r27:
+# HeavyArmor (64; TekBarrier once Celes, actor 6, is in the party: Wedge's battle actor number $3EDA is set to $06),
+# Powerdemon (247; Soul Out in its second turn), IO (137; WaveCannon in its fourth turn), Hemophyte and Retainer
+# (427; the Retainer is killed by poke, Hemophyte alone uses Shock Wave), Curley, Larry and Moe (460; Delta Hit once
+# Strago, actor 7, is present and the battle timer $3A44 is past 30: Vicks' $3EDC is set to $07, $3A44 by poke) and
+# Final Kefka (514; at 20000 HP his turn brings Goner, and a Fight against him draws Hyperdrive as the counter). The
+# actor numbers are restored before a battle ends. The AI picks one of three attacks with RandA (battle/ai_cmd.asm
+# AIRand3), so the RNG index $BE is held where a pick is needed: at $19 for Powerdemon and for Kefka's Fights (the
+# next six RNGTbl values are $AB or more, third pick) and at $A7 for IO (the next eight are below $AB, first or second
+# pick). The party's ATB is held at 0 once the first menu is open; for Kefka, A is pressed so the open menus fight.
+# Party HP is 9999 and its status is cleared once a second; monster HP is set to 20000. Each battle ends with the
+# dead status poked on the monsters; Final Kefka's battle then fades out without a victory sequence. A wait of 30
+# frames precedes each battle start, 40 before IO: with 30 the co-sim diverged for good at the start of the IO battle
+# (checkpoint 19559, `$628C` set on A one checkpoint before B; see docs/STATUS.md, "r17 battle start phase").
+# Generated with work/routes/r30_gen.py (not versioned).
+until 0019 == 09 6000
+wait 60
+press a 2
+until 0082 == 12 8000
+until 00D3 == 01 4000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 0019 == 02 3000
+wait 120
+press a 2
+until 0082 == 13 20000
+until 00D3 == 01 1500
+press a 2
+until16 00E5 == 0000 3000
+until 00E7 == CA 100
+wait 60
+until 106A == 21 60
+# Party: HP/MP 999. Terra: Fight, Magic. Wedge and Vicks: Fight.
+poke 1609 E703E703E703E703
+poke 1614 000000020101
+poke 161E 00
+poke 180F E703E703E703E703
+poke 181A 000000010101
+poke 1834 E703E703E703E703
+poke 183F 000000010101
+poke 1A97 FF
+# Battle: formation 64. HeavyArmor: TekBarrier on its next turn once Celes (actor 6) is in the party (Wedge's slot)
+wait 30
+poke 1609 E703E703E703E703
+poke 180F E703E703E703E703
+poke 1834 E703E703E703E703
+forcepoke 201F 00
+poke 1FF7 4D013F96FE
+poke 05F4 F71F7E
+poke 0594 0000CA
+poke 05C7 01
+poke 00E5 F71F7E0300
+pokefor 11E0 4000 90
+poke 021B 00030A00
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+forcepoke 3218 0000000000000000
+poke 3BFC 204E
+poke 3C24 204E
+poke 3C1C 0F270F270F27
+poke 3EDA 06
+dump b64_start
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+dump b64_p0
+poke 3EDA 20
+poke 3EEC 8000
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+dump b64_pre
+until 628D == 01 6000
+dump b64_victory
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+until16 1501 == 0182 1200
+until 0082 == 13 6000
+until16 00E5 == 0000 600
+until 00E7 == CA 100
+wait 60
+until 106A == 21 900
+dump b64_after
+# Battle: formation 247. Powerdemon: Soul Out in its second turn, the RNG index held at $19
+wait 30
+forcepoke 3218 FFFFFFFFFFFFFFFF
+poke 1609 E703E703E703E703
+poke 180F E703E703E703E703
+poke 1834 E703E703E703E703
+forcepoke 201F 00
+poke 1FF7 4D013F96FE
+poke 05F4 F71F7E
+poke 0594 0000CA
+poke 05C7 01
+poke 00E5 F71F7E0300
+pokefor 11E0 F700 90
+poke 021B 00030A00
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+forcepoke 3218 0000000000000000
+poke 3BFC 204E
+poke 3C24 204E
+poke 3C1C 0F270F270F27
+dump b247_start
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+pokefor 00BE 19 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+pokefor 00BE 19 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+pokefor 00BE 19 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+pokefor 00BE 19 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+pokefor 00BE 19 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+pokefor 00BE 19 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+pokefor 00BE 19 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+pokefor 00BE 19 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+pokefor 00BE 19 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+pokefor 00BE 19 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+pokefor 00BE 19 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+pokefor 00BE 19 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+pokefor 00BE 19 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+pokefor 00BE 19 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+pokefor 00BE 19 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+pokefor 00BE 19 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+pokefor 00BE 19 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+pokefor 00BE 19 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+pokefor 00BE 19 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+pokefor 00BE 19 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+pokefor 00BE 19 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+pokefor 00BE 19 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+pokefor 00BE 19 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+pokefor 00BE 19 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+pokefor 00BE 19 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+pokefor 00BE 19 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+pokefor 00BE 19 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+pokefor 00BE 19 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+pokefor 00BE 19 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+pokefor 00BE 19 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+pokefor 00BE 19 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+pokefor 00BE 19 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+pokefor 00BE 19 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+pokefor 00BE 19 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+pokefor 00BE 19 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+pokefor 00BE 19 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+pokefor 00BE 19 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+pokefor 00BE 19 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+pokefor 00BE 19 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+pokefor 00BE 19 60
+dump b247_p0
+poke 3EEC 8000
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+dump b247_pre
+until 628D == 01 6000
+dump b247_victory
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+until16 1501 == 0182 1200
+until 0082 == 13 6000
+until16 00E5 == 0000 600
+until 00E7 == CA 100
+wait 60
+until 106A == 21 900
+dump b247_after
+# Battle: formation 137. IO: WaveCannon in its fourth turn, the RNG index held at $A7; a wait of 40 frames before the battle event (battle start phase)
+wait 40
+forcepoke 3218 FFFFFFFFFFFFFFFF
+poke 1609 E703E703E703E703
+poke 180F E703E703E703E703
+poke 1834 E703E703E703E703
+forcepoke 201F 00
+poke 1FF7 4D013F96FE
+poke 05F4 F71F7E
+poke 0594 0000CA
+poke 05C7 01
+poke 00E5 F71F7E0300
+pokefor 11E0 8900 90
+poke 021B 00030A00
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+forcepoke 3218 0000000000000000
+poke 3BFC 204E
+poke 3C24 204E
+poke 3C1C 0F270F270F27
+dump b137_start
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+pokefor 00BE A7 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+pokefor 00BE A7 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+pokefor 00BE A7 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+pokefor 00BE A7 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+pokefor 00BE A7 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+pokefor 00BE A7 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+pokefor 00BE A7 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+pokefor 00BE A7 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+pokefor 00BE A7 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+pokefor 00BE A7 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+pokefor 00BE A7 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+pokefor 00BE A7 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+pokefor 00BE A7 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+pokefor 00BE A7 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+pokefor 00BE A7 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+pokefor 00BE A7 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+pokefor 00BE A7 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+pokefor 00BE A7 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+pokefor 00BE A7 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+pokefor 00BE A7 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+pokefor 00BE A7 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+pokefor 00BE A7 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+pokefor 00BE A7 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+pokefor 00BE A7 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+pokefor 00BE A7 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+pokefor 00BE A7 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+pokefor 00BE A7 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+pokefor 00BE A7 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+pokefor 00BE A7 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+pokefor 00BE A7 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+pokefor 00BE A7 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+pokefor 00BE A7 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+pokefor 00BE A7 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+pokefor 00BE A7 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+pokefor 00BE A7 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+pokefor 00BE A7 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+pokefor 00BE A7 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+pokefor 00BE A7 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+pokefor 00BE A7 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+pokefor 00BE A7 60
+dump b137_p0
+poke 3EEC 8000
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+dump b137_pre
+until 628D == 01 6000
+dump b137_victory
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+until16 1501 == 0182 1200
+until 0082 == 13 6000
+until16 00E5 == 0000 600
+until 00E7 == CA 100
+wait 60
+until 106A == 21 900
+dump b137_after
+# Battle: formation 427. Hemophyte, the Retainer killed by poke: Shock Wave once it is alone
+wait 30
+forcepoke 3218 FFFFFFFFFFFFFFFF
+poke 1609 E703E703E703E703
+poke 180F E703E703E703E703
+poke 1834 E703E703E703E703
+forcepoke 201F 00
+poke 1FF7 4D013F96FE
+poke 05F4 F71F7E
+poke 0594 0000CA
+poke 05C7 01
+poke 00E5 F71F7E0300
+pokefor 11E0 AB01 90
+poke 021B 00030A00
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+forcepoke 3218 0000000000000000
+poke 3BFC 204E
+poke 3BFE 204E
+poke 3C24 204E
+poke 3C26 204E
+poke 3C1C 0F270F270F27
+poke 3EEE 8000
+dump b427_start
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+dump b427_p0
+poke 3EEC 8000
+poke 3EEE 8000
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+dump b427_pre
+until 628D == 01 6000
+dump b427_victory
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+until16 1501 == 0182 1200
+until 0082 == 13 6000
+until16 00E5 == 0000 600
+until 00E7 == CA 100
+wait 60
+until 106A == 21 900
+dump b427_after
+# Battle: formation 460. Curley, Larry and Moe: Delta Hit once Strago (actor 7, Vicks' slot) is present and the battle timer is past 30
+wait 30
+forcepoke 3218 FFFFFFFFFFFFFFFF
+poke 1609 E703E703E703E703
+poke 180F E703E703E703E703
+poke 1834 E703E703E703E703
+forcepoke 201F 00
+poke 1FF7 4D013F96FE
+poke 05F4 F71F7E
+poke 0594 0000CA
+poke 05C7 01
+poke 00E5 F71F7E0300
+pokefor 11E0 CC01 90
+poke 021B 00030A00
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+forcepoke 3218 0000000000000000
+poke 3BFC 204E
+poke 3BFE 204E
+poke 3C00 204E
+poke 3C24 204E
+poke 3C26 204E
+poke 3C28 204E
+poke 3C1C 0F270F270F27
+poke 3EDC 07
+poke 3A44 4000
+dump b460_start
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+dump b460_p0
+poke 3EDC 21
+poke 3EEC 8000
+poke 3EEE 8000
+poke 3EF0 8000
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+dump b460_pre
+until 628D == 01 6000
+dump b460_victory
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+until16 1501 == 0182 1200
+until 0082 == 13 6000
+until16 00E5 == 0000 600
+until 00E7 == CA 100
+wait 60
+until 106A == 21 900
+dump b460_after
+# Battle: formation 514. Final Kefka at 20000 HP: Goner on his turn, Hyperdrive as the counter to a Fight, the RNG index held at $19 while the party fights
+wait 30
+forcepoke 3218 FFFFFFFFFFFFFFFF
+poke 1609 E703E703E703E703
+poke 180F E703E703E703E703
+poke 1834 E703E703E703E703
+forcepoke 201F 00
+poke 1FF7 4D013F96FE
+poke 05F4 F71F7E
+poke 0594 0000CA
+poke 05C7 01
+poke 00E5 F71F7E0300
+pokefor 11E0 0202 90
+poke 021B 00030A00
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+forcepoke 3218 0000000000000000
+poke 3BFC 204E
+poke 3C24 204E
+poke 3C1C 0F270F270F27
+dump b514_start
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+pokefor 00BE 19 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+pokefor 00BE 19 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+pokefor 00BE 19 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+pokefor 00BE 19 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+pokefor 00BE 19 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+pokefor 00BE 19 58
+dump b514_p0
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+dump b514_p1
+poke 3EEC 8000
+dump b514_pre
+until 0082 == 13 6000
+until16 00E5 == 0000 600
+until 00E7 == CA 100
+wait 60
+until 106A == 21 900
+dump b514_after
+quit

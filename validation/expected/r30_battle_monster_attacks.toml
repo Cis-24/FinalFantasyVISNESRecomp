@@ -1,0 +1,344 @@
+# Erwartung fuer Route r30_battle_monster_attacks (tools/ff6/regress.sh, regress_check.py --update).
+# Hashes: SHA-256 der Dumps, maskierte Bytes (validation/masks.toml) auf 0.
+# Aenderung nur mit begruendetem Eintrag in validation/CHANGELOG.md.
+events = [
+  "f=3442 until 00019 ok after 3442 frames",
+  "f=6542 until 00082 ok after 3037 frames",
+  "f=8554 until 000D3 ok after 2012 frames",
+  "f=8664 until 000D3 ok after 107 frames",
+  "f=8926 until 000D3 ok after 259 frames",
+  "f=9208 until 000D3 ok after 279 frames",
+  "f=9295 until 000D3 ok after 84 frames",
+  "f=9546 until 000D3 ok after 248 frames",
+  "f=9808 until 000D3 ok after 259 frames",
+  "f=10930 until 00019 ok after 1119 frames",
+  "f=11085 until 00082 ok after 32 frames",
+  "f=11482 until 000D3 ok after 397 frames",
+  "f=11623 until 000E5 ok after 138 frames",
+  "f=11623 until 000E7 ok after 0 frames",
+  "f=11702 until 0106A ok after 19 frames",
+  "f=11859 until 07BCB ok after 0 frames",
+  "f=12016 until 07BC2 ok after 157 frames",
+  "f=12026 dump b64_start ok",
+  "f=13306 dump b64_p0 ok",
+  "f=14298 dump b64_pre ok",
+  "f=14298 until 0628D ok after 0 frames",
+  "f=14298 dump b64_victory ok",
+  "f=14814 until 01501 ok after 0 frames",
+  "f=14814 until 00082 ok after 0 frames",
+  "f=14814 until 000E5 ok after 0 frames",
+  "f=14814 until 000E7 ok after 0 frames",
+  "f=14874 until 0106A ok after 0 frames",
+  "f=14874 dump b64_after ok",
+  "f=15017 until 07BCB ok after 0 frames",
+  "f=15076 until 07BC2 ok after 59 frames",
+  "f=15084 dump b247_start ok",
+  "f=17684 dump b247_p0 ok",
+  "f=18674 dump b247_pre ok",
+  "f=18674 until 0628D ok after 0 frames",
+  "f=18674 dump b247_victory ok",
+  "f=19190 until 01501 ok after 0 frames",
+  "f=19190 until 00082 ok after 0 frames",
+  "f=19190 until 000E5 ok after 0 frames",
+  "f=19190 until 000E7 ok after 0 frames",
+  "f=19425 until 0106A ok after 175 frames",
+  "f=19425 dump b247_after ok",
+  "f=19578 until 07BCB ok after 0 frames",
+  "f=19639 until 07BC2 ok after 61 frames",
+  "f=19647 dump b137_start ok",
+  "f=22247 dump b137_p0 ok",
+  "f=23237 dump b137_pre ok",
+  "f=23237 until 0628D ok after 0 frames",
+  "f=23237 dump b137_victory ok",
+  "f=23753 until 01501 ok after 0 frames",
+  "f=23753 until 00082 ok after 0 frames",
+  "f=23753 until 000E5 ok after 0 frames",
+  "f=23753 until 000E7 ok after 0 frames",
+  "f=24109 until 0106A ok after 296 frames",
+  "f=24109 dump b137_after ok",
+  "f=24252 until 07BCB ok after 0 frames",
+  "f=24313 until 07BC2 ok after 61 frames",
+  "f=24327 dump b427_start ok",
+  "f=25607 dump b427_p0 ok",
+  "f=26599 dump b427_pre ok",
+  "f=26599 until 0628D ok after 0 frames",
+  "f=26599 dump b427_victory ok",
+  "f=27115 until 01501 ok after 0 frames",
+  "f=27115 until 00082 ok after 0 frames",
+  "f=27115 until 000E5 ok after 0 frames",
+  "f=27115 until 000E7 ok after 0 frames",
+  "f=27227 until 0106A ok after 52 frames",
+  "f=27227 dump b427_after ok",
+  "f=27370 until 07BCB ok after 0 frames",
+  "f=27516 until 07BC2 ok after 146 frames",
+  "f=27536 dump b460_start ok",
+  "f=29456 dump b460_p0 ok",
+  "f=30452 dump b460_pre ok",
+  "f=30452 until 0628D ok after 0 frames",
+  "f=30452 dump b460_victory ok",
+  "f=30968 until 01501 ok after 0 frames",
+  "f=30968 until 00082 ok after 0 frames",
+  "f=30968 until 000E5 ok after 0 frames",
+  "f=30968 until 000E7 ok after 0 frames",
+  "f=31392 until 0106A ok after 364 frames",
+  "f=31392 dump b460_after ok",
+  "f=31535 until 07BCB ok after 0 frames",
+  "f=33462 until 07BC2 ok after 1927 frames",
+  "f=33470 dump b514_start ok",
+  "f=33866 dump b514_p0 ok",
+  "f=35786 dump b514_p1 ok",
+  "f=35788 dump b514_pre ok",
+  "f=36064 until 00082 ok after 276 frames",
+  "f=36104 until 000E5 ok after 40 frames",
+  "f=36104 until 000E7 ok after 0 frames",
+  "f=36168 until 0106A ok after 4 frames",
+  "f=36168 dump b514_after ok",
+  "f=36168 quit",
+]
+
+[miss]  # nur gemeldet, nicht entscheidend
+discoveries = 265
+rom = 0
+allowlist = 4
+wram = 261
+interpreted = 361539864
+
+[dump.b137_after]
+wram = "86fe8a5f496b5430a11a9b42769902360947349633ffb126f21580e2f094c19a"
+vram = "57636bdca856f5903c02f3597a482f6e225af8a29697438c0ff0d74e46a8b339"
+cgram = "3508284bf2e9230e18b7a2629fab9189c8600e64aa085522b43f099715718fac"
+oam = "beabc7a077c0a6c2a4840eb8c651abdf77611f31ec161f4706aa0e7790328835"
+sram = "6afbcf1ee326d0e1f163feeee2c49e5deb17bcf7d29ebb7a15b8c4433752cc7a"
+fb = "4f07b836910254bcb72c645cf3d6c13acda5384e2fb5f25590e5d52a61a8c63f"
+
+[dump.b137_p0]
+wram = "9ebb00231cf500b988efb7f11feecfc4d591895509e1fcd6166248561585283e"
+vram = "ccb2d79c2eba72d9c590aa1be90a10e6c53fff5e681382eb934516c38e696df6"
+cgram = "7f04a47ec0271c7f52faa9c4736c9274607e30d5a811ee399fa9671953a90b20"
+oam = "84a798ada4bd27752e5b8af326b34b1df24a51d99ad75cbf4d1c8be0e48fe443"
+sram = "6afbcf1ee326d0e1f163feeee2c49e5deb17bcf7d29ebb7a15b8c4433752cc7a"
+fb = "9b7eb10313431b7cf9273bed4fd4709d75ba03112dfc9a5045294fd16e102d0b"
+
+[dump.b137_pre]
+wram = "57e8b18b31026b4af21a4e4a83d15f5b26ef86585f9d67dad054857a6641d004"
+vram = "4baba9c154b32d142800d5057ede926da4d4a38baff47a2aaa01262f89814655"
+cgram = "89ad89382fa37e65640043b1642cf76f3b2e8037451ec5947313e85ebb169df6"
+oam = "beabc7a077c0a6c2a4840eb8c651abdf77611f31ec161f4706aa0e7790328835"
+sram = "6afbcf1ee326d0e1f163feeee2c49e5deb17bcf7d29ebb7a15b8c4433752cc7a"
+fb = "4c27f4d5f9073faa31a38e66c11ccacd7ada4e8f44f02713f328af67e13b9cf0"
+
+[dump.b137_start]
+wram = "0245db11ffe8d50dfe0067974d4316fa7288a77198e6f69197d46af08da93ecb"
+vram = "5892e5701323c4ad3e45971bf81e25e236b9773fc5735e3d5dcc30637b7b6567"
+cgram = "21dc8c93e55202dd8191ffb30fae0a045700284ec42f50306977f1b0fbdc2486"
+oam = "6411d40056a6fe591ec9c1978ee097282edbca4d7a7cd25c70df4ddd7cfa6af0"
+sram = "6afbcf1ee326d0e1f163feeee2c49e5deb17bcf7d29ebb7a15b8c4433752cc7a"
+fb = "e58930a56ea7c03405c36738692454aa1d84c4ef9b315861f3afddb0d8397e67"
+
+[dump.b137_victory]
+wram = "57e8b18b31026b4af21a4e4a83d15f5b26ef86585f9d67dad054857a6641d004"
+vram = "4baba9c154b32d142800d5057ede926da4d4a38baff47a2aaa01262f89814655"
+cgram = "89ad89382fa37e65640043b1642cf76f3b2e8037451ec5947313e85ebb169df6"
+oam = "beabc7a077c0a6c2a4840eb8c651abdf77611f31ec161f4706aa0e7790328835"
+sram = "6afbcf1ee326d0e1f163feeee2c49e5deb17bcf7d29ebb7a15b8c4433752cc7a"
+fb = "4c27f4d5f9073faa31a38e66c11ccacd7ada4e8f44f02713f328af67e13b9cf0"
+
+[dump.b247_after]
+wram = "9daa858adf01b4ee4d61a16badc91dffbd5058c64291a66f1d1efd36a9d926c2"
+vram = "57636bdca856f5903c02f3597a482f6e225af8a29697438c0ff0d74e46a8b339"
+cgram = "3508284bf2e9230e18b7a2629fab9189c8600e64aa085522b43f099715718fac"
+oam = "beabc7a077c0a6c2a4840eb8c651abdf77611f31ec161f4706aa0e7790328835"
+sram = "6afbcf1ee326d0e1f163feeee2c49e5deb17bcf7d29ebb7a15b8c4433752cc7a"
+fb = "4f07b836910254bcb72c645cf3d6c13acda5384e2fb5f25590e5d52a61a8c63f"
+
+[dump.b247_p0]
+wram = "5b85362fec0ccf41b6243fbd63da86f3728a2ab13c3305d4582aa90ba54fa5c1"
+vram = "a4d7a3101a91f430cb1af4ac51d9f8c4f41d3a355e405ef0cbe6fabe247c3d58"
+cgram = "521cc9bafaa708b46a2ace796b88fdfd257bc36b38ce8470a76561130aacec67"
+oam = "9baa9f3387f88acad9ef78ec3520b7bd2e3ac30de22219c4be38a3362a4ac9e6"
+sram = "6afbcf1ee326d0e1f163feeee2c49e5deb17bcf7d29ebb7a15b8c4433752cc7a"
+fb = "f2c729335a1c66be6eb97c79c03e03fae3bf0ccc08956588c03dfee9f3c79bcf"
+
+[dump.b247_pre]
+wram = "d2e90f195178966db8421304f8207e4a615c220dc1b4b5f38f594f73dcd0e3aa"
+vram = "6d7db4e8ff5671e5cf81258ba265b64de900d72c9c51a0fef5439352c03988f5"
+cgram = "89ad89382fa37e65640043b1642cf76f3b2e8037451ec5947313e85ebb169df6"
+oam = "beabc7a077c0a6c2a4840eb8c651abdf77611f31ec161f4706aa0e7790328835"
+sram = "6afbcf1ee326d0e1f163feeee2c49e5deb17bcf7d29ebb7a15b8c4433752cc7a"
+fb = "7c7cb903b2aef3daa958bf5e0e951d0c4508d903b5de45d47a1a9b97a5575466"
+
+[dump.b247_start]
+wram = "e638560f9dc1d83bf4812aef2a0e6e8d29fa87b865643bc85128a67266210a0f"
+vram = "fff31a2f1add2939659641ed6495c71cfb8b92ff47451664f520cb3c11e11417"
+cgram = "1cd3826ab9056e5566647277e256f3e759c5c0322f4b31a73a2068e33956b981"
+oam = "c6d643f139c43750f7cf8dab9b571112596150cf4214eb2cf3df67f14405dded"
+sram = "6afbcf1ee326d0e1f163feeee2c49e5deb17bcf7d29ebb7a15b8c4433752cc7a"
+fb = "6c0ee475c16ff28f9c17b9100427c38eafef974f271fc3750e7ba07c755a57cb"
+
+[dump.b247_victory]
+wram = "d2e90f195178966db8421304f8207e4a615c220dc1b4b5f38f594f73dcd0e3aa"
+vram = "6d7db4e8ff5671e5cf81258ba265b64de900d72c9c51a0fef5439352c03988f5"
+cgram = "89ad89382fa37e65640043b1642cf76f3b2e8037451ec5947313e85ebb169df6"
+oam = "beabc7a077c0a6c2a4840eb8c651abdf77611f31ec161f4706aa0e7790328835"
+sram = "6afbcf1ee326d0e1f163feeee2c49e5deb17bcf7d29ebb7a15b8c4433752cc7a"
+fb = "7c7cb903b2aef3daa958bf5e0e951d0c4508d903b5de45d47a1a9b97a5575466"
+
+[dump.b427_after]
+wram = "4429d14de2f189ff04c17ca58684ce30ac75dd92611ee94430f2774b0516152e"
+vram = "57636bdca856f5903c02f3597a482f6e225af8a29697438c0ff0d74e46a8b339"
+cgram = "3508284bf2e9230e18b7a2629fab9189c8600e64aa085522b43f099715718fac"
+oam = "beabc7a077c0a6c2a4840eb8c651abdf77611f31ec161f4706aa0e7790328835"
+sram = "6afbcf1ee326d0e1f163feeee2c49e5deb17bcf7d29ebb7a15b8c4433752cc7a"
+fb = "4f07b836910254bcb72c645cf3d6c13acda5384e2fb5f25590e5d52a61a8c63f"
+
+[dump.b427_p0]
+wram = "075db1eb045f64f251cc512e62dc9ac91ecd14c6f1881c04e35581306203b80d"
+vram = "c43ed7a598069bd775410fe99661c8523c471a0f37e98269080f0a55f5631531"
+cgram = "e321cfc1e44df3b27394a138be82d0d71522a9f12ae96c2d86dc907ec27fbac5"
+oam = "9c50d79e4ceca71b8005df4ab90a7e3671a8ae699e83c83fb6d3126f0de41fcc"
+sram = "6afbcf1ee326d0e1f163feeee2c49e5deb17bcf7d29ebb7a15b8c4433752cc7a"
+fb = "050069dfac39b84b8c8a6cd2cd410b3b06caa64a0f0a822695e321180a2d1bef"
+
+[dump.b427_pre]
+wram = "2c7d8c03bbd79408324cacd9b4bd5491f07a711c824ea8273af31dc9f6802de7"
+vram = "157b44c80ebbd82cb704921106455db802e2fc6d13eb1f5f22654d9b767dafb0"
+cgram = "99db1176aace726e7c8c763300c734b2221cbccaed8ef0ed238cde77a9acb730"
+oam = "beabc7a077c0a6c2a4840eb8c651abdf77611f31ec161f4706aa0e7790328835"
+sram = "6afbcf1ee326d0e1f163feeee2c49e5deb17bcf7d29ebb7a15b8c4433752cc7a"
+fb = "16e1bf3a9a44fa8b2b0087f0f7d8c79b9d9c448509d3c89ef1651353d1ec6579"
+
+[dump.b427_start]
+wram = "a8baf83104e9f03cc6c177932c6e2e96d111a3fd725189657bc84b3ccb9e31bf"
+vram = "b464a3eeeb06ad1d8c4cf26d4c0828c48872cad612d19a341cc6d5b54a8785b9"
+cgram = "d01d77e3b5eaac5a96b36ab510074afe252c3c1f552d50486bc98e67d3bec079"
+oam = "4f187ec76c010551355ce03fff4472ac4d6cf110c769b62b71d1db66212d47b8"
+sram = "6afbcf1ee326d0e1f163feeee2c49e5deb17bcf7d29ebb7a15b8c4433752cc7a"
+fb = "a9f50fffedf5b32277179234ccab5eebe044af9ba151fb029b8768e2ac01af08"
+
+[dump.b427_victory]
+wram = "2c7d8c03bbd79408324cacd9b4bd5491f07a711c824ea8273af31dc9f6802de7"
+vram = "157b44c80ebbd82cb704921106455db802e2fc6d13eb1f5f22654d9b767dafb0"
+cgram = "99db1176aace726e7c8c763300c734b2221cbccaed8ef0ed238cde77a9acb730"
+oam = "beabc7a077c0a6c2a4840eb8c651abdf77611f31ec161f4706aa0e7790328835"
+sram = "6afbcf1ee326d0e1f163feeee2c49e5deb17bcf7d29ebb7a15b8c4433752cc7a"
+fb = "16e1bf3a9a44fa8b2b0087f0f7d8c79b9d9c448509d3c89ef1651353d1ec6579"
+
+[dump.b460_after]
+wram = "43cd06eac719993f211be942905e400edbeccfb49d93770e13c5036e6598b729"
+vram = "57636bdca856f5903c02f3597a482f6e225af8a29697438c0ff0d74e46a8b339"
+cgram = "99db1176aace726e7c8c763300c734b2221cbccaed8ef0ed238cde77a9acb730"
+oam = "beabc7a077c0a6c2a4840eb8c651abdf77611f31ec161f4706aa0e7790328835"
+sram = "6afbcf1ee326d0e1f163feeee2c49e5deb17bcf7d29ebb7a15b8c4433752cc7a"
+fb = "2f5c13c523455a221bd11a5e6e98feae05add4b0408164f0dec7a579098b8974"
+
+[dump.b460_p0]
+wram = "98307b10c55944115bfba9c40de54e65d0eff6b407e108d5ef73705483bac9b5"
+vram = "42aa2563067d1b6e9ffa7d8087733069a5c85a6ff3c11d82c52f3dd1b0646dbe"
+cgram = "010ea12690158c998bbb4f031b8edc0fe1dc6d5c55682e6af435e959420037bd"
+oam = "94efbe96c4ca3ed91060de55a3f616ccd86480104a73e7bb9a2f9eb2a795638a"
+sram = "6afbcf1ee326d0e1f163feeee2c49e5deb17bcf7d29ebb7a15b8c4433752cc7a"
+fb = "6c097554aa2e0cc9548cccf89db28b40a5796988bef8fc1465ffa6a3afbca941"
+
+[dump.b460_pre]
+wram = "804403c2518ec2da3f1e5176ad8c190d29ab4ced2e3f1676aca7fefb369bc225"
+vram = "9833cc897303a9033f0048634c2ba8e057d8c32d8e76d985498156322f30a83b"
+cgram = "ef9429237157b3b63246e02b816909c62cdee1130ffb52b9231580a421077d2e"
+oam = "beabc7a077c0a6c2a4840eb8c651abdf77611f31ec161f4706aa0e7790328835"
+sram = "6afbcf1ee326d0e1f163feeee2c49e5deb17bcf7d29ebb7a15b8c4433752cc7a"
+fb = "0347f38556195f8a49df4af5ebe9e9605aed1f5095a2529694443977ea189d38"
+
+[dump.b460_start]
+wram = "66ae4637af3e1b7361ea58250bc8bdc2d313bd390f9d02576be729b8f8f76004"
+vram = "f7d103c13cae557ae57dfe2167125018e9845d43f2cb317eaca87c08968f1218"
+cgram = "265821b21e12d7be412c6cfbadadecd47f14f55c8891cbdd5848d61046888ac9"
+oam = "03bb56d25a2faf9494435e15d82a080e06c638427cc3afa9a0df1a995714df5f"
+sram = "6afbcf1ee326d0e1f163feeee2c49e5deb17bcf7d29ebb7a15b8c4433752cc7a"
+fb = "c0c67e48aec5f8c24c1978e7460887f393178fcf01be64634dea65a33fad198b"
+
+[dump.b460_victory]
+wram = "804403c2518ec2da3f1e5176ad8c190d29ab4ced2e3f1676aca7fefb369bc225"
+vram = "9833cc897303a9033f0048634c2ba8e057d8c32d8e76d985498156322f30a83b"
+cgram = "ef9429237157b3b63246e02b816909c62cdee1130ffb52b9231580a421077d2e"
+oam = "beabc7a077c0a6c2a4840eb8c651abdf77611f31ec161f4706aa0e7790328835"
+sram = "6afbcf1ee326d0e1f163feeee2c49e5deb17bcf7d29ebb7a15b8c4433752cc7a"
+fb = "0347f38556195f8a49df4af5ebe9e9605aed1f5095a2529694443977ea189d38"
+
+[dump.b514_after]
+wram = "975326e8be483859d758eb656c166a701bf4f783263e8bc992526930e2b89d62"
+vram = "a3b19d1bd9b7001e3981cbf948b5d37ae6f64368eedc99ee0e0ed82af2e8e635"
+cgram = "8d89ace6a6d415a90be8dbb250cc98bef41328dcd5d164570c4fe5bcfc5423a3"
+oam = "beabc7a077c0a6c2a4840eb8c651abdf77611f31ec161f4706aa0e7790328835"
+sram = "6afbcf1ee326d0e1f163feeee2c49e5deb17bcf7d29ebb7a15b8c4433752cc7a"
+fb = "e10b0b48c6f1536bc54ea50c5f573bcd3fb7bee17a9893f1c998d00ccd4d0c29"
+
+[dump.b514_p0]
+wram = "8ed8616a59bf0bcae6a91c4284f04d9a6a28c2d917ce16c8ed4b40718fd6c947"
+vram = "0e0781cffec6786698577c6fba4d54716e7d0c9c46ca28a5952372e221b175f4"
+cgram = "989397e303183de140034c6d282267b54db7868aec35a0e701325d08f18b1704"
+oam = "d7b50ebab9725f2840cbeb4ae3cf9628b3863dd1ef97072c100f23960beb0a2a"
+sram = "6afbcf1ee326d0e1f163feeee2c49e5deb17bcf7d29ebb7a15b8c4433752cc7a"
+fb = "582687be8f4ca7fb3806b9cdcb4597fc0250e985df796cad3ac51bb1b1c9ee2f"
+
+[dump.b514_p1]
+wram = "a5dab05a341a2e805a1d8e8595c1b697762ecda06d02c19a7e2fb6f3cb2a4ea1"
+vram = "3827f6a1ada8f072c2dd714a5804d4f1ad10be7fe0ec184b12be7b715a02e522"
+cgram = "68519188e5021ecafca76d09e0cd033eb078d61eb7270d6f4c3f370a019d3374"
+oam = "356cf560a0f6c6bfa05bdd87636e08f68c821f3effeede9df5bd533db2539e9c"
+sram = "6afbcf1ee326d0e1f163feeee2c49e5deb17bcf7d29ebb7a15b8c4433752cc7a"
+fb = "7ac42476fae814bbb0c84a92341d1dca9f97f679c6c037996ac9227f78d23ddf"
+
+[dump.b514_pre]
+wram = "1a70b29db5851048e60c8f68e7a12587bdf35b8a1a6e343bd1db916d529d2ed7"
+vram = "4ae21a48a402ea4c87cbce32ac8d8991669a8340092cee5e9309eb0fb8cdb667"
+cgram = "68519188e5021ecafca76d09e0cd033eb078d61eb7270d6f4c3f370a019d3374"
+oam = "356cf560a0f6c6bfa05bdd87636e08f68c821f3effeede9df5bd533db2539e9c"
+sram = "6afbcf1ee326d0e1f163feeee2c49e5deb17bcf7d29ebb7a15b8c4433752cc7a"
+fb = "7ac42476fae814bbb0c84a92341d1dca9f97f679c6c037996ac9227f78d23ddf"
+
+[dump.b514_start]
+wram = "f31c133e10d551e4abb4ff1ecea506ac07f95f4980f3e2e4957183789ea755fc"
+vram = "ee78bb0bab602a08e08724041188c8426777152e236f3f1b445bc7894e29b0fa"
+cgram = "04eea8e97ac0b65047e6ffe24546da3d2b9590a597992d0ece247a438b3e3b21"
+oam = "38d25622bc4b4f1db0b43ced4b9b82d2bca31337f411ece807ceed046053ae29"
+sram = "6afbcf1ee326d0e1f163feeee2c49e5deb17bcf7d29ebb7a15b8c4433752cc7a"
+fb = "6bb4dd83a79ef4ff91ec22d79b7a4d152dac057f2650a762a26ee86fa7d12d81"
+
+[dump.b64_after]
+wram = "52cc2e613cecd3881284087f55d0e2aef2e71fe8d95ee41992ef0cc372e93776"
+vram = "57636bdca856f5903c02f3597a482f6e225af8a29697438c0ff0d74e46a8b339"
+cgram = "3508284bf2e9230e18b7a2629fab9189c8600e64aa085522b43f099715718fac"
+oam = "beabc7a077c0a6c2a4840eb8c651abdf77611f31ec161f4706aa0e7790328835"
+sram = "6afbcf1ee326d0e1f163feeee2c49e5deb17bcf7d29ebb7a15b8c4433752cc7a"
+fb = "4f07b836910254bcb72c645cf3d6c13acda5384e2fb5f25590e5d52a61a8c63f"
+
+[dump.b64_p0]
+wram = "bd91a723f36145b6d20df4d89abb8f5202fcfe8362a9b805902e4ab7ea5be5c9"
+vram = "4c9b7f1aa7ca15a084fdf0898f6631a79f9a2ac5815f0fc587f442428c8a9ca5"
+cgram = "382ca06e90ceba0953c604b48180cdd24498b85b1a0b767f05cf26975e21db12"
+oam = "914be11551412bd1bb1124fc59e212174439fc62d7ed09aec3710a55527b1502"
+sram = "6afbcf1ee326d0e1f163feeee2c49e5deb17bcf7d29ebb7a15b8c4433752cc7a"
+fb = "88ef7e806862f55babc102cf46bf3d175e47a42715c22f300378bfb13da21566"
+
+[dump.b64_pre]
+wram = "139d9f2961677540f18d7f170486da4f6583fd2edbdfda3512fd2b6bc71efaa8"
+vram = "57636bdca856f5903c02f3597a482f6e225af8a29697438c0ff0d74e46a8b339"
+cgram = "c720f892fd542a9b095143405a7e6a48fcdba32373daa7a08e3d38e71449c6c5"
+oam = "beabc7a077c0a6c2a4840eb8c651abdf77611f31ec161f4706aa0e7790328835"
+sram = "6afbcf1ee326d0e1f163feeee2c49e5deb17bcf7d29ebb7a15b8c4433752cc7a"
+fb = "ab6ae83fb9836c95a96c400fb9f2fa3f8f23230048f996223ef9dd1a6321b497"
+
+[dump.b64_start]
+wram = "bbd0574cddd57851937dcce51923dffccd5d936c346ad00c8142bb32f124112b"
+vram = "150591aaff4395a7cf0a1c49320b5d4b00cb9ee5c6e1dcfcda2c5576cda344aa"
+cgram = "6b3b47c6c1c5b73997a64a1eef5432dbb205fa8be7c76add6b5f2b2b7e42b4e5"
+oam = "0e8db2cdd693885efcbda8b83a6ae6e9c070a7fddb3eea8f3a5d8a3cac9c8188"
+sram = "6afbcf1ee326d0e1f163feeee2c49e5deb17bcf7d29ebb7a15b8c4433752cc7a"
+fb = "06e373c4187e7d3dd51943f666ad8fb888102e3d812f565afb4b84a0474ae5ca"
+
+[dump.b64_victory]
+wram = "139d9f2961677540f18d7f170486da4f6583fd2edbdfda3512fd2b6bc71efaa8"
+vram = "57636bdca856f5903c02f3597a482f6e225af8a29697438c0ff0d74e46a8b339"
+cgram = "c720f892fd542a9b095143405a7e6a48fcdba32373daa7a08e3d38e71449c6c5"
+oam = "beabc7a077c0a6c2a4840eb8c651abdf77611f31ec161f4706aa0e7790328835"
+sram = "6afbcf1ee326d0e1f163feeee2c49e5deb17bcf7d29ebb7a15b8c4433752cc7a"
+fb = "ab6ae83fb9836c95a96c400fb9f2fa3f8f23230048f996223ef9dd1a6321b497"
