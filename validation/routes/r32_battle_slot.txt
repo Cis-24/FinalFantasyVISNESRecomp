@@ -1,0 +1,201 @@
+# r32: H-Bomb through the Slot, list scrolling and the equip window of the battle item menu (PLAN phase 8, the
+# animation script gap and the battle menu states). One battle against the two Narshe guards, entered through the
+# battle event at $7E:1FF7 (group 1) like r16 to r31. Terra has Fight, Slot and Item; Wedge and Vicks have Fight.
+# Terra's ATB is forced full before the battle so that her menu comes first, and held at 0 once it is open; the guards
+# are held at ATB 0 with 65535 HP. In the item list Terra scrolls down eight rows and back up (SCROLL_UP), up from the
+# top opens the equip window (EQUIP_OPEN, EQUIP_SELECT), B in it redraws the item rows (ITEM_REOPEN), down closes it
+# (EQUIP_CLOSE) and B leaves the list. Then the Slot: the reels are held by poke 4 above the airship positions (reel
+# icon = table[position >> 4], btlgfx/cursor_2.asm; a reel moves 4 down per frame and stops on the next position with
+# the low nibble 0 once its press is in) and the Rand value of the first press ($6179) is set to 0, so the rate checks
+# of the second and third press pass and reel 3 does not slip past the match; three airships give H-Bomb
+# (GetSlotAttack). After H-Bomb the guards get the dead status and Wedge's Fight ends the battle.
+# Generated with work/routes/r32_gen.py (not versioned).
+until 0019 == 09 6000
+wait 60
+press a 2
+until 0082 == 12 8000
+until 00D3 == 01 4000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 0019 == 02 3000
+wait 120
+press a 2
+until 0082 == 13 20000
+until 00D3 == 01 1500
+press a 2
+until16 00E5 == 0000 3000
+until 00E7 == CA 100
+wait 60
+until 106A == 21 60
+# Party: HP/MP 999. Terra: Fight, Slot, Item; Wedge and Vicks: Fight
+poke 1609 E703E703E703E703
+poke 180F E703E703E703E703
+poke 1834 E703E703E703E703
+poke 1614 0000000F01FF
+poke 181A 000000FFFFFF
+poke 183F 000000FFFFFF
+# Battle 1: the guards
+forcepoke 3218 FFFF
+wait 30
+forcepoke 201F 00
+poke 1FF7 4D013F96FE
+poke 05F4 F71F7E
+poke 0594 0000CA
+poke 05C7 01
+poke 00E5 F71F7E0300
+poke 021B 00030A00
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 00BE EE
+# Terra's menu is open: hold her; the guards are held at ATB 0 with HP 65535
+forcepoke 3218 0000
+poke 3C00 FFFFFFFF
+poke 3C28 FFFFFFFF
+forcepoke 3224 00000000
+poke 3328 3F
+poke 332A 3F
+dump b1_start
+until 62CA == 00 60
+# Item (row 2): scroll the list down and back up, then up from the top opens the equip window
+press down 2
+until 890F == 01 60
+press down 2
+until 890F == 02 60
+press a 2
+until 7BC2 == 0A 300
+wait 8
+press down 2
+wait 14
+press down 2
+wait 14
+press down 2
+wait 14
+press down 2
+wait 14
+press down 2
+wait 14
+press down 2
+wait 14
+press down 2
+wait 14
+press down 2
+wait 14
+press up 2
+wait 14
+press up 2
+wait 14
+press up 2
+wait 14
+press up 2
+wait 14
+press up 2
+wait 14
+press up 2
+wait 14
+press up 2
+wait 14
+press up 2
+wait 14
+press up 2
+until 7BC2 == 0C 300
+wait 8
+dump b1_equip
+# B in the equip window redraws the item rows (ITEM_REOPEN), down closes it, B leaves the item list
+press b 2
+until 7BC2 == 0C 300
+wait 8
+press down 2
+until 7BC2 == 0A 300
+wait 8
+press b 2
+until 7BC2 == 05 300
+wait 8
+# Slot (row 1): the reels are held 4 above the airship (reel icon = table[position >> 4], btlgfx/cursor_2.asm:
+# reel 1 $3x, reel 2 $4x, reel 3 $2x; a reel moves 4 down per frame and stops on the next position with the low
+# nibble 0 once its press is in, btlgfx/cursor.asm); $6179 (Rand of the first press) is set to 0, so the rate
+# checks of the second and third press pass and reel 3 does not slip past the match; three airships give H-Bomb
+press up 2
+until 890F == 01 60
+press a 2
+until 7BC2 == 08 300
+wait 20
+press a 2
+poke 6179 00
+pokefor 7B8C 344424 30
+press a 2
+pokefor 7B8C 344424 30
+press a 2
+pokefor 7B8C 344424 30
+press a 2
+pokefor 7B8C 344424 30
+dump b1_reels
+until 7BCB == 00 3000
+# H-Bomb runs; then the guards get the dead status and Wedge's Fight ends the battle
+wait 400
+dump b1_hbomb
+poke 3EF0 80008000
+press a 2
+wait 28
+press a 2
+wait 28
+press a 2
+wait 28
+press a 2
+wait 28
+press a 2
+wait 28
+press a 2
+wait 28
+press a 2
+wait 28
+press a 2
+wait 28
+press a 2
+wait 28
+press a 2
+wait 28
+until 628D == 01 3000
+dump b1_victory
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+until16 1501 == 0182 1200
+until 0082 == 13 3000
+until16 00E5 == 0000 600
+until 00E7 == CA 100
+wait 60
+until 106A == 21 900
+dump b1_after
+quit

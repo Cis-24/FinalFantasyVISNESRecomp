@@ -42,7 +42,8 @@ Work in progress; not yet playable from start to finish.
   of their own (TekBarrier, Soul Out, WaveCannon, Shock Wave, Delta Hit,
   and Final Kefka's Goner and Hyperdrive), and the knife, sword and cape
   block animations, boomerangs, the long Atma Weapon and a monster's
-  Steal and Jump.
+  Steal and Jump, and Setzer's Slot with H-Bomb together with the equip
+  window of the battle item menu.
 
 Validated routes (`validation/routes`): boot to title, new game to Narshe,
 field walk, menu tour, first battle, battle commands (two routes), field
@@ -51,7 +52,7 @@ routes), level ups, enemy attacks, boss battles, summons, weapon, tool,
 item and lore effects, Blitzes, monster special attacks, muddled random
 actions, Umaro and Bushido, monster attack effects, dances, animated
 battle backgrounds, monster attack animations, block animations and
-weapon hits. Each route replays
+weapon hits, Slot and battle equip window. Each route replays
 fixed input and compares memory, video memory and the frame buffer at
 checkpoints. Known and explained differences from the reference are
 masked in `validation/masks.toml`, each with a reason.
