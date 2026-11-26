@@ -44,9 +44,12 @@ Work in progress; not yet playable from start to finish.
   - a muddled character's random actions, Shock, Health and Possess;
   - the animated battle backgrounds (clouds, river, train, waterfall,
     Cyan's dream, the last battle) and the equip window of the battle
-    item menu.
-- What is left in battle is mostly rarely used code: boss death and
-  other scripted animations, and monsters that change the formation.
+    item menu;
+  - the final battle with its statue tiers and the background scroll,
+    a monster that changes the formation (SrBehemoth), Chadarnook's two
+    forms, the boss death animation and a monster's Roulette.
+- What is left in battle is mostly rarely used code: scripted event
+  animations, Gau on the Veldt, and entries that no attack uses.
 
 Validated routes (`validation/routes`): boot to title, new game to Narshe,
 field walk, menu tour, first battle, battle commands (two routes), field
@@ -55,7 +58,8 @@ routes), level ups, enemy attacks, boss battles, summons, weapon, tool,
 item and lore effects, Blitzes, monster special attacks, muddled random
 actions, Umaro and Bushido, monster attack effects, dances, animated
 battle backgrounds, monster attack animations, block animations and
-weapon hits, Slot and battle equip window. Each route replays
+weapon hits, Slot and battle equip window, final battle and formation
+changes. Each route replays
 fixed input and compares memory, video memory and the frame buffer at
 checkpoints. Known and explained differences from the reference are
 masked in `validation/masks.toml`, each with a reason.

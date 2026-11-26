@@ -10542,7 +10542,10 @@ note = "Miss-Promotion, 0 Treffer"
 name = "all_obj_col_down"
 addr = "91dc"
 bank = 0xc1
-emit = false
+emit = true
+entry_m = 1
+entry_x = 0
+note = "Final battle background scroll (BTL_GFX FINAL_BATTLE_SCROLL), reached from C10067 in r33 (call_gap miss)"
 
 [[func]]
 name = "all_obj_col_up"

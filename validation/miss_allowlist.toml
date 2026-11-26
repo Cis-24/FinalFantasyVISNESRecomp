@@ -62,3 +62,13 @@ target = 0xC247ED
 mx = "M1X1"
 reason = "CheckBattleEnd: unproven_call_at_C2483D_to_C24A76_m1x1 und unproven_call_at_C20081_to_C247ED_m1x1 (BattleLoop im eigenen Graphen). Seit der Pin-Session 2026-11-05 halten allein die pla/pla-Ausgaenge die Variante LLE-only: Sie verwerfen die eigene Ruecksprungadresse, dafuer gibt es keine Exit-Breite"
 resolve = "Framework-Fakt fuer Ausgaenge, die die eigene Ruecksprungadresse verwerfen (verwandt mit Callee raeumt N Byte ab, docs/STATUS.md); bis dahin dulden"
+
+# r33 (2026-11-26): the final battle reaches CheckFinalBattle (call from CheckBattleEnd at C2483D). Its exit drops
+# its own return address (pla/pla) and branches to BattleEnd_06, which drops CheckBattleEnd's return address the same
+# way and jumps to RestartBattle (battle_end.asm:369-371, 388-390). So every variant is LLE, like CheckBattleEnd.
+
+[[miss]]
+target = 0xC24A76
+mx = "M1X1"
+reason = "CheckFinalBattle: the pla/pla exit drops its own return address and branches to BattleEnd_06 (pla/pla, jmp RestartBattle); there is no exit width for it, so all variants are LLE (src/gen dispatch entry without AOT variants)"
+resolve = "Same framework fact as CheckBattleEnd (exits that drop their own return address); tolerate until then"

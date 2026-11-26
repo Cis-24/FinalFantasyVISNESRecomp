@@ -1,0 +1,1671 @@
+# r33: the final battle scroll, the formation change, the Chadarnook and boss death animations and a monster's
+# Roulette (PLAN phase 8, the animation script gap). Four battles entered through the battle event at $7E:1FF7 (group
+# 1, battle type forced to normal before the event) with the formation forced through `pokefor 11E0` as in r27 and r30.
+# The final battle (471, background $33): its party comes from the order list $0205 (battle/init_2.asm InitParty,
+# filled by the party select of the last dungeon), set to Terra, Wedge and Vicks. The party's ATB is free (a forcepoke
+# cannot be undone, so this battle comes first); each statue tier (471, 512, 513) is set to 1 HP once it has loaded
+# and falls to the Fights of the open menus (A once a second). CheckFinalBattle (battle/battle_end.asm) then loads the
+# next tier and scrolls the background (BattleEnd_06, FINAL_BATTLE_SCROLL). Final Kefka (514) is held and refreshed
+# through his entry, then gets the dead status and the battle fades out as in r30. $0205 is set back to 0 afterwards.
+# Nerapa (451): monster switch 0 ($3DB4) set (no Condemned) and battle variable 0 ($3EB0) at 7, so its first turn is
+# Roulette; then the dead status.
+# SrBehemoth (452) at 1 HP: the first Fight kills it; its counter hides it, lets the characters run to the left
+# (monster animation 6) and changes the battle to 424 (AI command $F2, the undead SrBehemoth from behind), which ends
+# with the dead status.
+# Chadarnook (456): the girl's monster switch 0 is set (no dialog) and battle variable 3 ($3EB3) to 1, so her first
+# turn shows the demon and removes her with the Chadarnook animation; once only the demon is shown ($201E = $02) he is
+# set to 1 HP, falls to the first Fight and his counter runs the boss death, which ends the battle (no WRAM poke after
+# the press phase, the refresh addresses belong to the field once the battle is over).
+# Outside the final battle the party's ATB is held at 0 once the first menu is open, and A is pressed once a second
+# where a Fight or a dialog is needed. Party HP is 9999 and its status is cleared once a second. A wait of 40 frames
+# precedes each battle start. Nerapa follows the final battle: with SrBehemoth in that place the co-sim diverged for
+# good at its start (checkpoint 28443, the battle start phase of r17, docs/STATUS.md), and a wait of 50 frames only
+# moved it to checkpoint 28453.
+# Generated with work/routes/r33_gen.py (not versioned).
+until 0019 == 09 6000
+wait 60
+press a 2
+until 0082 == 12 8000
+until 00D3 == 01 4000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 00D3 == 01 1000
+press a 2
+until 0019 == 02 3000
+wait 120
+press a 2
+until 0082 == 13 20000
+until 00D3 == 01 1500
+press a 2
+until16 00E5 == 0000 3000
+until 00E7 == CA 100
+wait 60
+until 106A == 21 60
+# Party: HP/MP 999. Terra: Fight, Magic. Wedge and Vicks: Fight.
+poke 1609 E703E703E703E703
+poke 1614 000000020101
+poke 161E 00
+poke 180F E703E703E703E703
+poke 181A 000000010101
+poke 1834 E703E703E703E703
+poke 183F 000000010101
+poke 1A97 FF
+# Battle: formation 471. the final battle: the three statue tiers (471, 512, 513) at 1 HP fall to the party's Fights (ATB not held), CheckFinalBattle loads the next tier with the background scroll, then Final Kefka (514) gets the dead status as in r30
+wait 40
+poke 1609 E703E703E703E703
+poke 180F E703E703E703E703
+poke 1834 E703E703E703E703
+forcepoke 201F 00
+poke 0205 000E0FFFFFFFFFFFFFFFFFFF
+poke 1FF7 4D013396FE
+poke 05F4 F71F7E
+poke 0594 0000CA
+poke 05C7 01
+poke 00E5 F71F7E0300
+pokefor 11E0 D701 90
+poke 021B 00030A00
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+poke 3BFC 0100
+poke 3C24 0100
+poke 3C02 0100
+poke 3C2A 0100
+poke 3C04 0100
+poke 3C2C 0100
+poke 3C1C 0F270F270F27
+dump b471_start
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+dump b471_p
+until16 11E0 == 0200 3000
+until 3A75 == 1B 3000
+wait 2
+poke 3BFC 0100
+poke 3C24 0100
+poke 3BFE 0100
+poke 3C26 0100
+poke 3C02 0100
+poke 3C2A 0100
+poke 3C04 0100
+poke 3C2C 0100
+poke 3C1C 0F270F270F27
+dump b512_start
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+dump b512_p
+until16 11E0 == 0201 3000
+until 3A75 == 0C 3000
+wait 2
+poke 3C00 0100
+poke 3C28 0100
+poke 3C02 0100
+poke 3C2A 0100
+poke 3C1C 0F270F270F27
+dump b513_start
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+dump b513_p
+until16 11E0 == 0202 3000
+forcepoke 3218 0000000000000000
+dump b514_start
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3EEC 8000
+dump b514_pre
+until 0082 == 13 6000
+until16 00E5 == 0000 600
+until 00E7 == CA 100
+wait 60
+until 106A == 21 900
+dump b514_after
+# the order list back to its field value (0), the battle set the used entries to $FF
+poke 0205 000000000000000000000000
+# Battle: formation 451. Nerapa: monster switch 0 set (no Condemned) and battle variable 0 at 7, so its first turn is Roulette
+wait 40
+forcepoke 3218 FFFFFFFFFFFFFFFF
+poke 1609 E703E703E703E703
+poke 180F E703E703E703E703
+poke 1834 E703E703E703E703
+forcepoke 201F 00
+poke 1FF7 4D013F96FE
+poke 05F4 F71F7E
+poke 0594 0000CA
+poke 05C7 01
+poke 00E5 F71F7E0300
+pokefor 11E0 C301 90
+poke 021B 00030A00
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+forcepoke 3218 0000000000000000
+poke 3BFC 204E
+poke 3C24 204E
+poke 3C1C 0F270F270F27
+poke 3DB4 01
+poke 3EB0 07
+dump b451_start
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+dump b451_p0
+poke 3EEC 8000
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+dump b451_pre
+until 628D == 01 6000
+dump b451_victory
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+until16 1501 == 0182 1200
+until 0082 == 13 6000
+until16 00E5 == 0000 600
+until 00E7 == CA 100
+wait 60
+until 106A == 21 900
+dump b451_after
+# Battle: formation 452. SrBehemoth at 1 HP: the first Fight kills it, its counter runs chars_run_left and change_battle 424 (the undead SrBehemoth)
+wait 40
+forcepoke 3218 FFFFFFFFFFFFFFFF
+poke 1609 E703E703E703E703
+poke 180F E703E703E703E703
+poke 1834 E703E703E703E703
+forcepoke 201F 00
+poke 1FF7 4D013F96FE
+poke 05F4 F71F7E
+poke 0594 0000CA
+poke 05C7 01
+poke 00E5 F71F7E0300
+pokefor 11E0 C401 90
+poke 021B 00030A00
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+forcepoke 3218 0000000000000000
+poke 3BFC 0100
+poke 3C24 0100
+poke 3C1C 0F270F270F27
+dump b452_start
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+dump b452_p0
+poke 3EEE 8000
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+dump b452_pre
+until 628D == 01 6000
+dump b452_victory
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+until16 1501 == 0182 1200
+until 0082 == 13 6000
+until16 00E5 == 0000 600
+until 00E7 == CA 100
+wait 60
+until 106A == 21 900
+dump b452_after
+# Battle: formation 456. Chadarnook: the girl's monster switch 0 set (no dialog) and battle variable 3 at 1, so her first turn switches to the demon; once only the demon is shown ($201E) he is set to 1 HP and the first Fight kills him (boss death)
+wait 40
+forcepoke 3218 FFFFFFFFFFFFFFFF
+poke 1609 E703E703E703E703
+poke 180F E703E703E703E703
+poke 1834 E703E703E703E703
+forcepoke 201F 00
+poke 1FF7 4D013F96FE
+poke 05F4 F71F7E
+poke 0594 0000CA
+poke 05C7 01
+poke 00E5 F71F7E0300
+pokefor 11E0 C801 90
+poke 021B 00030A00
+until 7BCB == 00 3000
+until 7BC2 == 05 3000
+forcepoke 3218 0000000000000000
+poke 3BFC 204E
+poke 3C24 204E
+poke 3BFE 204E
+poke 3C26 204E
+poke 3C1C 0F270F270F27
+poke 3DB4 01
+poke 3EB3 01
+dump b456_start
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+wait 60
+dump b456_p0
+until 201E == 02 2400
+poke 3BFE 0100
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+poke 3BF4 0F270F270F27
+poke 3EE4 0000000000000000
+press a 2
+wait 58
+dump b456_p2
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+press a 2
+wait 58
+dump b456_pre
+until 628D == 01 6000
+dump b456_victory
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+press a 2
+wait 40
+until16 1501 == 0182 1200
+until 0082 == 13 6000
+until16 00E5 == 0000 600
+until 00E7 == CA 100
+wait 60
+until 106A == 21 900
+dump b456_after
+quit
